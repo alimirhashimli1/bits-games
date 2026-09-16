@@ -1,0 +1,123 @@
+# 🥋 Game 01: Dojo Quest
+
+A side-scrolling martial arts adventure inspired by **Karateka** (1984). Walk into a mountain fortress, beat the guards in slow, tactical one-on-one duels, and reach the warlord at the top. All characters, story and art are original.
+
+## Story
+
+Kenji comes home from his training journey to find his village dojo in ashes. **Warlord Gorran** has taken his sister **Mei** to a fortress on the cliffs. Kenji climbs the mountain alone, gate by gate and guard by guard.
+
+## How it plays
+
+- **Two stances.** *Running stance* is fast, but you can't attack or block. *Fighting stance* is slow, but lets you strike and defend. Running into a guard is a very bad idea.
+- **Three heights.** Punches and kicks go high, mid or low. Blocks cover high or low.
+- **One duel at a time.** Every fighter has a health bar made of pips. A clean hit removes one pip. You slowly regain health while walking between fights.
+- **Eight areas:** mountain path, cliff stairs, outer gate, courtyard, barracks, inner hall, watchtower and throne room. Guards get tougher the higher Kenji climbs.
+- **Two opening scenes:** the raid, where Gorran's men burn the village and carry Mei off, then Kenji arriving too late. Every area after that starts with its own story chapter.
+- **A boss:** Warlord Gorran, in black and gold armour with a horned helmet and cape, fights differently from his guards.
+- **A rescue ending:** Mei is held in a cage in the throne room, and Kenji has to break her out.
+- **Classic touches:** a hawk that dives at you, a gate that slams down if you run at it, and an ending where *how* you approach Mei matters.
+
+## Controls (planned)
+
+| Action | Keyboard | Gamepad |
+|--------|----------|---------|
+| Walk / run | ← → | D-pad |
+| Switch stance | Shift | Y |
+| Punch: high / mid / low | ↑+Z / Z / ↓+Z | ↑+X / X / ↓+X |
+| Kick: high / mid / low | ↑+X / X / ↓+X | ↑+A / A / ↓+A |
+| Block: high / low | C / ↓+C | B / ↓+B |
+| Pause | Esc | Start |
+| Back to console menu | Backspace or the `< MENU` button | — |
+
+## Technical plan
+
+- **Engine:** Phaser, installed in step 1.
+- **Resolution:** 320×180 pixels, scaled up with pixel-perfect scaling.
+- **Art:** sprites are written as text pixel maps with a colour palette and turned into textures when the game starts, so there are no image files.
+- **Tuning:** every speed, damage and timing value lives in `src/config.ts`.
+- **Text:** drawn with the shared 5×7 pixel font (`addPixelText`), so it stays sharp at every zoom.
+- **Dev shortcut:** in `npm run dev`, add `?scene=Area` (or `Title`, `Story`, `GameOver`, `Victory`) to the URL to jump straight to a scene. `?scene=Area&area=3` starts in the fourth area (areas count from 0).
+- **Sprite gallery:** `?scene=SpriteGallery` loops every fighter animation on one screen, for checking art.
+- **Fighter art:** poses are joint positions (`src/content/fighters/`) that the shared humanoid rig draws as pixel maps. Guards reuse the same poses with a different palette.
+- **Attacks:** each move has wind-up, active and recovery phases (timing in `config.ts`, hitboxes in `src/content/fighters/heroMoves.ts`). Only the active phase can hit.
+- **Hitbox debug view:** press **H** during play to show or hide body outlines, attack hitboxes and the current move phase. It is hidden by default.
+- **Health:** counted in pips (`src/entities/Health.ts`). Kenji regains one pip every 1.5 s outside fights.
+- **Combat rules** (`src/systems/combat.ts`, numbers in `config.ts`): a hit lands when an active hitbox touches the opponent's hurtbox, once per attack. A high guard stops high and mid attacks, a low guard stops low attacks, and only while facing the attacker. Punches cost 1 pip, kicks 2, plus knockback and a short stun. A fighter caught in running stance goes down in one blow.
+- **Guard AI** (`src/systems/guardAi.ts`): each frame a guard defends against an incoming attack (decided once per attack, after its reaction time), may back off after being hit, attacks when ready and in reach, and otherwise keeps its preferred distance. Ranks `rookie`, `veteran` and `elite` in `config.ts` set health, speed, reaction time, block chance, aggression, cooldowns and retreat chance. A guard whose reaction is slower than a punch's 100 ms wind-up can only block kicks.
+- **Areas** (`src/content/areas/`): the fortress is five screens, each with a painted background, torches and an optional guard (rookie, rookie, veteran, veteran, elite). Once the guard is down a blinking `>>` appears; walking off the right edge fades to the next area and Kenji's health carries over. He only regenerates while an area is clear. After the last area comes Victory (the boss and ending arrive in steps 13-14). Being knocked out leads to Game Over.
+- **Raid scene** (`src/scenes/RaidScene.ts`): the cold open, staged in beats whose timings are all in `config.ts`. The village is still whole and Mei waits outside the dojo; Gorran's men run in and crowd around her, one lunges and seizes her while she recoils and struggles, fires catch one by one, and finally she is hauled off towards the cliffs facing backwards, still resisting. The village painting (`src/content/village.ts`) has two states, `intact` and `burnt`, so both opening scenes share one drawing.
+- **Opening scene** (`src/content/prologue.ts`, `src/scenes/PrologueScene.ts`): the burning village, with the collapsed dojo, animated fires, drifting smoke and rising embers. It has its own lower ground line, so the picture is taller than a fighting screen. Title → opening scene → Chapter 1.
+- **Story scenes** (`src/content/story.ts`): each area opens with its chapter. The picture is that area's own background, dimmed, with its torches and waiting guard, and Kenji running in. The text types out letter by letter (`shared/phaser/typewriter.ts`); **Enter** shows all of it and continues, **Esc** skips the chapter.
+- **Dev cheat:** in `npm run dev` only, **K** knocks out the current guard, to test walking through the fortress quickly.
+
+```
+games/01-dojo-quest/
+├─ README.md
+├─ index.html
+└─ src/
+   ├─ main.ts          Creates the Phaser game
+   ├─ config.ts        Tunable numbers and control bindings
+   ├─ scenes/          Boot, Title, Story, Area, GameOver, Victory (+ SpriteGallery dev tool), hud/
+   ├─ entities/        Fighter, Health, fighter moves (later Boss, Hawk)
+   ├─ systems/         Player controls, combat, guard AI, hitbox debug view
+   └─ content/         Story text, palette, areas, fighter poses and moves, sprites
+```
+
+## Build steps
+
+Each step is ticked only when it is built **and** tested.
+
+### Phase 1: Foundation
+
+- [x] **1. Game page and Phaser setup.** Install Phaser, add `index.html`, `main.ts` and `config.ts`, set up a pixel-perfect 320×180 canvas and a "back to menu" key.
+  *Done when:* the game opens from the console menu and shows an empty scene.
+- [x] **2. Scene flow.** Placeholder Boot → Title → Story → Fight → Game Over / Victory scenes with transitions.
+  *Done when:* you can step through every scene with key presses.
+- [x] **3. Pixel sprite system.** Shared helpers (`shared/pixel-art/pixelMap.ts`, `shared/phaser/pixelSprites.ts`) that turn text pixel maps plus a palette into Phaser textures and animations. Test sprite: the animated wall torch on the title screen.
+  *Done when:* a test sprite renders crisp and unblurred.
+
+### Phase 2: The hero
+
+- [x] **4. Hero sprite and animations.** Idle, walk, run, stance change, 3 punches, 3 kicks, 2 blocks, hit and fall.
+  *Done when:* every animation plays correctly in a test scene.
+- [x] **5. Movement and stances.** Running and fighting stances, walking, facing direction, keyboard and gamepad input.
+  *Done when:* the hero moves and switches stance with both keyboard and gamepad.
+- [x] **6. Attacks and blocks.** Attack phases (wind-up, active, recovery) with hitboxes; blocks with high and low guard.
+  *Done when:* the debug view shows hitboxes appearing only in the active frames.
+
+### Phase 3: Combat
+
+- [x] **7. Health and HUD.** Pip health bars for the hero and the current enemy, plus slow regeneration outside fights.
+  *Done when:* health bars update and regenerate correctly.
+- [x] **8. Combat system.** Hit detection, blocks that must match the attack height, damage, knockback, stun and KO.
+  *Done when:* hits, blocks and KOs work against a dummy target.
+- [x] **9. Guard enemy and AI.** Approach, keep distance, attack, block and retreat. Difficulty values come from config, so later guards are tougher.
+  *Done when:* a full duel against a guard can be won and lost.
+
+### Phase 4: The fortress
+
+- [x] **10. Areas and screen transitions.** Background art for the 5 areas, flip-screen transitions and guard placement per area.
+  *Done when:* you can walk from the mountain path to the throne room.
+- [x] **11. Story scenes.** Typewriter text and simple animated pictures between areas.
+  *Done when:* each area transition shows its story scene, and the scenes can be skipped.
+- [x] **12. Opening scene.** The burning village: the collapsed dojo in flames, burning houses, drifting smoke, and Kenji arriving and turning towards the mountain. Runs before Chapter 1 and can be skipped.
+  *Done when:* starting a new game plays the opening scene, the fire animates, and Esc skips into Chapter 1.
+- [x] **13. Raid scene.** The cold open before the opening scene: the village still whole, Gorran's men running in with torches, fires catching one by one, and Mei dragged off towards the cliffs.
+  *Done when:* a new game plays the raid, then the burning village, then Chapter 1, and both scenes can be skipped.
+- [x] **14. Three more areas.** Cliff stairs, barracks and watchtower, each with background art, a story chapter and a guard, giving eight areas with a smoother difficulty curve.
+  *Done when:* all eight areas can be walked through in order, each with its own chapter.
+- [ ] **15. Hazards.** The diving hawk and the slamming gate.
+  *Done when:* both hazards can hurt the hero and both can be avoided.
+- [ ] **16. Boss fight.** Warlord Gorran: his own outfit (black and gold armour, horned helmet, cape), his own moves and attack patterns.
+  *Done when:* the boss looks clearly different from the guards and the fight is beatable but noticeably harder.
+- [ ] **17. Rescue ending.** After Gorran falls: Mei held in a cage, Kenji breaking it open, and the escape. Approaching her in fighting stance still ends badly.
+  *Done when:* both endings (rescue and the funny one) can be reached, followed by the victory screen.
+
+### Phase 5: Polish and release
+
+- [ ] **18. Sound and music.** Chiptune hits, blocks, footsteps and short music loops.
+  *Done when:* every action has sound, and music loops without gaps.
+- [ ] **19. Title, pause and game over.** Menus, controls screen and a continue option.
+  *Done when:* all menus work with keyboard and gamepad.
+- [ ] **20. Final check.** Full play-through, `npm run build`, `npm run security:audit`, set the game to `playable` in the console menu, tick game 01 in the root README.
+  *Done when:* all of the above pass.

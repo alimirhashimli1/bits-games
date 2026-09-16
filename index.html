@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Retro Console: pick a cartridge and play an original retro game." />
+    <meta name="theme-color" content="#0b0b1a" />
+    <link rel="icon" href="data:," />
+    <title>Retro Console</title>
+  </head>
+  <body>
+    <main class="console">
+      <header class="console__header">
+        <h1 class="console__logo">RETRO CONSOLE</h1>
+        <p class="console__tagline">SELECT A CARTRIDGE</p>
+      </header>
+
+      <ul id="library" class="library" aria-label="Game library"></ul>
+
+      <section class="details" aria-live="polite">
+        <h2 id="details-title" class="details__title"></h2>
+        <p id="details-meta" class="details__meta"></p>
+        <p id="details-description" class="details__description"></p>
+        <p id="details-action" class="details__action"></p>
+      </section>
+
+      <footer class="console__controls">
+        <span><kbd>&larr;</kbd> <kbd>&rarr;</kbd> <kbd>&uarr;</kbd> <kbd>&darr;</kbd> MOVE</span>
+        <span><kbd>ENTER</kbd> START</span>
+        <span>GAMEPAD <kbd>D-PAD</kbd> <kbd>A</kbd></span>
+      </footer>
+    </main>
+
+    <script type="module" src="/src/console/main.ts"></script>
+  </body>
+</html>

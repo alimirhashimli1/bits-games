@@ -1,0 +1,19 @@
+/* Shared look for the console menu and every game page. */
+
+/* Latin characters only: we need no Greek or Cyrillic font files. */
+@import '@fontsource/press-start-2p/latin-400.css';
+
+:root {
+  --color-bg: #0b0b1a;
+  --color-text: #f4f4f4;
+  --color-muted: #8a8aa8;
+  --color-accent: #ffd23f;
+  --font-pixel: 'Press Start 2P', ui-monospace, 'Courier New', monospace;
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}

@@ -1,0 +1,19 @@
+# Files the AI assistant should not read: large generated output wastes tokens,
+# and env files may hold private values. Enforced in .claude/settings.json.
+
+# Dependencies and build output
+node_modules/
+dist/
+coverage/
+.vite/
+
+# Lock files (large, machine-generated)
+package-lock.json
+
+# Logs
+*.log
+
+# Local environment files (may contain private values)
+.env
+.env.local
+.env.*.local

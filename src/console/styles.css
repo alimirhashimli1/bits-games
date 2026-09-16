@@ -1,0 +1,289 @@
+@import '@shared/styles/theme.css';
+
+/* Menu-only colours. Shared ones live in shared/styles/theme.css. */
+:root {
+  --color-bg-glow: #1f1f45;
+  --color-panel: #15152b;
+  --color-panel-border: #2f2f55;
+  --color-ink: #1b1b22;
+  --color-accent-shadow: #c0392b;
+  --color-ready: #7cfc9a;
+  --color-locked: #ff6b6b;
+  --color-cart-light: #8d8d98;
+  --color-cart-dark: #5c5c66;
+  --color-cart-edge: #2a2a33;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(ellipse at 50% -10%, var(--color-bg-glow) 0%, var(--color-bg) 65%) fixed;
+  color: var(--color-text);
+  font-family: var(--font-pixel);
+}
+
+/* CRT scanlines over the whole screen. */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(to bottom, rgb(0 0 0 / 0.2) 0 1px, transparent 1px 3px);
+}
+
+/* ---------- Layout ---------- */
+
+.console {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  min-height: 100vh;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.console__header {
+  text-align: center;
+}
+
+.console__logo {
+  margin: 0;
+  font-size: clamp(1.4rem, 5vw, 3rem);
+  letter-spacing: 0.1em;
+  color: var(--color-accent);
+  text-shadow: 0.1em 0.1em 0 var(--color-accent-shadow);
+}
+
+.console__tagline {
+  margin: 20px 0 0;
+  font-size: 0.7rem;
+  color: var(--color-muted);
+}
+
+/* ---------- Cartridge library ---------- */
+
+.library {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 32px 20px;
+  margin: 0;
+  padding: 12px 0 0;
+  list-style: none;
+}
+
+.cartridge {
+  --label-color: var(--color-muted);
+  position: relative;
+  display: flex;
+  width: 100%;
+  aspect-ratio: 5 / 6;
+  padding: 30px 14px 24px;
+  border: 0;
+  border-radius: 10px 10px 4px 4px;
+  background: linear-gradient(180deg, var(--color-cart-light), var(--color-cart-dark));
+  box-shadow:
+    inset 4px 4px 0 rgb(255 255 255 / 0.18),
+    inset -4px -4px 0 rgb(0 0 0 / 0.3),
+    0 8px 0 var(--color-cart-edge);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+  transition:
+    transform 150ms steps(3),
+    box-shadow 150ms steps(3);
+}
+
+/* Grip ridges along the top. */
+.cartridge::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 18px;
+  right: 18px;
+  height: 10px;
+  background: repeating-linear-gradient(90deg, rgb(0 0 0 / 0.35) 0 4px, transparent 4px 9px);
+}
+
+/* Connector notch along the bottom. */
+.cartridge::after {
+  content: '';
+  position: absolute;
+  bottom: 7px;
+  left: 30%;
+  right: 30%;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--color-cart-edge);
+}
+
+.cartridge__label {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  border: 4px solid var(--color-ink);
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.18) 0 30%, transparent 30%), var(--label-color);
+}
+
+.cartridge__number {
+  align-self: flex-start;
+  padding: 4px 6px;
+  background: var(--color-ink);
+  font-size: 0.55rem;
+}
+
+.cartridge__title {
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: #fff;
+  text-shadow: 2px 2px 0 #000;
+}
+
+.cartridge__genre {
+  margin-top: auto;
+  font-size: 0.5rem;
+  line-height: 1.6;
+  color: var(--color-ink);
+}
+
+.cartridge__badge {
+  position: absolute;
+  top: 22px;
+  right: -8px;
+  padding: 5px 7px;
+  background: var(--color-locked);
+  box-shadow: 2px 2px 0 #000;
+  color: var(--color-ink);
+  font-size: 0.45rem;
+  transform: rotate(8deg);
+}
+
+.cartridge__badge--in-development {
+  background: var(--color-accent);
+}
+
+.cartridge.is-selected {
+  transform: translateY(-12px);
+  box-shadow:
+    inset 4px 4px 0 rgb(255 255 255 / 0.18),
+    inset -4px -4px 0 rgb(0 0 0 / 0.3),
+    0 0 0 4px var(--color-accent),
+    0 20px 0 var(--color-cart-edge);
+}
+
+.cartridge.is-locked .cartridge__label {
+  filter: saturate(0.55) brightness(0.85);
+}
+
+.cartridge.is-denied {
+  animation: shake 320ms steps(8);
+}
+
+/* ---------- Details panel ---------- */
+
+.details {
+  min-height: 190px;
+  padding: 24px;
+  border: 4px solid var(--color-panel-border);
+  background: var(--color-panel);
+  box-shadow: 0 8px 0 #07070f;
+}
+
+.details__title {
+  margin: 0 0 14px;
+  font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+  color: var(--color-accent);
+}
+
+.details__meta {
+  margin: 0 0 16px;
+  font-size: 0.6rem;
+  color: var(--color-muted);
+}
+
+.details__description {
+  max-width: 70ch;
+  margin: 0 0 20px;
+  font-size: 0.7rem;
+  line-height: 2;
+}
+
+.details__action {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--color-locked);
+}
+
+.details__action.is-ready {
+  color: var(--color-ready);
+  animation: blink 1s steps(2, start) infinite;
+}
+
+/* ---------- Controls hint ---------- */
+
+.console__controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px 36px;
+  margin-top: auto;
+  font-size: 0.55rem;
+  color: var(--color-muted);
+}
+
+.console__controls kbd {
+  display: inline-block;
+  padding: 4px 6px;
+  border: 2px solid var(--color-muted);
+  border-bottom-width: 4px;
+  border-radius: 3px;
+  color: var(--color-text);
+  font: inherit;
+}
+
+/* ---------- Small screens ---------- */
+
+@media (max-width: 520px) {
+  .library {
+    grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
+    gap: 28px 14px;
+  }
+
+  .cartridge__title {
+    font-size: 0.6rem;
+  }
+}
+
+/* ---------- Animations ---------- */
+
+@keyframes blink {
+  to {
+    visibility: hidden;
+  }
+}
+
+/* Uses `translate` so it combines with the selected card's lift. */
+@keyframes shake {
+  25% {
+    translate: -6px 0;
+  }
+  50% {
+    translate: 6px 0;
+  }
+  75% {
+    translate: -4px 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
