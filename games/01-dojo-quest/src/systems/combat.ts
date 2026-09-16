@@ -29,7 +29,10 @@ export function resolveAttack(attacker: Fighter, defender: Fighter): AttackOutco
   }
 
   // Classic Karateka rule: a fighter caught in running stance goes down in one blow.
-  const damage = defender.stance === 'running' ? defender.health.current : COMBAT.damage[attack.move.kind];
+  const damage =
+    defender.stance === 'running'
+      ? defender.health.current
+      : (attack.move.damage ?? COMBAT.damage[attack.move.kind]);
   defender.takeHit({ damage, knockbackSpeed: pushDirection * COMBAT.knockbackSpeed, stunMs: COMBAT.stunMs });
   return defender.isKnockedOut ? 'knockout' : 'hit';
 }

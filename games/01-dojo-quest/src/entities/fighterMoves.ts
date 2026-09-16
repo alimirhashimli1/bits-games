@@ -27,6 +27,8 @@ export interface AttackMove extends AttackTiming {
   /** Frame shown while the attack can hit. */
   readonly strikeFrame: string;
   readonly hitbox: Hitbox;
+  /** Pips this blow costs. Left out, it does the standard damage for its kind. */
+  readonly damage?: number;
 }
 
 export type AttackMoveSet = Readonly<Record<AttackKind, Readonly<Record<AttackHeight, AttackMove>>>>;

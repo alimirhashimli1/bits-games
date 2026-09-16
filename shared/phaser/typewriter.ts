@@ -9,11 +9,23 @@ export class Typewriter {
   private readonly lines: readonly string[];
   private readonly charsPerSecond: number;
   private readonly totalChars: number;
+  private readonly onReveal: (() => void) | undefined;
   private elapsedMs = 0;
   private shownChars = 0;
 
-  /** `labels[i]` shows `lines[i]`, so both lists must be the same length. */
-  constructor(labels: readonly Phaser.GameObjects.BitmapText[], lines: readonly string[], charsPerSecond: number) {
+  /**
+   * `labels[i]` shows `lines[i]`, so both lists must be the same length.
+   *
+   * `onReveal` is called each time more letters appear, which is once per letter at normal
+   * speeds, and is meant for a typing sound. It is not called by `finish()`.
+   */
+  constructor(
+    labels: readonly Phaser.GameObjects.BitmapText[],
+    lines: readonly string[],
+    charsPerSecond: number,
+    onReveal?: () => void,
+  ) {
+    this.onReveal = onReveal;
     if (labels.length !== lines.length) {
       throw new Error(`Typewriter needs one label per line (got ${labels.length} labels, ${lines.length} lines).`);
     }
@@ -37,6 +49,7 @@ export class Typewriter {
 
     this.shownChars = chars;
     this.render();
+    this.onReveal?.();
   }
 
   finish(): void {

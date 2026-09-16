@@ -64,10 +64,11 @@ export const STORY_CHAPTERS: readonly StoryChapter[] = [
     ],
   },
   {
-    title: 'CHAPTER 8: THE THRONE',
+    title: 'CHAPTER 8: THE WARLORD',
     lines: [
       'THE THRONE ROOM DOORS SWING OPEN.',
-      "GORRAN'S STRONGEST GUARD BLOCKS THE WAY.",
+      'GORRAN RISES, HORNED AND UNHURRIED,',
+      'AND SWEEPS HIS CAPE BACK OVER ONE ARM.',
       'THIS ENDS TONIGHT.',
     ],
   },

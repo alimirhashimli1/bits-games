@@ -9,6 +9,12 @@ export const SCENES = {
   story: 'Story',
   /** One screen of the fortress, with or without a guard. */
   area: 'Area',
+  /** The ending: Mei is caged behind the throne and Kenji breaks her out. */
+  rescue: 'Rescue',
+  /** The controls table, from the title menu. */
+  controls: 'Controls',
+  /** Laid over a frozen game rather than replacing it. */
+  pause: 'Pause',
   gameOver: 'GameOver',
   victory: 'Victory',
   /** Development tool: every animation on one screen. */

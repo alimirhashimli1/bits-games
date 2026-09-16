@@ -4,6 +4,7 @@ import { addCenteredPixelText } from '@shared/phaser/pixelText';
 
 import { COLORS } from '../config';
 import type { Fighter } from '../entities/Fighter';
+import type { Hazard } from '../entities/hazards/Hazard';
 
 const LABEL_Y = 18;
 /** Fixed label width in characters, so the centred label never shifts sideways. */
@@ -30,9 +31,14 @@ export class HitboxDebugView {
     this.setVisible(!this.graphics.visible);
   }
 
-  draw(fighters: readonly Fighter[]): void {
+  draw(fighters: readonly Fighter[], hazards: readonly Hazard[] = []): void {
     this.graphics.clear();
     this.label.setText((fighters[0] ? describeAction(fighters[0]) : '').padEnd(LABEL_LENGTH));
+
+    for (const hazard of hazards) {
+      const zone = hazard.dangerZone();
+      if (zone) this.graphics.fillStyle(COLORS.danger, HITBOX_ALPHA).fillRectShape(zone);
+    }
 
     for (const fighter of fighters) {
       const hurtbox = fighter.hurtbox();

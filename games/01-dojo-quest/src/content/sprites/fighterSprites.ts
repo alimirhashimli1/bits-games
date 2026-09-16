@@ -1,21 +1,33 @@
-import { drawHumanoid } from '@shared/pixel-art/humanoidRig';
-import type { Palette } from '@shared/pixel-art/pixelMap';
+import { drawHumanoid, type HumanoidBody, type HumanoidPose } from '@shared/pixel-art/humanoidRig';
+import type { Palette, PixelMap } from '@shared/pixel-art/pixelMap';
 import type { PixelAnimationDefinition, SpriteSheetDefinition } from '@shared/phaser/pixelSprites';
 
 import { FIGHTER_BODY } from '../fighters/fighterBody';
 import { HERO_POSES, type HeroPoseName } from '../fighters/heroPoses';
 
-/** Every fighter shares Kenji's poses, so the pixel maps are drawn once and recoloured per palette. */
-const FIGHTER_FRAMES = Object.fromEntries(
-  Object.entries(HERO_POSES).map(([name, pose]) => [name, drawHumanoid(pose, FIGHTER_BODY)]),
-);
+export interface FighterSheetOptions {
+  /** Defaults to the shared fighter build. The boss brings his own helmet, bulk and cape. */
+  readonly body?: HumanoidBody;
+  /** Poses beyond the shared set, for moves only this fighter has. */
+  readonly extraPoses?: Readonly<Record<string, HumanoidPose>>;
+}
+
+/** Draws every pose for one body. Small grids and a handful of fighters, so this stays cheap. */
+function drawFrames(body: HumanoidBody, extraPoses: Readonly<Record<string, HumanoidPose>>): Record<string, PixelMap> {
+  const poses: Record<string, HumanoidPose> = { ...HERO_POSES, ...extraPoses };
+  return Object.fromEntries(Object.entries(poses).map(([name, pose]) => [name, drawHumanoid(pose, body)]));
+}
 
 /**
  * A fighter sprite sheet in the given colours. Palette symbols: h hair, r headband,
  * s/S skin and shade, k eye, g/G cloth and shade, b belt.
  */
-export function createFighterSheet(key: string, palette: Palette): SpriteSheetDefinition {
-  return { key, palette, frames: FIGHTER_FRAMES };
+export function createFighterSheet(
+  key: string,
+  palette: Palette,
+  { body = FIGHTER_BODY, extraPoses = {} }: FighterSheetOptions = {},
+): SpriteSheetDefinition {
+  return { key, palette, frames: drawFrames(body, extraPoses) };
 }
 
 /** Lists frames by pose name, so a typo is caught by the type checker. */

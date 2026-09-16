@@ -6,9 +6,12 @@ import { createPixelGame } from '@shared/phaser/createPixelGame';
 import { COLORS, SCREEN } from './config';
 import { AreaScene } from './scenes/AreaScene';
 import { BootScene } from './scenes/BootScene';
+import { ControlsScene } from './scenes/ControlsScene';
 import { GameOverScene } from './scenes/GameOverScene';
+import { PauseScene } from './scenes/PauseScene';
 import { PrologueScene } from './scenes/PrologueScene';
 import { RaidScene } from './scenes/RaidScene';
+import { RescueScene } from './scenes/RescueScene';
 import { SpriteGalleryScene } from './scenes/SpriteGalleryScene';
 import { StoryScene } from './scenes/StoryScene';
 import { TitleScene } from './scenes/TitleScene';
@@ -29,6 +32,9 @@ createPixelGame({
     PrologueScene,
     StoryScene,
     AreaScene,
+    RescueScene,
+    ControlsScene,
+    PauseScene,
     GameOverScene,
     VictoryScene,
     SpriteGalleryScene,

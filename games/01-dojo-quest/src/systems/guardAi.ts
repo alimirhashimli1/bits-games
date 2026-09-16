@@ -35,7 +35,8 @@ interface BlockPlan {
  * and in reach, otherwise move to the preferred distance.
  */
 export class GuardBrain {
-  private readonly tactics: GuardTactics;
+  /** The boss swaps these when he is hurt, so they are not fixed for life. */
+  protected tactics: GuardTactics;
   private readonly random: () => number;
   private elapsedMs = 0;
   private nextAttackDecisionAtMs: number;

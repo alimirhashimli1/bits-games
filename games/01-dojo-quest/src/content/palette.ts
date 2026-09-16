@@ -21,6 +21,16 @@ export const ART_COLORS = {
   guardGi: '#8c2f39',
   guardGiShade: '#5a1d27',
 
+  gorranHelmet: '#2b2b3a',
+  gorranArmour: '#33334a',
+  gorranArmourShade: '#22222f',
+  gorranGold: '#e8b93f',
+  gorranCape: '#7a1b28',
+
+  hawkBody: '#5c3b28',
+  hawkWing: '#8a5a34',
+  hawkBelly: '#e8d5b0',
+
   meiRibbon: '#ffd23f',
   meiKimono: '#d98ca6',
   meiKimonoShade: '#a85f7c',

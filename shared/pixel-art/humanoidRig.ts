@@ -40,6 +40,14 @@ export interface HumanoidBody {
     readonly skinShade: string;
     readonly belt: string;
   };
+  /** Optional cloak hanging from the shoulders, drawn behind the body. */
+  readonly cape?: {
+    readonly symbol: string;
+    /** How far below the hip it falls. */
+    readonly length: number;
+    /** How wide it spreads at the bottom. */
+    readonly spread: number;
+  };
 }
 
 /** Belt width, in pixels along the torso. */
@@ -57,6 +65,7 @@ export function drawHumanoid(pose: HumanoidPose, body: HumanoidBody): PixelMap {
   const grid = new PixelGrid(body.frameWidth, body.frameHeight);
   const { symbols, thickness } = body;
 
+  if (body.cape) drawCape(grid, body.cape, pose, thickness.torso);
   drawLeg(grid, body, pose.hip, pose.farLeg, symbols.clothShade, symbols.skinShade);
   drawArm(grid, body, pose.shoulder, pose.farArm, symbols.clothShade, symbols.skinShade);
 
@@ -96,6 +105,33 @@ function drawLeg(
 
   const [footX, footY] = foot;
   grid.fillRect(footX - 1, footY - FOOT_HEIGHT + 1, FOOT_LENGTH, FOOT_HEIGHT, skinSymbol);
+}
+
+/**
+ * A cloak hanging from the shoulders. It follows the torso down, keeps falling past the hip
+ * and widens as it goes. It is drawn before everything else, so the fighter stands in front
+ * of it and only its edges show.
+ */
+function drawCape(
+  grid: PixelGrid,
+  cape: NonNullable<HumanoidBody['cape']>,
+  pose: HumanoidPose,
+  torsoThickness: number,
+): void {
+  const [shoulderX, shoulderY] = pose.shoulder;
+  const [hipX, hipY] = pose.hip;
+  const bottomY = hipY + cape.length;
+  const fall = Math.max(1, bottomY - shoulderY);
+  const torsoSpan = Math.max(1, hipY - shoulderY);
+  const halfTorso = Math.floor(torsoThickness / 2);
+
+  for (let y = shoulderY; y <= bottomY; y++) {
+    const alongTorso = Math.min(1, (y - shoulderY) / torsoSpan);
+    const centerX = Math.round(shoulderX + (hipX - shoulderX) * alongTorso);
+    const width = Math.max(1, Math.round(cape.spread * (0.45 + 0.55 * ((y - shoulderY) / fall))));
+    // It hangs behind him: the near edge sits at his back and the cloth spreads away from there.
+    grid.fillRect(centerX + halfTorso - width, y, width, 1, cape.symbol);
+  }
 }
 
 function drawHead(grid: PixelGrid, headMap: PixelMap, pose: HumanoidPose): void {

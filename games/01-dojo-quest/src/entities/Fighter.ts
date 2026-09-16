@@ -92,6 +92,20 @@ type FighterAction =
 const FREE: FighterAction = { kind: 'free' };
 
 /**
+ * What a fighter announces as it happens. The Fighter makes no sound of its own: scenes
+ * listen for these and decide what, if anything, to play.
+ */
+export const FIGHTER_EVENT = {
+  /** Carries the AttackKind that was thrown. */
+  attack: 'fighter-attack',
+  stanceChange: 'fighter-stance-change',
+  footstep: 'fighter-footstep',
+} as const;
+
+/** How far a fighter travels between footfalls, so running sounds faster than walking. */
+const STRIDE_PX = 10;
+
+/**
  * A martial artist that walks, runs, switches stance, attacks, blocks and takes hits.
  *
  * Running stance is fast and turns to face the direction of travel. Fighting stance
@@ -109,6 +123,8 @@ export class Fighter extends Phaser.GameObjects.Sprite {
   /** Signed sliding speed after a hit, in pixels per second. */
   private knockbackSpeed = 0;
   private attackCount = 0;
+  /** Distance walked since the last footfall. */
+  private strideProgressPx = 0;
 
   constructor(
     scene: Phaser.Scene,
@@ -252,10 +268,21 @@ export class Fighter extends Phaser.GameObjects.Sprite {
     if (isMoving) {
       if (isRunning) this.setFlipX(direction < 0);
       const speed = isRunning ? this.config.runSpeed : this.config.walkSpeed;
-      this.pushBy((direction * speed * deltaMs) / 1000);
+      const distance = (speed * deltaMs) / 1000;
+      this.pushBy(direction * distance);
+      this.countStride(distance);
     }
 
     this.play(this.movementAnimation(isMoving), true);
+  }
+
+  /** Announces a footfall every stride, rather than every frame the fighter is moving. */
+  private countStride(distance: number): void {
+    this.strideProgressPx += distance;
+    if (this.strideProgressPx < STRIDE_PX) return;
+
+    this.strideProgressPx = 0;
+    this.emit(FIGHTER_EVENT.footstep);
   }
 
   /** Slides after a hit, slowing down steadily until stopped. */
@@ -278,6 +305,7 @@ export class Fighter extends Phaser.GameObjects.Sprite {
     this.attackCount++;
     this.action = { kind: 'attacking', id: this.attackCount, move, startedAtMs: this.clockMs, hasLanded: false };
     this.showAttackFrame({ move, phase: 'windup', id: this.attackCount });
+    this.emit(FIGHTER_EVENT.attack, move.kind);
   }
 
   private showAttackFrame({ move, phase }: CurrentAttack): void {
@@ -299,6 +327,7 @@ export class Fighter extends Phaser.GameObjects.Sprite {
     const to: Stance = this.currentStance === 'running' ? 'fighting' : 'running';
     this.action = { kind: 'changingStance', to };
     this.play(this.transitionAnimation(to));
+    this.emit(FIGHTER_EVENT.stanceChange, to);
   }
 
   /** Completes a stance change, but only if it was not interrupted (e.g. by a hit). */

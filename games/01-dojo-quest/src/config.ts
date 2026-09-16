@@ -1,5 +1,6 @@
 import type { ActionBindings } from '@shared/phaser/actionInput';
 
+import type { BossTactics } from './systems/bossAi';
 import type { GuardTactics } from './systems/guardAi';
 
 /** Native resolution in game pixels. The canvas is scaled up from this by whole numbers. */
@@ -28,6 +29,8 @@ export const KEYS = {
   confirm: ['ENTER', 'SPACE'],
   /** Skips a whole story scene. */
   skip: ['ESC'],
+  /** Turns all sound and music on or off. */
+  mute: ['M'],
   /** Shows or hides the hitbox debug view (hidden by default). */
   debugHitboxes: ['H'],
   /** Development builds only: knocks out the current guard, to test walking through the fortress. */
@@ -47,6 +50,8 @@ export const PLAYER_CONTROLS = {
   punch: { keys: ['Z'], buttons: [2] },
   kick: { keys: ['X'], buttons: [0] },
   block: { keys: ['C'], buttons: [1] },
+  /** Opens the pause menu over the frozen game. */
+  pause: { keys: ['ESC'], buttons: [9] },
 } as const satisfies ActionBindings<string>;
 
 export type PlayerAction = keyof typeof PLAYER_CONTROLS;
@@ -131,6 +136,95 @@ export const RAID = {
   /** They march her off; she is pulled along backwards, still resisting. */
   abductionAtMs: 3800,
   abductionMs: 2800,
+} as const;
+
+/**
+ * Environmental hazards. They only stir once the area's guard is down, so duels stay
+ * one-on-one and the danger falls on the walk to the exit.
+ */
+export const HAZARDS = {
+  /** The hawk: it cruises overhead, then swoops at Kenji's head. */
+  hawk: {
+    damage: 1,
+    knockbackSpeed: 60,
+    stunMs: 300,
+    /** Height it circles at, and how low it comes at the bottom of the swoop. */
+    cruiseY: 30,
+    strikeY: 120,
+    /** How wide the dip around its target is, so the dive is visible well before it lands. */
+    swoopWidth: 80,
+    /**
+     * It flies level at striking height this far either side of its target. That level
+     * stretch is the window to duck under it or strike it out of the air.
+     */
+    levelWidth: 28,
+    /**
+     * It slows to this speed across the level stretch: the flare before the strike. Without it
+     * the bird crosses Kenji's reach in under a tenth of a second, and meeting it is pure luck.
+     */
+    strikeSpeed: 70,
+    /** Pixels per second, across and (while fleeing a punch) upwards. */
+    speed: 150,
+    climbSpeed: 90,
+    waitBeforeFirstDiveMs: 1400,
+    waitBetweenDivesMs: 3200,
+    /** Body size for hitting and for being hit, slightly tighter than the art. */
+    body: { width: 14, height: 8 },
+  },
+  /** The gate: the outer portcullis, which drops on whoever is standing under it. */
+  gate: {
+    damage: 2,
+    knockbackSpeed: 120,
+    stunMs: 400,
+    /** One cycle: open, a rattled warning, the slam, shut, then grinding back up. */
+    openMs: 1500,
+    warningMs: 600,
+    slamMs: 160,
+    shutMs: 1200,
+    riseMs: 900,
+    /** The warning shudder: how far it shakes and how quickly. */
+    rattlePixels: 1,
+    rattleMs: 70,
+  },
+} as const;
+
+/**
+ * The rescue, after Gorran falls. Mei is caged behind the throne; Kenji breaks the bars
+ * down and then has to walk up to her, and the stance he does it in decides the ending.
+ */
+export const RESCUE = {
+  heroStartX: 24,
+  /** Gorran lies where he fell. */
+  gorranX: 140,
+  /** The cage, standing on the floor beside the throne. */
+  cage: { left: 214, top: 104, width: 52, height: 46 },
+  /** Mei behind the bars, and where she steps once they are down. */
+  cagedMeiX: 240,
+  freeMeiX: 236,
+  meiStepOutMs: 900,
+  /** Blows needed to bring the bars down. */
+  hitsToBreak: 3,
+  shakeMs: 140,
+  shakePixels: 1,
+  /** Standing bars are solid: Kenji is kept this far clear of them. */
+  barrierGap: 10,
+  /** The hint appears once he is this close to the bars. */
+  hintDistance: 44,
+  /** How close he has to come to Mei for the ending to play. */
+  meetDistance: 16,
+  /** How long her hands stay up before she lashes out, so the moment reads as fright. */
+  flinchMs: 320,
+  /** The mistake: she kicks, and he goes down. */
+  stumbleDistance: 10,
+  stumbleMs: 300,
+  badEndingMs: 2400,
+  /** The rescue: a beat to take her in, then they leave together. */
+  walkOutDelayMs: 1100,
+  walkOutDistance: 260,
+  walkOutMs: 2600,
+  goodEndingMs: 4200,
+  labelShowMs: 2200,
+  labelFadeMs: 600,
 } as const;
 
 /** Story scenes between areas. */
@@ -220,3 +314,54 @@ export const GUARDS = {
 } as const satisfies Record<string, GuardProfile>;
 
 export type GuardRank = keyof typeof GUARDS;
+
+/** Gorran's attack phases. Everything he throws is slower to start than a guard's, and hurts more. */
+export const BOSS_ATTACK_TIMING = {
+  /** The overhead smash: slow enough to read, and punishing if it lands. */
+  smash: { windupMs: 320, activeMs: 150, recoveryMs: 340 },
+  punch: { windupMs: 150, activeMs: 110, recoveryMs: 200 },
+  kick: { windupMs: 220, activeMs: 130, recoveryMs: 260 },
+} as const;
+
+interface BossProfile {
+  readonly maxPips: number;
+  /** Pixels per second. */
+  readonly walkSpeed: number;
+  /** Pips the overhead smash costs; his other blows do the usual damage. */
+  readonly smashDamage: number;
+  readonly tactics: BossTactics;
+}
+
+/**
+ * Warlord Gorran. He carries more health than any guard and hits far harder, and once he is
+ * down to half he stops pacing himself.
+ *
+ * `preferredDistance` must stay comfortably inside `GUARD_AI.kickReach`: a fighter whose
+ * preferred spacing (give or take `distanceTolerance`) sits outside his own reach is happy
+ * where he stands and never throws a blow.
+ */
+export const BOSS = {
+  maxPips: 12,
+  walkSpeed: 20,
+  smashDamage: 3,
+  tactics: {
+    calm: {
+      reactionMs: 70,
+      blockChance: 0.6,
+      aggression: 0.7,
+      attackCooldownMs: [700, 1200],
+      retreatChance: 0.25,
+      retreatMs: 500,
+      preferredDistance: 22,
+    },
+    enraged: {
+      reactionMs: 45,
+      blockChance: 0.75,
+      aggression: 0.95,
+      attackCooldownMs: [350, 700],
+      retreatChance: 0.1,
+      retreatMs: 300,
+      preferredDistance: 20,
+    },
+  },
+} as const satisfies BossProfile;

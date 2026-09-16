@@ -1,10 +1,12 @@
 import type * as Phaser from 'phaser';
 
+import { playSound } from '@shared/audio/audioEngine';
 import { blink } from '@shared/phaser/effects';
 import { addCenteredPixelText, addPixelText, setCenteredPixelText } from '@shared/phaser/pixelText';
 import { Typewriter } from '@shared/phaser/typewriter';
 
 import { COLORS, STORY, TIMING } from '../../config';
+import { SOUNDS } from '../../content/sounds';
 
 const BOX = { x: 8, y: 8, width: 304, height: 74 } as const;
 const BOX_ALPHA = 0.9;
@@ -32,7 +34,7 @@ export class StoryTextBox {
     const lineLabels = lines.map((_, index) =>
       addPixelText(scene, TEXT_LEFT, FIRST_LINE_Y + index * LINE_HEIGHT, '', { color: COLORS.text }),
     );
-    this.typewriter = new Typewriter(lineLabels, lines, STORY.charsPerSecond);
+    this.typewriter = new Typewriter(lineLabels, lines, STORY.charsPerSecond, () => playSound(SOUNDS.type));
 
     this.prompt = addCenteredPixelText(scene, PROMPT_Y, PROMPT_WHILE_TYPING, { color: COLORS.muted });
     blink(scene, this.prompt, TIMING.promptBlinkMs);
@@ -47,6 +49,7 @@ export class StoryTextBox {
 
   /** Shows the whole text if it is still typing; returns true when the reader can move on. */
   requestAdvance(): boolean {
+    playSound(SOUNDS.confirm);
     if (this.typewriter.isFinished) return true;
 
     this.typewriter.finish();

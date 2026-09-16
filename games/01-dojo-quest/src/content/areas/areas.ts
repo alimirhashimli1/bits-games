@@ -1,6 +1,7 @@
 import type * as Phaser from 'phaser';
 
 import { ARENA, type GuardRank } from '../../config';
+import type { HazardPlacement } from '../../entities/hazards/Hazard';
 import * as paint from './paint';
 
 export interface AreaDefinition {
@@ -8,8 +9,12 @@ export interface AreaDefinition {
   readonly name: string;
   /** The guard blocking the way, or null for an empty area. */
   readonly guard: GuardRank | null;
+  /** True where Warlord Gorran waits instead of a guard. */
+  readonly boss?: boolean;
   /** Bottom-centre positions of animated wall torches. */
   readonly torches: readonly paint.Point[];
+  /** Scenery that turns dangerous once the guard is down. */
+  readonly hazards?: readonly HazardPlacement[];
   /** Draws the background, including the floor. */
   readonly paint: (g: Phaser.GameObjects.Graphics) => void;
 }
@@ -45,6 +50,7 @@ export const AREAS: readonly AreaDefinition[] = [
     name: 'THE CLIFF STAIRS',
     guard: 'rookie',
     torches: [[26, 112]],
+    hazards: [{ kind: 'hawk' }],
     paint: (g) => {
       paint.bands(g, NIGHT_SKY, 0, ARENA.groundY);
       paint.dots(g, 0xf4f4f4, STARS);
@@ -66,16 +72,15 @@ export const AREAS: readonly AreaDefinition[] = [
     name: 'THE OUTER GATE',
     guard: 'veteran',
     torches: [[210, 104], [302, 104]],
+    hazards: [{ kind: 'gate', left: 222, width: 66, openingTop: 70 }],
     paint: (g) => {
       paint.bands(g, NIGHT_SKY, 0, 60);
       paint.dots(g, 0xf4f4f4, STARS.filter(([, y]) => y < 36));
       paint.battlements(g, 0x4a4458, 36, 8, 8);
       paint.brickWall(g, { left: 0, top: 44, width: 320, height: 106, color: 0x4a4458, mortar: 0x3b3647 });
-      // Gateway with a raised portcullis.
+      // The gateway and its lintel. The portcullis itself is a hazard, so it can move.
       paint.rect(g, 0x5b5270, 216, 64, 78, 6);
       paint.rect(g, 0x120c18, 222, 70, 66, 80);
-      for (let x = 226; x < 288; x += 8) paint.rect(g, 0x2b2530, x, 70, 2, 14);
-      paint.rect(g, 0x2b2530, 222, 82, 66, 2);
       paint.floor(g, 0x3c3548, 0x5b5270);
     },
   },
@@ -149,6 +154,7 @@ export const AREAS: readonly AreaDefinition[] = [
     name: 'THE WATCHTOWER',
     guard: 'elite',
     torches: [[42, 100], [278, 100]],
+    hazards: [{ kind: 'hawk' }],
     paint: (g) => {
       paint.bands(g, NIGHT_SKY, 0, ARENA.groundY);
       paint.dots(g, 0xf4f4f4, STARS);
@@ -172,7 +178,8 @@ export const AREAS: readonly AreaDefinition[] = [
   },
   {
     name: 'THE THRONE ROOM',
-    guard: 'elite',
+    guard: null,
+    boss: true,
     torches: [[70, 100], [230, 100]],
     paint: (g) => {
       paint.rect(g, 0x2a1b2e, 0, 0, 320, 150);
