@@ -6,7 +6,7 @@ A browser game console inspired by classic Nintendo-era games. You start on a **
 
 | #  | Game | Genre | Inspired by | Status |
 |----|------|-------|-------------|--------|
-| 01 | [Dojo Quest](games/01-dojo-quest/README.md) | Story-driven fighting | Karateka | 🔨 In progress |
+| 01 | [Dojo Quest](games/01-dojo-quest/README.md) | Story-driven fighting | Karateka | ✅ Playable |
 | 02 | Pixel Plumber | Platformer | Super Mario Bros. | ⏳ Planned |
 | 03 | Arena Fighters | Versus fighting, online play by link | Street Fighter II | ⏳ Planned |
 | 04 | Turbo Road | Pseudo-3D road racing | OutRun | ⏳ Planned |
@@ -118,7 +118,7 @@ These apply to every change in this project.
 
 ### Games
 
-- [ ] 01 Dojo Quest
+- [x] 01 Dojo Quest
 - [ ] 02 Pixel Plumber
 - [ ] 03 Arena Fighters
 - [ ] 04 Turbo Road

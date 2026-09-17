@@ -17,7 +17,7 @@ Kenji comes home from his training journey to find his village dojo in ashes. **
 - **A rescue ending:** Mei is held in a cage in the throne room, and Kenji has to break her out.
 - **Classic touches:** a hawk that dives at your head, a portcullis that drops on whoever is standing under it, and an ending where *how* you approach Mei matters.
 
-## Controls (planned)
+## Controls
 
 | Action | Keyboard | Gamepad |
 |--------|----------|---------|
@@ -47,7 +47,7 @@ Kenji comes home from his training journey to find his village dojo in ashes. **
 - **Health:** counted in pips (`src/entities/Health.ts`). Kenji regains one pip every 1.5 s outside fights.
 - **Combat rules** (`src/systems/combat.ts`, numbers in `config.ts`): a hit lands when an active hitbox touches the opponent's hurtbox, once per attack. A high guard stops high and mid attacks, a low guard stops low attacks, and only while facing the attacker. Punches cost 1 pip, kicks 2, plus knockback and a short stun. A fighter caught in running stance goes down in one blow.
 - **Guard AI** (`src/systems/guardAi.ts`): each frame a guard defends against an incoming attack (decided once per attack, after its reaction time), may back off after being hit, attacks when ready and in reach, and otherwise keeps its preferred distance. Ranks `rookie`, `veteran` and `elite` in `config.ts` set health, speed, reaction time, block chance, aggression, cooldowns and retreat chance. A guard whose reaction is slower than a punch's 100 ms wind-up can only block kicks.
-- **Areas** (`src/content/areas/`): the fortress is eight screens, each with a painted background, torches, an opponent (rookie, rookie, veteran, veteran, veteran, elite, elite, and then Warlord Gorran in the throne room) and optional hazards. Once the opponent is down a blinking `>>` appears; walking off the right edge fades to the next area and Kenji's health carries over. He only regenerates while an area is clear. After the throne room comes Victory (the rescue ending arrives in step 17). Being knocked out leads to Game Over.
+- **Areas** (`src/content/areas/`): the fortress is eight screens, each with a painted background, torches, an opponent (rookie, rookie, veteran, veteran, veteran, elite, elite, and then Warlord Gorran in the throne room) and optional hazards. Once the opponent is down a blinking `>>` appears; walking off the right edge fades to the next area and Kenji's health carries over. He only regenerates while an area is clear. After the throne room comes the rescue ending. Being knocked out leads to Game Over.
 - **Hazards** (`src/entities/hazards/`): scenery that can hurt Kenji. Each area lists the hazards it has, and the area scene builds them the same way it builds a guard from its rank. They only stir once the guard is down, so duels stay one-on-one and the danger falls on the walk to the exit. Every number is in `config.ts`, and **H** shows their danger zones alongside the fighters' hitboxes.
   - The **hawk** (cliff stairs, watchtower) circles out of sight, then dives at wherever Kenji stood when it launched. It flares before striking — slowing down and levelling out at head height — and that flare is the window to answer it: duck under a low guard and it passes overhead, or meet it with a mid punch or a high kick and it climbs away until the next dive. Only if he does neither does it cost him a pip.
   - The **gate** (outer gate) is the portcullis, drawn by the hazard rather than the background so it can move. It rattles a warning, slams in a sixth of a second, sits shut, then grinds back up. Being under it when it falls costs 2 pips; walking into it once it is down costs nothing, but it will not let him past. The way through is to cross while it is up, which at walking pace is not quite possible.
@@ -65,6 +65,7 @@ Kenji comes home from his training journey to find his village dojo in ashes. **
 - **Raid scene** (`src/scenes/RaidScene.ts`): the cold open, staged in beats whose timings are all in `config.ts`. The village is still whole and Mei waits outside the dojo; Gorran's men run in and crowd around her, one lunges and seizes her while she recoils and struggles, fires catch one by one, and finally she is hauled off towards the cliffs facing backwards, still resisting. The village painting (`src/content/village.ts`) has two states, `intact` and `burnt`, so both opening scenes share one drawing.
 - **Opening scene** (`src/content/prologue.ts`, `src/scenes/PrologueScene.ts`): the burning village, with the collapsed dojo, animated fires, drifting smoke and rising embers. It has its own lower ground line, so the picture is taller than a fighting screen. Title → opening scene → Chapter 1.
 - **Story scenes** (`src/content/story.ts`): each area opens with its chapter. The picture is that area's own background, dimmed, with its torches and waiting guard, and Kenji running in. The text types out letter by letter (`shared/phaser/typewriter.ts`); **Enter** shows all of it and continues, **Esc** skips the chapter.
+- **Scene transitions** (`shared/phaser/sceneTransitions.ts`): a scene counts as leaving from the moment its fade starts until it has actually shut down. Phaser only switches scenes on the frame after the fade ends, and clearing the flag at the end of the fade let a second press in that gap mark the scene as leaving for good. Phaser reuses scene objects, so the next story screen ignored Enter and Esc and the climb was stuck. The final play-through found it.
 - **Dev cheat:** in `npm run dev` only, **K** knocks out the current guard, to test walking through the fortress quickly.
 
 ```
@@ -136,5 +137,5 @@ Each step is ticked only when it is built **and** tested.
   *Done when:* every action has sound, and music loops without gaps.
 - [x] **19. Title, pause and game over.** Menus, controls screen and a continue option.
   *Done when:* all menus work with keyboard and gamepad.
-- [ ] **20. Final check.** Full play-through, `npm run build`, `npm run security:audit`, set the game to `playable` in the console menu, tick game 01 in the root README.
+- [x] **20. Final check.** Full play-through, `npm run build`, `npm run security:audit`, set the game to `playable` in the console menu, tick game 01 in the root README.
   *Done when:* all of the above pass.

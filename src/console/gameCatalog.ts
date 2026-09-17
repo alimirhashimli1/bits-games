@@ -25,7 +25,7 @@ export const GAME_CATALOG: readonly GameEntry[] = [
     description:
       "Climb Warlord Gorran's mountain fortress, defeat his guards one duel at a time and rescue your sister Mei.",
     labelColor: '#e4572e',
-    status: 'in-development',
+    status: 'playable',
   },
   {
     id: '02-pixel-plumber',
