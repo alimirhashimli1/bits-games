@@ -1,6 +1,6 @@
 import * as Phaser from 'phaser';
 
-import { isGamepadButtonPressed, isGamepadStickPushed } from '@shared/input/gamepads';
+import { isGamepadButtonPressed, isGamepadStickPushed, readGamepads } from '@shared/input/gamepads';
 
 export interface ActionBinding {
   /** Phaser key names, e.g. 'LEFT', 'A', 'SHIFT'. */
@@ -37,7 +37,9 @@ export class ActionInput<Action extends string> {
       const keys = keyboard ? (bindings[action].keys ?? []).map((keyName) => keyboard.addKey(keyName)) : [];
       this.keys.set(action, keys);
 
-      const onKeyDown = (): void => {
+      const onKeyDown = (_key: Phaser.Input.Keyboard.Key, event: KeyboardEvent): void => {
+        // A held key sends repeated key-downs. Holding is one press, just as it is on a gamepad.
+        if (event.repeat) return;
         this.keyPressesSinceUpdate.add(action);
       };
       for (const key of keys) {
@@ -52,9 +54,10 @@ export class ActionInput<Action extends string> {
   update(): void {
     const held = new Set<Action>();
     const pressed = new Set<Action>();
+    const gamepads = readGamepads();
 
     for (const action of this.actions) {
-      const isActive = this.isActive(action);
+      const isActive = this.isActive(action, gamepads);
       if (isActive) held.add(action);
       if (this.keyPressesSinceUpdate.has(action) || (isActive && !this.held.has(action))) pressed.add(action);
     }
@@ -73,12 +76,12 @@ export class ActionInput<Action extends string> {
     return this.pressed.has(action);
   }
 
-  private isActive(action: Action): boolean {
+  private isActive(action: Action, gamepads: readonly Gamepad[]): boolean {
     const { buttons = [], stick } = this.bindings[action];
     return (
       (this.keys.get(action) ?? []).some((key) => key.isDown) ||
-      buttons.some((button) => isGamepadButtonPressed(button)) ||
-      (stick !== undefined && isGamepadStickPushed(stick.axis, stick.direction))
+      buttons.some((button) => isGamepadButtonPressed(button, gamepads)) ||
+      (stick !== undefined && isGamepadStickPushed(stick.axis, stick.direction, gamepads))
     );
   }
 }

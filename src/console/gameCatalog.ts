@@ -33,7 +33,7 @@ export const GAME_CATALOG: readonly GameEntry[] = [
     genre: 'Platformer',
     description: 'Run, jump and stomp through side-scrolling worlds full of coins, secret blocks and power-ups.',
     labelColor: '#3fa7d6',
-    status: 'coming-soon',
+    status: 'in-development',
   },
   {
     id: '03-arena-fighters',
