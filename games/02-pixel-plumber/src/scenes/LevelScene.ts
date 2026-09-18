@@ -18,10 +18,12 @@ import {
   type PlayerAction,
 } from '../config';
 import { levelMaps } from '../content/levels/levels';
+import { worldTheme } from '../content/levels/worldThemes';
 import { floatLabel } from '../entities/effects/floatingLabel';
 import { Enemies, type BeatKind } from '../entities/enemies/Enemies';
 import { LevelEnd } from '../entities/LevelEnd';
 import { Items } from '../entities/Items';
+import { MovingPlatforms } from '../entities/MovingPlatforms';
 import { LooseCoins } from '../entities/LooseCoins';
 import { Rusty } from '../entities/Rusty';
 import { SteamPuffs } from '../entities/SteamPuffs';
@@ -83,6 +85,11 @@ export class LevelScene extends Phaser.Scene {
   private steamPuffs!: SteamPuffs;
   private enemies!: Enemies;
   private tileCollider!: Phaser.Physics.Arcade.Collider;
+  private platforms!: MovingPlatforms;
+  /** Set before each physics step while Rusty stands on a moving platform, which counts as ground. */
+  private onPlatform = false;
+  /** Where Rusty's feet were on the previous frame, for noticing when he lands on a moving platform. */
+  private previousFeetY = 0;
   /** The top of Rusty's body on the previous frame, for noticing when his head crosses into a hidden block. */
   private previousHeadTop = 0;
   private coins = 0;
@@ -121,10 +128,13 @@ export class LevelScene extends Phaser.Scene {
     fadeIn(this);
     // A level left while Rusty was growing would otherwise start with physics still frozen.
     this.physics.world.resume();
-    this.cameras.main.setBackgroundColor(inRoom ? COLORS.underground : COLORS.background);
+    // The rooms under a level are all lit the same, whichever world they belong to.
+    const id = levelId(run);
+    const theme = worldTheme(id);
+    this.cameras.main.setBackgroundColor(inRoom ? COLORS.underground : theme.background);
 
-    const maps = levelMaps(levelId(run));
-    this.level = loadLevel(this, inRoom ? maps.room : maps.map);
+    const maps = levelMaps(id);
+    this.level = loadLevel(this, inRoom ? maps.room : maps.map, theme);
     const { widthInPixels, heightInPixels } = this.level;
     // Walls at both ends of the level, but open above and below: pits are for falling into.
     this.physics.world.setBounds(0, 0, widthInPixels, heightInPixels, true, true, false, false);
@@ -149,10 +159,14 @@ export class LevelScene extends Phaser.Scene {
     if (!endCell && !inRoom) throw new Error('A level needs a pole to finish on.');
     this.levelEnd = endCell && new LevelEnd(this, endCell, this.groundBelow(endCell));
 
+    // Also before Rusty, so he is drawn standing on them.
+    this.platforms = new MovingPlatforms(this, this.level.platforms);
+
     this.rusty = new Rusty(this, this.level.spawn.x, this.level.spawn.y);
     this.rusty.setPower(run.power);
     this.rusty.setCollideWorldBounds(true);
     this.previousHeadTop = this.rusty.body.top;
+    this.previousFeetY = this.rusty.body.bottom;
     this.tileCollider = this.physics.add.collider(this.rusty, this.level.layer, (_rusty, tile) => {
       if (tile instanceof Phaser.Tilemaps.Tile) {
         this.blockHits.recordCollision(this.rusty.body, this.rusty.body.blocked.up, tile);
@@ -177,9 +191,12 @@ export class LevelScene extends Phaser.Scene {
     this.lifeLost = false;
     // Back from the room: he comes up out of the pipe he was sent to.
     if (!inRoom && returnTo) this.riseFromPipe(returnTo);
-    // Scene events outlive a visit to the scene, so the listener is removed when the scene shuts down.
+    // Scene events outlive a visit to the scene, so the listeners are removed when the scene shuts down.
+    this.onPlatform = false;
+    this.events.on(Phaser.Scenes.Events.PRE_UPDATE, this.ridePlatforms, this);
     this.events.on(Phaser.Scenes.Events.POST_UPDATE, this.followRusty, this);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.events.off(Phaser.Scenes.Events.PRE_UPDATE, this.ridePlatforms, this);
       this.events.off(Phaser.Scenes.Events.POST_UPDATE, this.followRusty, this);
     });
 
@@ -219,7 +236,8 @@ export class LevelScene extends Phaser.Scene {
     this.previousHeadTop = body.top;
 
     const result = this.movement.update(
-      this.rusty.body,
+      // Standing on a moving platform counts as standing on the ground.
+      { velocity: body.velocity, blocked: { down: body.blocked.down || this.onPlatform } },
       {
         left: this.controls.isDown('left'),
         right: this.controls.isDown('right'),
@@ -262,6 +280,25 @@ export class LevelScene extends Phaser.Scene {
     const bounds = this.physics.world.bounds;
     bounds.width = bounds.right - this.camera.leftEdge;
     bounds.x = this.camera.leftEdge;
+  }
+
+  /**
+   * Runs before the physics step: moves the platforms and carries Rusty with the one he stands
+   * on. After the step would be too late: Arcade copies each step's movement from his body onto
+   * his sprite, so a carry made then was sometimes lost and sometimes counted twice.
+   */
+  private ridePlatforms(_time: number, deltaMs: number): void {
+    const body = this.rusty.body;
+    if (this.lifeLost || this.throughPipe || this.rusty.isTransforming || this.ending !== 'playing') {
+      // Whatever happens next, a fall or a hop out of the level, needs gravity back.
+      body.setAllowGravity(true);
+      return;
+    }
+    this.platforms.update(deltaMs);
+    this.onPlatform = this.platforms.carry(this.rusty, this.previousFeetY);
+    // On a girder gravity would pull his feet a fraction of a pixel into it on every step.
+    body.setAllowGravity(!this.onPlatform);
+    this.previousFeetY = body.bottom;
   }
 
   /** Rusty has dropped out of the bottom of the level. The level stays up for a moment, then the life is lost. */

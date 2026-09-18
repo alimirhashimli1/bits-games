@@ -141,40 +141,92 @@ const [PIPE_BODY_LEFT, PIPE_BODY_RIGHT] = splitInHalf(PIPE_BODY);
 const [CLOUD_LEFT, CLOUD_RIGHT] = splitInHalf(cloud());
 const [BUSH_LEFT, BUSH_RIGHT] = splitInHalf(bush());
 
+/** The streets of Brasswick: cobbles, red brick and a daylight palette. */
+const STREET_PALETTE = {
+  k: ART_COLORS.outline,
+  S: ART_COLORS.cobbleLight,
+  s: ART_COLORS.cobble,
+  t: ART_COLORS.cobbleShade,
+  m: ART_COLORS.cobbleMortar,
+  L: ART_COLORS.brickLight,
+  r: ART_COLORS.brick,
+  e: ART_COLORS.brickShade,
+  n: ART_COLORS.brickMortar,
+  Q: ART_COLORS.questionLight,
+  q: ART_COLORS.question,
+  D: ART_COLORS.questionShade,
+  U: ART_COLORS.usedLight,
+  u: ART_COLORS.used,
+  V: ART_COLORS.usedShade,
+  H: ART_COLORS.stairLight,
+  h: ART_COLORS.stair,
+  j: ART_COLORS.stairShade,
+  P: ART_COLORS.brassLight,
+  p: ART_COLORS.brass,
+  o: ART_COLORS.brassShade,
+  w: ART_COLORS.cloud,
+  c: ART_COLORS.cloudShade,
+  G: ART_COLORS.bushLight,
+  g: ART_COLORS.bush,
+  f: ART_COLORS.bushShade,
+} as const;
+
+/**
+ * World 2 underground: the same drawings in sewer colours. Wet stone for the cobbles, brick
+ * gone blue, algae in place of the bushes and dim steam in place of the clouds. Brass pipes,
+ * `?` blocks and used blocks keep their colours, so they read the same in every world.
+ */
+const SEWER_PALETTE = {
+  ...STREET_PALETTE,
+  S: ART_COLORS.sewerStoneLight,
+  s: ART_COLORS.sewerStone,
+  t: ART_COLORS.sewerStoneShade,
+  m: ART_COLORS.sewerStoneMortar,
+  L: ART_COLORS.sewerBrickLight,
+  r: ART_COLORS.sewerBrick,
+  e: ART_COLORS.sewerBrickShade,
+  n: ART_COLORS.sewerBrickMortar,
+  H: ART_COLORS.sewerBlockLight,
+  h: ART_COLORS.sewerBlock,
+  j: ART_COLORS.sewerBlockShade,
+  w: ART_COLORS.sewerSteam,
+  c: ART_COLORS.sewerSteamShade,
+  G: ART_COLORS.algaeLight,
+  g: ART_COLORS.algae,
+  f: ART_COLORS.algaeShade,
+} as const;
+
+/**
+ * World 3 on the rooftops at dusk: slate for the roofs Rusty runs along, chimney brick, warm
+ * chimney stone for the stairs, pink evening cloud and rooftop planters in place of the bushes.
+ */
+const ROOFTOP_PALETTE = {
+  ...STREET_PALETTE,
+  S: ART_COLORS.slateLight,
+  s: ART_COLORS.slate,
+  t: ART_COLORS.slateShade,
+  m: ART_COLORS.slateMortar,
+  L: ART_COLORS.chimneyLight,
+  r: ART_COLORS.chimney,
+  e: ART_COLORS.chimneyShade,
+  n: ART_COLORS.chimneyMortar,
+  H: ART_COLORS.chimneyStoneLight,
+  h: ART_COLORS.chimneyStone,
+  j: ART_COLORS.chimneyStoneShade,
+  w: ART_COLORS.duskCloud,
+  c: ART_COLORS.duskCloudShade,
+  G: ART_COLORS.planterLight,
+  g: ART_COLORS.planter,
+  f: ART_COLORS.planterShade,
+} as const;
+
 /**
  * Every level tile, 16×16. The order of the frames is the tile index in the tilemap,
  * so frames are only ever added at the end.
  */
 export const TILES_SHEET = {
   key: 'tiles',
-  palette: {
-    k: ART_COLORS.outline,
-    S: ART_COLORS.cobbleLight,
-    s: ART_COLORS.cobble,
-    t: ART_COLORS.cobbleShade,
-    m: ART_COLORS.cobbleMortar,
-    L: ART_COLORS.brickLight,
-    r: ART_COLORS.brick,
-    e: ART_COLORS.brickShade,
-    n: ART_COLORS.brickMortar,
-    Q: ART_COLORS.questionLight,
-    q: ART_COLORS.question,
-    D: ART_COLORS.questionShade,
-    U: ART_COLORS.usedLight,
-    u: ART_COLORS.used,
-    V: ART_COLORS.usedShade,
-    H: ART_COLORS.stairLight,
-    h: ART_COLORS.stair,
-    j: ART_COLORS.stairShade,
-    P: ART_COLORS.brassLight,
-    p: ART_COLORS.brass,
-    o: ART_COLORS.brassShade,
-    w: ART_COLORS.cloud,
-    c: ART_COLORS.cloudShade,
-    G: ART_COLORS.bushLight,
-    g: ART_COLORS.bush,
-    f: ART_COLORS.bushShade,
-  },
+  palette: STREET_PALETTE,
   frames: {
     ground: GROUND,
     brick: BRICK,
@@ -192,6 +244,19 @@ export const TILES_SHEET = {
     poleTop: POLE_TOP,
     pole: POLE,
   },
+} as const satisfies SpriteSheetDefinition;
+
+/** The same tiles in each world's colours: one texture per world, so a level only picks a key. */
+export const TILES_SEWER_SHEET = {
+  key: 'tiles-sewer',
+  palette: SEWER_PALETTE,
+  frames: TILES_SHEET.frames,
+} as const satisfies SpriteSheetDefinition;
+
+export const TILES_ROOFTOP_SHEET = {
+  key: 'tiles-rooftop',
+  palette: ROOFTOP_PALETTE,
+  frames: TILES_SHEET.frames,
 } as const satisfies SpriteSheetDefinition;
 
 export type TileFrame = keyof typeof TILES_SHEET.frames;

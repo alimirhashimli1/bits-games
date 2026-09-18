@@ -74,7 +74,7 @@ export class BlockHits {
       const tile = this.putUsedBlock(hidden.column, hidden.row);
       if (hidden.reward === 'coin') this.payCoin(tile);
       else this.rewards.item(hidden.reward, tile);
-      bumpTile(this.scene, tile);
+      bumpTile(this.scene, tile, this.level.theme.tilesKey);
       this.headHits = [];
       return;
     }
@@ -121,10 +121,10 @@ export class BlockHits {
         if (isBig) {
           this.blocks.delete(key);
           this.level.layer.removeTileAt(tile.x, tile.y);
-          burstBrick(this.scene, tile.getCenterX(), tile.getCenterY());
+          burstBrick(this.scene, tile.getCenterX(), tile.getCenterY(), this.level.theme.debrisKey);
           this.rewards.brokeBrick();
         } else {
-          bumpTile(this.scene, tile);
+          bumpTile(this.scene, tile, this.level.theme.tilesKey);
         }
         return;
       case 'multiCoinBrick':
@@ -137,7 +137,7 @@ export class BlockHits {
   private useUp(key: string, tile: Phaser.Tilemaps.Tile): Phaser.Tilemaps.Tile {
     this.blocks.delete(key);
     const used = this.putUsedBlock(tile.x, tile.y);
-    bumpTile(this.scene, used);
+    bumpTile(this.scene, used, this.level.theme.tilesKey);
     return used;
   }
 
@@ -156,7 +156,7 @@ export class BlockHits {
       bumped = this.putUsedBlock(tile.x, tile.y);
     }
     this.payCoin(bumped);
-    bumpTile(this.scene, bumped);
+    bumpTile(this.scene, bumped, this.level.theme.tilesKey);
   }
 
   /**

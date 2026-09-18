@@ -6,14 +6,17 @@ import {
   EMPTY_TILE,
   ENEMY_MARKERS,
   HIDDEN_BLOCK_MARKERS,
+  PLATFORM_MARKERS,
   RETURN_MARKER,
   SPAWN_MARKER,
   TILE_LEGEND,
   type BlockKind,
   type HiddenBlockReward,
 } from '../content/levels/tileLegend';
+import type { WorldTheme } from '../content/levels/worldThemes';
 import { TILES_SHEET, type TileFrame } from '../content/sprites/tiles';
 import type { EnemyForm } from './enemyRules';
+import { platformTracks, type PlatformTrack, type TrackCell } from './platformTracks';
 
 /** A level written as text: one string per row of tiles, one character per tile. */
 export type LevelMap = readonly string[];
@@ -33,6 +36,8 @@ export interface EnemySpawn extends Cell {
 }
 
 export interface LoadedLevel {
+  /** How this level is drawn: its tile sheet and the colours that go with it. */
+  readonly theme: WorldTheme;
   readonly tilemap: Phaser.Tilemaps.Tilemap;
   readonly layer: Phaser.Tilemaps.TilemapLayer;
   readonly widthInPixels: number;
@@ -49,6 +54,7 @@ export interface LoadedLevel {
   readonly hiddenBlocks: readonly HiddenBlock[];
   readonly coins: readonly Cell[];
   readonly enemies: readonly EnemySpawn[];
+  readonly platforms: readonly PlatformTrack[];
 }
 
 /** Tilemaps mark an empty cell with -1. */
@@ -84,11 +90,12 @@ interface ParsedLevel {
   readonly levelEnds: Cell[];
   readonly pipeEntries: Cell[];
   readonly pipeReturns: Cell[];
+  readonly trackCells: TrackCell[];
 }
 
-/** Turns a level's text map into a tilemap layer. Solid tiles collide. */
-export function loadLevel(scene: Phaser.Scene, map: LevelMap): LoadedLevel {
-  const { data, spawns, blocks, hiddenBlocks, coins, enemies, levelEnds, pipeEntries, pipeReturns } =
+/** Turns a level's text map into a tilemap layer, drawn in its world's colours. Solid tiles collide. */
+export function loadLevel(scene: Phaser.Scene, map: LevelMap, theme: WorldTheme): LoadedLevel {
+  const { data, spawns, blocks, hiddenBlocks, coins, enemies, levelEnds, pipeEntries, pipeReturns, trackCells } =
     parseLevelMap(map);
   const [spawn] = spawns;
   if (!spawn || spawns.length > 1) {
@@ -101,8 +108,9 @@ export function loadLevel(scene: Phaser.Scene, map: LevelMap): LoadedLevel {
   }
 
   const tilemap = scene.make.tilemap({ data, tileWidth: LEVEL.tileSize, tileHeight: LEVEL.tileSize });
-  const tileset = tilemap.addTilesetImage(TILES_SHEET.key, TILES_SHEET.key, LEVEL.tileSize, LEVEL.tileSize, 0, 0);
-  if (!tileset) throw new Error(`Could not create the "${TILES_SHEET.key}" tileset.`);
+  // Every world's sheet holds the same frames in the same order, so only the texture changes.
+  const tileset = tilemap.addTilesetImage(theme.tilesKey, theme.tilesKey, LEVEL.tileSize, LEVEL.tileSize, 0, 0);
+  if (!tileset) throw new Error(`Could not create the "${theme.tilesKey}" tileset.`);
 
   const layer = tilemap.createLayer(0, tileset, 0, 0);
   // Only a GPU layer is created when asked for, but the return type allows either.
@@ -110,6 +118,7 @@ export function loadLevel(scene: Phaser.Scene, map: LevelMap): LoadedLevel {
   layer.setCollision(SOLID_TILE_INDICES);
 
   return {
+    theme,
     tilemap,
     layer,
     widthInPixels: tilemap.widthInPixels,
@@ -122,6 +131,7 @@ export function loadLevel(scene: Phaser.Scene, map: LevelMap): LoadedLevel {
     hiddenBlocks,
     coins,
     enemies,
+    platforms: platformTracks(trackCells),
   };
 }
 
@@ -140,6 +150,7 @@ function parseLevelMap(map: LevelMap): ParsedLevel {
     levelEnds: [],
     pipeEntries: [],
     pipeReturns: [],
+    trackCells: [],
   };
   const markers: Readonly<Record<string, Cell[]>> = {
     [SPAWN_MARKER]: parsed.spawns,
@@ -161,6 +172,11 @@ function parseLevelMap(map: LevelMap): ParsedLevel {
         const enemyForm = ENEMY_MARKERS[symbol];
         if (enemyForm) {
           parsed.enemies.push({ column, row, form: enemyForm });
+          return NO_TILE;
+        }
+        const motion = PLATFORM_MARKERS[symbol];
+        if (motion) {
+          parsed.trackCells.push({ column, row, motion });
           return NO_TILE;
         }
         const markerCells = markers[symbol];

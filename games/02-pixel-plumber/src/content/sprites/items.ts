@@ -57,6 +57,17 @@ export const COIN_ANIMATIONS = {
 } as const satisfies Record<string, PixelAnimationDefinition>;
 
 /** One of the four pieces a broken brick bursts into, 8×8. */
+const DEBRIS_PIECE: PixelMap = [
+  '.LLLLLn.',
+  'LLrrrren',
+  'Lrrrrren',
+  'Lrrrrren',
+  'Leeeeeen',
+  'nnnnnnnn',
+  '.LLn.Ln.',
+  '..n...n.',
+];
+
 export const DEBRIS_SHEET = {
   key: 'brick-debris',
   palette: {
@@ -65,7 +76,28 @@ export const DEBRIS_SHEET = {
     e: ART_COLORS.brickShade,
     n: ART_COLORS.brickMortar,
   },
-  frames: {
-    piece: ['.LLLLLn.', 'LLrrrren', 'Lrrrrren', 'Lrrrrren', 'Leeeeeen', 'nnnnnnnn', '.LLn.Ln.', '..n...n.'],
+  frames: { piece: DEBRIS_PIECE },
+} as const satisfies SpriteSheetDefinition;
+
+/** The same piece in world 2's and world 3's colours, so a broken brick bursts into its own brick. */
+export const DEBRIS_SEWER_SHEET = {
+  key: 'brick-debris-sewer',
+  palette: {
+    L: ART_COLORS.sewerBrickLight,
+    r: ART_COLORS.sewerBrick,
+    e: ART_COLORS.sewerBrickShade,
+    n: ART_COLORS.sewerBrickMortar,
   },
+  frames: { piece: DEBRIS_PIECE },
+} as const satisfies SpriteSheetDefinition;
+
+export const DEBRIS_ROOFTOP_SHEET = {
+  key: 'brick-debris-rooftop',
+  palette: {
+    L: ART_COLORS.chimneyLight,
+    r: ART_COLORS.chimney,
+    e: ART_COLORS.chimneyShade,
+    n: ART_COLORS.chimneyMortar,
+  },
+  frames: { piece: DEBRIS_PIECE },
 } as const satisfies SpriteSheetDefinition;

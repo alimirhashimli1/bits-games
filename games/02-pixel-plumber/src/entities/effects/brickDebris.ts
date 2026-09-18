@@ -1,7 +1,6 @@
 import type * as Phaser from 'phaser';
 
 import { BLOCKS, LEVEL } from '../../config';
-import { DEBRIS_SHEET } from '../../content/sprites/items';
 
 const QUARTER = LEVEL.tileSize / 4;
 
@@ -13,10 +12,10 @@ const PIECES = [
   { offsetX: QUARTER, offsetY: QUARTER, direction: 1, high: false },
 ] as const;
 
-/** Bursts a broken brick into four pieces that fall through everything under gravity. */
-export function burstBrick(scene: Phaser.Scene, centerX: number, centerY: number): void {
+/** Bursts a broken brick into four pieces, in the world's brick colours, that fall through everything. */
+export function burstBrick(scene: Phaser.Scene, centerX: number, centerY: number, debrisKey: string): void {
   for (const { offsetX, offsetY, direction, high } of PIECES) {
-    const piece = scene.physics.add.image(centerX + offsetX, centerY + offsetY, DEBRIS_SHEET.key);
+    const piece = scene.physics.add.image(centerX + offsetX, centerY + offsetY, debrisKey);
     piece.setVelocity(
       direction * BLOCKS.debrisSpreadSpeed,
       -(high ? BLOCKS.debrisHighLaunchSpeed : BLOCKS.debrisLowLaunchSpeed),

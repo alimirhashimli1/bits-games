@@ -16,7 +16,11 @@ export const COLORS = {
   muted: 0x8a8aa8,
   danger: 0xff6b6b,
   success: 0x7cfc9a,
-  /** Behind the coin rooms under the street. */
+  /** Dusk over the rooftops of world 3. */
+  dusk: 0x3a2f6a,
+  /** Behind the sewers of world 2. */
+  sewer: 0x141c2c,
+  /** Behind the coin rooms under a level. */
   underground: 0x0a0a14,
 } as const;
 
@@ -239,6 +243,21 @@ export const ENEMY_BODIES = {
   shell: { width: 14, height: 9, offsetX: 1, offsetY: 7 },
   sprout: { width: 12, height: 15, offsetX: 2, offsetY: 3 },
   spark: { width: 10, height: 10, offsetX: 3, offsetY: 3 },
+} as const;
+
+/** The girders that ride back and forth over the rooftops. Speeds in pixels per second. */
+export const PLATFORMS = {
+  /** Every platform is this many tiles wide, and this many pixels thick. */
+  widthTiles: 3,
+  thickness: 8,
+  speed: 48,
+  /** At each end of its track a platform waits this long, so Rusty can step on and off. */
+  restMs: 800,
+  /**
+   * How far Rusty's feet may have gone past a platform's top in one frame and still land on it.
+   * A platform moving under him and gravity pulling him down both stay well inside this.
+   */
+  footing: 3,
 } as const;
 
 /** Pipes Rusty can go down, and the rooms under them. */

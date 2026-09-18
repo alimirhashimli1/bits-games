@@ -52,6 +52,21 @@ export const ENEMY_MARKERS: Readonly<Record<string, EnemyForm>> = {
   '^': 'spark',
 };
 
+/** How a moving platform travels. */
+export type PlatformMotion = 'sideways' | 'lift';
+
+/**
+ * Moving platforms are written as their tracks. A row of `=` is a sideways track: the platform
+ * starts at its left end and rides to the right end and back. A column of `:` is a lift: the
+ * platform's left end rides from the top cell to the bottom one and back, its top level with
+ * the top of the cell. Either way the platform is three tiles wide, so a lift's other two
+ * columns are left empty.
+ */
+export const PLATFORM_MARKERS: Readonly<Record<string, PlatformMotion>> = {
+  '=': 'sideways',
+  ':': 'lift',
+};
+
 /** What each character in a level map stands for. */
 export const TILE_LEGEND: Readonly<Record<string, TileDefinition>> = {
   '#': { frame: 'ground', solid: true },
