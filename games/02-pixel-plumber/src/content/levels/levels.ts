@@ -5,6 +5,7 @@ import { TEST_ROOM } from './testRoom';
 import { LEVEL_1_1, LEVEL_1_1_ROOM, LEVEL_1_2, LEVEL_1_2_ROOM } from './world1';
 import { LEVEL_2_1, LEVEL_2_1_ROOM, LEVEL_2_2, LEVEL_2_2_ROOM } from './world2';
 import { LEVEL_3_1, LEVEL_3_1_ROOM, LEVEL_3_2, LEVEL_3_2_ROOM } from './world3';
+import { LEVEL_4_1, LEVEL_4_1_ROOM, LEVEL_4_2, LEVEL_4_2_ROOM } from './world4';
 
 /** A level, and the room under it that its pipe leads to. */
 export interface LevelMaps {
@@ -19,6 +20,8 @@ const BUILT: Partial<Record<LevelId, LevelMaps>> = {
   '2-2': { map: LEVEL_2_2, room: LEVEL_2_2_ROOM },
   '3-1': { map: LEVEL_3_1, room: LEVEL_3_1_ROOM },
   '3-2': { map: LEVEL_3_2, room: LEVEL_3_2_ROOM },
+  '4-1': { map: LEVEL_4_1, room: LEVEL_4_1_ROOM },
+  '4-2': { map: LEVEL_4_2, room: LEVEL_4_2_ROOM },
 };
 
 /** The maps for a level. Worlds that are not built yet still play the test street. */

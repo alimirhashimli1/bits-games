@@ -18,8 +18,13 @@ export const COLORS = {
   success: 0x7cfc9a,
   /** Dusk over the rooftops of world 3. */
   dusk: 0x3a2f6a,
+  /** The furnace glow behind the boiler works of world 4. */
+  boiler: 0x2a1216,
   /** Behind the sewers of world 2. */
   sewer: 0x141c2c,
+  /** The sky in the ending: night while the town is dark, evening once its lights are back. */
+  night: 0x06050e,
+  evening: 0x243070,
   /** Behind the coin rooms under a level. */
   underground: 0x0a0a14,
 } as const;
@@ -42,6 +47,8 @@ export const PLAYER_CONTROLS = {
   down: { keys: ['DOWN'], buttons: [13], stick: { axis: 1, direction: 1 } },
   jump: { keys: ['Z', 'SPACE'], buttons: [0] },
   run: { keys: ['X'], buttons: [2, 1] },
+  /** Opens the pause menu over the frozen level. */
+  pause: { keys: ['ESC'], buttons: [9] },
 } as const satisfies ActionBindings<string>;
 
 export type PlayerAction = keyof typeof PLAYER_CONTROLS;
@@ -260,6 +267,77 @@ export const PLATFORMS = {
   footing: 3,
 } as const;
 
+/** The Sludge Baron at the end of 4-2. Speeds in pixels per second. */
+export const BOSS = {
+  /** His body inside his 32×32 frame. */
+  body: { width: 22, height: 24, offsetX: 5, offsetY: 8 },
+  /** He wakes once the right-hand edge of the screen is this far past his middle, so he is in plain view. */
+  wakeMargin: 4,
+  /** He paces this far either side of where he started, at this speed. */
+  paceRange: 28,
+  paceSpeed: 26,
+  /** High enough that jumping over him takes timing, not just a run-up. */
+  hopSpeed: 330,
+  /**
+   * The pauses between his throws, and between his hops, in turn. Fixed rather than random, so
+   * the fight can be learnt, but uneven, so it cannot simply be timed.
+   */
+  throwGapsMs: [1500, 900, 2100, 1200],
+  hopGapsMs: [1100, 800, 1500, 700],
+  /** He holds a blob over his head this long before it leaves his hand. */
+  windUpMs: 380,
+  /** A blob is thrown upwards this hard, and across at whatever speed lands it on Rusty, within these limits. */
+  sludgeLaunchSpeed: 260,
+  sludgeMinSpeed: 50,
+  sludgeMaxSpeed: 240,
+  sludgeBodySize: 6,
+  /** Where a blob leaves his hand, from his feet: in front of him and above his head. */
+  handAhead: 12,
+  handHeight: 38,
+  /** This many steam puffs beat him, each one flashing him red for a moment. */
+  puffHitsToBeat: 8,
+  hitFlashMs: 90,
+  hitTint: 0xff7a6a,
+  /** Beaten by steam, he flips over and is thrown up this hard before he falls out of the hall. */
+  beatenJumpSpeed: 220,
+  /** A landed blob lies there as a splat for this long. */
+  splatMs: 500,
+  /** After the lever is pulled: how long he takes to be flushed away before the clock is counted. */
+  flushedMs: 2200,
+  /** How far the camera shakes when the grates give way, and for how long. */
+  shakeMs: 400,
+  shakeIntensity: 0.01,
+} as const;
+
+/** The ending: Rusty walks home along a dark street, and Brasswick's lights come back on. */
+export const ENDING = {
+  /** How long he takes to walk in from the left to where he stops, in the middle of the street. */
+  walkMs: 2600,
+  stopX: 160,
+  /** A pause before the lights come on, and how long they take to come on, window by window. */
+  pauseMs: 700,
+  lightMs: 3600,
+  /** This share of the windows stays dark, so the lit town does not look like a grid. */
+  darkWindowShare: 0.15,
+  /** Where the street lamps stand. */
+  lampXs: [36, 116, 204, 284],
+} as const;
+
+/** Music and sound. */
+export const MUSIC = {
+  /** Under this much time the music speeds up, and a warning plays once. */
+  hurryUnder: 100,
+  /** How much faster the music plays then. */
+  hurryTempo: 1.5,
+  /** The clock counts into the score with a tick every this many units, so it does not buzz. */
+  tickEveryUnits: 2,
+} as const;
+
+/** Keys that work on every screen, bound on the window rather than in a scene. */
+export const GLOBAL_KEYS = {
+  mute: ['M'],
+} as const;
+
 /** Pipes Rusty can go down, and the rooms under them. */
 export const PIPES = {
   /** How long sinking into a pipe, or rising back out of one, takes. */
@@ -299,6 +377,9 @@ export const SCORING = {
   brokenBrick: 50,
   /** Catching the valve wheel, from the foot of the pole to the very top. */
   wheelBonus: [100, 400, 800, 2000, 5000],
+  /** Pulling the lever and flushing the Sludge Baron away, or beating him with steam. */
+  baronFlushed: 5000,
+  baronBeaten: 5000,
   /** Each unit left on the clock when a level is finished. */
   timeUnit: 50,
   /** Coins roll over at this many, and each roll-over is an extra life. */
@@ -313,4 +394,6 @@ export const TIMING = {
   promptBlinkMs: 500,
   /** How long the world intro card stays up before the level starts on its own. */
   worldIntroMs: 2000,
+  /** How fast the story at the start of each world, and the ending, are typed out. */
+  storyCharsPerSecond: 32,
 } as const;

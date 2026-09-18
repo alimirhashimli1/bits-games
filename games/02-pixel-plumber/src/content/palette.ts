@@ -79,6 +79,38 @@ export const ART_COLORS = {
   planter: '#3e8e44',
   planterShade: '#245a30',
 
+  /** World 4, the boiler works: sooty iron plate, furnace brick, riveted iron, smoke and coal. */
+  ironLight: '#6e6a78',
+  iron: '#4a4652',
+  ironShade: '#2e2a34',
+  ironMortar: '#141218',
+
+  furnaceLight: '#e07a44',
+  furnace: '#9a3a22',
+  furnaceShade: '#5e1c12',
+  furnaceMortar: '#260a06',
+
+  rivetLight: '#a89ca8',
+  rivet: '#6e6674',
+  rivetShade: '#3c3642',
+
+  smoke: '#5a4c54',
+  smokeShade: '#3c3038',
+
+  coalLight: '#6a6472',
+  coal: '#3a3640',
+  coalShade: '#1e1c24',
+
+  /** Brasswick at night, in the ending, and its windows and street lamps once the lights come back. */
+  nightBuilding: '#1c1a30',
+  nightRoof: '#2e2a48',
+  windowDark: '#0c0b16',
+  windowLit: '#ffd86a',
+  lampPost: '#3a3650',
+  lampOff: '#4a465e',
+  lampLit: '#fff4c0',
+  lampGlow: '#8a7a3a',
+
   rustyCap: '#5a3a28',
   rustyCapLight: '#8a5e40',
   rustyBeard: '#d8662a',
@@ -103,6 +135,13 @@ export const ART_COLORS = {
   gloopLight: '#b6f05a',
   gloop: '#7fbe2a',
   gloopShade: '#4a7a1a',
+
+  /** The Sludge Baron: murkier than his Gloops, in a battered black top hat. */
+  sludgeLight: '#9aa846',
+  sludge: '#62702a',
+  sludgeShade: '#363e16',
+  hatLight: '#4e4258',
+  hat: '#2a2230',
 
   /** A Shellbug's copper shell, and the beetle underneath it. */
   shellLight: '#f0a050',

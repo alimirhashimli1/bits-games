@@ -1,6 +1,6 @@
 import { COLORS } from '../../config';
-import { DEBRIS_ROOFTOP_SHEET, DEBRIS_SEWER_SHEET, DEBRIS_SHEET } from '../sprites/items';
-import { TILES_ROOFTOP_SHEET, TILES_SEWER_SHEET, TILES_SHEET } from '../sprites/tiles';
+import { DEBRIS_BOILER_SHEET, DEBRIS_ROOFTOP_SHEET, DEBRIS_SEWER_SHEET, DEBRIS_SHEET } from '../sprites/items';
+import { TILES_BOILER_SHEET, TILES_ROOFTOP_SHEET, TILES_SEWER_SHEET, TILES_SHEET } from '../sprites/tiles';
 import type { LevelId } from './levelOrder';
 
 /** How a world looks: which textures its levels are drawn with, and what is behind them. */
@@ -30,11 +30,18 @@ const ROOFTOP: WorldTheme = {
   background: COLORS.dusk,
 };
 
+const BOILER: WorldTheme = {
+  tilesKey: TILES_BOILER_SHEET.key,
+  debrisKey: DEBRIS_BOILER_SHEET.key,
+  background: COLORS.boiler,
+};
+
 /** The theme of each world. Worlds without one of their own run in the streets for now. */
 const WORLD_THEMES: Readonly<Record<string, WorldTheme>> = {
   '1': STREET,
   '2': SEWER,
   '3': ROOFTOP,
+  '4': BOILER,
 };
 
 /** The theme a level is drawn in, taken from the world its number starts with. */

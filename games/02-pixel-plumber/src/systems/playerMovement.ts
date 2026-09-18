@@ -25,6 +25,8 @@ export interface MovementResult {
   readonly pose: MovementPose;
   /** 1 for right, -1 for left. */
   readonly facing: 1 | -1;
+  /** True on the frame he leaves the ground, for the jump sound. */
+  readonly jumped?: boolean;
 }
 
 /** Moves `value` towards `target` by at most `step`, without overshooting. */
@@ -50,10 +52,10 @@ export class PlayerMovement {
     const direction = ducking ? 0 : Number(input.right) - Number(input.left);
 
     const skidding = this.moveHorizontally(body, direction, input.run, onGround, seconds);
-    this.moveVertically(body, input, onGround, deltaMs);
+    const jumped = this.moveVertically(body, input, onGround, deltaMs);
 
     if (onGround && direction !== 0) this.facing = direction > 0 ? 1 : -1;
-    return { pose: this.pose(body, onGround, ducking, skidding), facing: this.facing };
+    return { pose: this.pose(body, onGround, ducking, skidding), facing: this.facing, jumped };
   }
 
   /** Returns true while braking against the current direction of travel on the ground. */
@@ -90,8 +92,10 @@ export class PlayerMovement {
     return false;
   }
 
-  private moveVertically(body: MovementBody, input: MovementInput, onGround: boolean, deltaMs: number): void {
+  /** Returns true on the frame a jump starts. */
+  private moveVertically(body: MovementBody, input: MovementInput, onGround: boolean, deltaMs: number): boolean {
     const velocity = body.velocity;
+    let jumped = false;
 
     this.coyoteMsLeft = onGround ? RUSTY.coyoteMs : this.coyoteMsLeft - deltaMs;
     this.jumpBufferMsLeft = input.jumpPressed ? RUSTY.jumpBufferMs : this.jumpBufferMsLeft - deltaMs;
@@ -101,6 +105,7 @@ export class PlayerMovement {
       this.jumpBufferMsLeft = 0;
       this.coyoteMsLeft = 0;
       this.rising = true;
+      jumped = true;
     }
 
     if (this.rising && !input.jumpHeld && velocity.y < -RUSTY.jumpCutSpeed) {
@@ -110,6 +115,7 @@ export class PlayerMovement {
     if (velocity.y >= 0) this.rising = false;
 
     velocity.y = Math.min(velocity.y, RUSTY.maxFallSpeed);
+    return jumped;
   }
 
   private pose(body: MovementBody, onGround: boolean, ducking: boolean, skidding: boolean): MovementPose {

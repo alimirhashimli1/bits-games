@@ -33,7 +33,7 @@ export const GAME_CATALOG: readonly GameEntry[] = [
     genre: 'Platformer',
     description: 'Run, jump and stomp through side-scrolling worlds full of coins, secret blocks and power-ups.',
     labelColor: '#3fa7d6',
-    status: 'in-development',
+    status: 'playable',
   },
   {
     id: '03-arena-fighters',
@@ -42,7 +42,7 @@ export const GAME_CATALOG: readonly GameEntry[] = [
     description:
       'Pick a fighter and battle the CPU, a friend on the same keyboard, or anyone online by sending them a link.',
     labelColor: '#9b5de5',
-    status: 'coming-soon',
+    status: 'in-development',
   },
   {
     id: '04-turbo-road',

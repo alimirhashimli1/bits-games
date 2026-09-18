@@ -109,6 +109,27 @@ const POLE_TOP: PixelMap = [
   ...Array.from({ length: SIZE - 4 }, () => POLE_ROW),
 ];
 
+/** How far apart the bars of a grate are, and how deep its top rail is. */
+const GRATE_BAR_SPACING = 4;
+const GRATE_RAIL = 3;
+
+/**
+ * An iron floor grate: a riveted rail on top and bars below it, with the dark showing between
+ * them. The Sludge Baron stands on these, and they drop away when the lever is pulled.
+ */
+function grate(): PixelMap {
+  const grid = new PixelGrid(SIZE, SIZE);
+  for (let x = 1; x < SIZE; x += GRATE_BAR_SPACING) {
+    grid.fillRect(x, GRATE_RAIL, 2, SIZE - GRATE_RAIL, 'j');
+    grid.fillRect(x, GRATE_RAIL, 1, SIZE - GRATE_RAIL, 'h');
+  }
+  grid.fillRect(0, 0, SIZE, GRATE_RAIL, 'h');
+  grid.fillRect(0, 0, SIZE, 1, 'H');
+  grid.fillRect(0, GRATE_RAIL - 1, SIZE, 1, 'j');
+  grid.fillRect(0, GRATE_RAIL, SIZE, 1, 'k');
+  return grid.toPixelMap();
+}
+
 function cloud(): PixelMap {
   const grid = new PixelGrid(DOUBLE, SIZE);
   grid.fillRect(2, 8, 28, 6, 'w');
@@ -221,6 +242,30 @@ const ROOFTOP_PALETTE = {
 } as const;
 
 /**
+ * World 4 in the boiler works: sooty iron plate underfoot, furnace brick, riveted iron blocks
+ * for the stairs, smoke in place of the clouds and heaps of coal in place of the bushes.
+ */
+const BOILER_PALETTE = {
+  ...STREET_PALETTE,
+  S: ART_COLORS.ironLight,
+  s: ART_COLORS.iron,
+  t: ART_COLORS.ironShade,
+  m: ART_COLORS.ironMortar,
+  L: ART_COLORS.furnaceLight,
+  r: ART_COLORS.furnace,
+  e: ART_COLORS.furnaceShade,
+  n: ART_COLORS.furnaceMortar,
+  H: ART_COLORS.rivetLight,
+  h: ART_COLORS.rivet,
+  j: ART_COLORS.rivetShade,
+  w: ART_COLORS.smoke,
+  c: ART_COLORS.smokeShade,
+  G: ART_COLORS.coalLight,
+  g: ART_COLORS.coal,
+  f: ART_COLORS.coalShade,
+} as const;
+
+/**
  * Every level tile, 16×16. The order of the frames is the tile index in the tilemap,
  * so frames are only ever added at the end.
  */
@@ -243,6 +288,7 @@ export const TILES_SHEET = {
     bushRight: BUSH_RIGHT,
     poleTop: POLE_TOP,
     pole: POLE,
+    grate: grate(),
   },
 } as const satisfies SpriteSheetDefinition;
 
@@ -256,6 +302,12 @@ export const TILES_SEWER_SHEET = {
 export const TILES_ROOFTOP_SHEET = {
   key: 'tiles-rooftop',
   palette: ROOFTOP_PALETTE,
+  frames: TILES_SHEET.frames,
+} as const satisfies SpriteSheetDefinition;
+
+export const TILES_BOILER_SHEET = {
+  key: 'tiles-boiler',
+  palette: BOILER_PALETTE,
   frames: TILES_SHEET.frames,
 } as const satisfies SpriteSheetDefinition;
 

@@ -16,6 +16,8 @@ export interface TileDefinition {
   readonly levelEnd?: boolean;
   /** The left half of a pipe Rusty can go down. A map has at most one. */
   readonly pipeEntry?: boolean;
+  /** A floor grate in the Sludge Baron's hall, which drops away when the lever is pulled. */
+  readonly trapdoor?: boolean;
 }
 
 /** An empty cell: sky, or whatever the level's background is. */
@@ -32,6 +34,14 @@ export const COIN_MARKER = 'o';
  * rises from. A level with a pipe to go down needs one of these.
  */
 export const RETURN_MARKER = 'R';
+
+/**
+ * The Sludge Baron, standing on the bottom of this cell, and the pressure-release lever behind
+ * him, which ends the level instead of a pole. A map with one has the other, and grates (`_`)
+ * for him to stand on.
+ */
+export const BARON_MARKER = 'Z';
+export const LEVER_MARKER = 'L';
 
 /** Invisible blocks, and what each holds. They are not there until Rusty jumps into them from below. */
 export const HIDDEN_BLOCK_MARKERS: Readonly<Record<string, HiddenBlockReward>> = {
@@ -89,6 +99,7 @@ export const TILE_LEGEND: Readonly<Record<string, TileDefinition>> = {
   /** The pole at the end of the level: `E` is its top, where the valve wheel starts. */
   E: { frame: 'poleTop', solid: false, levelEnd: true },
   '|': { frame: 'pole', solid: false },
+  _: { frame: 'grate', solid: true, trapdoor: true },
   '(': { frame: 'cloudLeft', solid: false },
   ')': { frame: 'cloudRight', solid: false },
   '<': { frame: 'bushLeft', solid: false },

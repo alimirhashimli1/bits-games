@@ -29,7 +29,7 @@ function poseAnimations(animations: Readonly<Record<MovementPose, { readonly key
 }
 
 /** Each power state's texture and pose animations. */
-const LOOKS: Readonly<Record<PowerState, { readonly texture: string; readonly poses: PoseAnimations }>> = {
+export const RUSTY_LOOKS: Readonly<Record<PowerState, { readonly texture: string; readonly poses: PoseAnimations }>> = {
   small: {
     texture: RUSTY_SMALL_SHEET.key,
     // Small Rusty has no duck of his own, as in the original: he just stands.
@@ -91,7 +91,7 @@ export class Rusty extends Phaser.Physics.Arcade.Sprite {
   /** Changes power state straight away, with no animation. */
   setPower(power: PowerState): void {
     this.powerState = power;
-    this.setTexture(LOOKS[power].texture, 'stand');
+    this.setTexture(RUSTY_LOOKS[power].texture, 'stand');
     this.applyShape(power === 'small' ? 'small' : 'big');
   }
 
@@ -124,8 +124,8 @@ export class Rusty extends Phaser.Physics.Arcade.Sprite {
       delay: POWER.flickerMs,
       repeat: POWER.flickerCount - 1,
       callback: () => {
-        const showNew = this.texture.key === LOOKS[from].texture;
-        this.setTexture(LOOKS[showNew ? power : from].texture, frame);
+        const showNew = this.texture.key === RUSTY_LOOKS[from].texture;
+        this.setTexture(RUSTY_LOOKS[showNew ? power : from].texture, frame);
       },
     });
     this.scene.time.delayedCall(POWER.flickerMs * POWER.flickerCount, finish);
@@ -143,7 +143,7 @@ export class Rusty extends Phaser.Physics.Arcade.Sprite {
   /** Shows the pose chosen by movement, and fits the body to it. */
   showPose({ pose, facing }: MovementResult): void {
     this.setFlipX(facing < 0);
-    this.play(LOOKS[this.powerState].poses[pose], true);
+    this.play(RUSTY_LOOKS[this.powerState].poses[pose], true);
     if (this.isBig) this.applyShape(pose === 'duck' ? 'duck' : 'big');
   }
 

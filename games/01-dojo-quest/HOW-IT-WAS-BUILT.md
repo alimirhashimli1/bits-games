@@ -195,19 +195,18 @@ Both only act once the area's guard is down, so duels stay one-on-one.
 | `sceneKeys.ts` | Every scene name in one place |
 | `BootScene.ts` | Builds all textures, unlocks audio, binds mute, handles `?scene=` |
 | `TitleScene.ts` | Title art and menu |
-| `ControlsScene.ts` | The controls table |
+| `ControlsScene.ts` | The controls table (the shared `@shared/phaser/controlsScene` with Dojo Quest's table) |
 | `RaidScene.ts` | Cold open: the village burns, Mei is taken |
 | `PrologueScene.ts` | Kenji arrives too late |
 | `StoryScene.ts` | The chapter before each area |
 | `AreaScene.ts` | **The game.** One fortress screen: fighter, opponent, hazards, HUD, pause, transitions |
 | `RescueScene.ts` | The ending: the cage, the choice, both outcomes |
-| `PauseScene.ts` | Overlay on a frozen game |
+| `PauseScene.ts` | Overlay on a frozen game (the shared `@shared/phaser/pauseScene` with Dojo Quest's colours and sounds) |
 | `GameOverScene.ts` | Defeat, with continue and an optional explanation |
 | `VictoryScene.ts` | The end of a won run |
 | `SpriteGalleryScene.ts` | Dev tool: every animation and attack, replayed at real phase timing |
 | `hud/HealthBar.ts` | Pip health bars |
 | `hud/StoryTextBox.ts` | Framed panel, typewriter text, prompt |
-| `hud/ControlsPanel.ts` | The controls table, shared by the title and pause |
 
 **Entities** (`entities/`)
 

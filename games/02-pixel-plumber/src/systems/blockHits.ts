@@ -25,6 +25,8 @@ export interface BlockRewards {
   item(item: BlockItem, tile: Phaser.Tilemaps.Tile): void;
   /** Big Rusty broke a brick: worth a few points. */
   brokeBrick(): void;
+  /** His head hit something that gives nothing: a plain tile, a used block, or a brick while he is small. */
+  bump(): void;
 }
 
 interface MultiCoinState {
@@ -105,7 +107,10 @@ export class BlockHits {
   private hitBlock(tile: Phaser.Tilemaps.Tile, isBig: boolean): void {
     const key = cellKey(tile.x, tile.y);
     const kind = this.blocks.get(key);
-    if (!kind) return;
+    if (!kind) {
+      this.rewards.bump();
+      return;
+    }
 
     switch (kind) {
       case 'coinBlock':
@@ -125,6 +130,7 @@ export class BlockHits {
           this.rewards.brokeBrick();
         } else {
           bumpTile(this.scene, tile, this.level.theme.tilesKey);
+          this.rewards.bump();
         }
         return;
       case 'multiCoinBrick':

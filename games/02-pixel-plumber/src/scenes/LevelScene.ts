@@ -1,14 +1,18 @@
 import * as Phaser from 'phaser';
 
+import { playSound } from '@shared/audio/audioEngine';
+import { playMusic, stopMusic, type MusicTrack } from '@shared/audio/music';
 import type { ActionInput } from '@shared/phaser/actionInput';
 import { addCenteredPixelText, addPixelText } from '@shared/phaser/pixelText';
 import { fadeIn, fadeToScene } from '@shared/phaser/sceneTransitions';
 
 import {
+  BOSS,
   COLORS,
   LEVEL,
   LEVEL_DEV_CONTROLS,
   LEVEL_END,
+  MUSIC,
   PIPES,
   PLAYER_CONTROLS,
   POWER,
@@ -18,6 +22,8 @@ import {
   type PlayerAction,
 } from '../config';
 import { levelMaps } from '../content/levels/levels';
+import { BOSS_MUSIC, hurried, STREETS_MUSIC, WORLD_MUSIC } from '../content/music';
+import { SOUNDS } from '../content/sounds';
 import { worldTheme } from '../content/levels/worldThemes';
 import { floatLabel } from '../entities/effects/floatingLabel';
 import { Enemies, type BeatKind } from '../entities/enemies/Enemies';
@@ -25,7 +31,9 @@ import { LevelEnd } from '../entities/LevelEnd';
 import { Items } from '../entities/Items';
 import { MovingPlatforms } from '../entities/MovingPlatforms';
 import { LooseCoins } from '../entities/LooseCoins';
+import { PressureLever } from '../entities/PressureLever';
 import { Rusty } from '../entities/Rusty';
+import { SludgeBaron } from '../entities/SludgeBaron';
 import { SteamPuffs } from '../entities/SteamPuffs';
 import { BlockHits } from '../systems/blockHits';
 import type { EnemyForm } from '../systems/enemyRules';
@@ -44,7 +52,11 @@ import { advanceLevel, gainLife, levelId, loseLife, type RunState } from '../sys
 import { collectCoin, DefeatChain, wheelBonus } from '../systems/score';
 import { createScreenInput } from '../systems/screenInput';
 import { LevelHud, type HudValues } from './hud/LevelHud';
+import type { EndingData } from './EndingScene';
+import type { GameOverData } from './GameOverScene';
+import type { PauseSceneData } from './PauseScene';
 import { SCENES } from './sceneKeys';
+import type { WorldIntroData } from './WorldIntroScene';
 
 const LABEL_MARGIN = 4;
 const LABEL_LINE_HEIGHT = 8;
@@ -97,13 +109,16 @@ export class LevelScene extends Phaser.Scene {
   private hud!: LevelHud;
   private timer!: LevelTimer;
   private levelEnd: LevelEnd | undefined;
+  /** In the last level: the Sludge Baron, and the lever behind him that ends it instead of a pole. */
+  private lever: PressureLever | undefined;
+  private baron: SludgeBaron | undefined;
   /** True while Rusty is in the room under the level, and where he comes back out above. */
   private inRoom = false;
   private returnTo: Cell | undefined;
   /** Set while he is sinking into a pipe or rising out of one: nothing else happens meanwhile. */
   private throughPipe = false;
-  /** How far through finishing the level Rusty is, once he has the valve wheel. */
-  private ending: 'playing' | 'wheel' | 'walking' | 'counting' = 'playing';
+  /** How far through finishing the level Rusty is, once he has the valve wheel or the lever. */
+  private ending: 'playing' | 'wheel' | 'lever' | 'walking' | 'counting' = 'playing';
   /** Game time at which the walk off the end of the level stops. */
   private walkOffUntil = 0;
   /** Enemies beaten one after another are worth more each time. */
@@ -112,6 +127,8 @@ export class LevelScene extends Phaser.Scene {
   private nextDevEnemy = 0;
   /** Set once Rusty falls into a pit or is defeated, so input is ignored until the life is lost. */
   private lifeLost = false;
+  /** Set once the clock has fallen low enough for the warning and the faster music. */
+  private hurrying = false;
 
   constructor() {
     super({
@@ -142,22 +159,32 @@ export class LevelScene extends Phaser.Scene {
     this.coins = run.coins;
     this.score = run.score;
     this.timer = new LevelTimer(timeLeft);
+    // Back from a room with the clock already low, the warning has been heard.
+    this.hurrying = this.timer.left < MUSIC.hurryUnder;
     const looseCoins = new LooseCoins(this, this.level.coins);
     this.items = new Items(this, this.level.layer, heightInPixels);
     this.steamPuffs = new SteamPuffs(this, this.level.layer);
     this.blockHits = new BlockHits(this, this.level, {
       coin: () => this.addCoin(),
       // What a power-up block holds depends on Rusty's size at the moment he hits it.
-      item: (item, tile) => this.items.emerge(item === 'powerUp' ? blockPowerUp(this.rusty.power) : item, tile),
+      item: (item, tile) => {
+        playSound(SOUNDS.itemAppears);
+        this.items.emerge(item === 'powerUp' ? blockPowerUp(this.rusty.power) : item, tile);
+      },
       brokeBrick: () => {
+        playSound(SOUNDS.brickBreak);
         this.score += SCORING.brokenBrick;
       },
+      bump: () => playSound(SOUNDS.bump),
     });
 
-    // Before Rusty, so he is drawn holding the wheel rather than behind it. Rooms have no pole.
+    // Before Rusty, so he is drawn holding the wheel rather than behind it. Rooms have no pole,
+    // and the Baron's level ends at his lever instead.
     const endCell = this.level.levelEnd;
-    if (!endCell && !inRoom) throw new Error('A level needs a pole to finish on.');
+    const hall = this.level.baronHall;
+    if (!endCell && !hall && !inRoom) throw new Error("A level needs a pole or the Baron's lever to finish on.");
     this.levelEnd = endCell && new LevelEnd(this, endCell, this.groundBelow(endCell));
+    this.lever = hall && new PressureLever(this, hall.lever);
 
     // Also before Rusty, so he is drawn standing on them.
     this.platforms = new MovingPlatforms(this, this.level.platforms);
@@ -181,6 +208,21 @@ export class LevelScene extends Phaser.Scene {
       onBeaten: (x, topY, how) => this.scoreBeatenEnemy(x, topY, how),
     });
     this.enemies.defeatWithPuffs(this.steamPuffs);
+    this.baron =
+      hall &&
+      new SludgeBaron(this, {
+        cell: hall.baron,
+        layer: this.level.layer,
+        rusty: this.rusty,
+        onHurtRusty: () => this.hurtRusty(),
+        onBeaten: (x, topY) => {
+          this.score += SCORING.baronBeaten;
+          floatLabel(this, x, topY, String(SCORING.baronBeaten), COLORS.text);
+        },
+      });
+    // Steam wears him down, a puff at a time.
+    const baron = this.baron;
+    if (baron) this.steamPuffs.burstAgainst(baron.puffTargets, () => baron.takePuff());
     this.movement = new PlayerMovement();
 
     // The bottom of the level fills the screen; anything above it stays out of view.
@@ -200,6 +242,7 @@ export class LevelScene extends Phaser.Scene {
       this.events.off(Phaser.Scenes.Events.POST_UPDATE, this.followRusty, this);
     });
 
+    playMusic(this.music());
     this.createCollisionView();
     this.hud = new LevelHud(this, levelId(this.run), this.hudValues());
     this.addDevLabels();
@@ -223,8 +266,18 @@ export class LevelScene extends Phaser.Scene {
 
     this.timer.update(deltaMs);
     this.hud.show(this.hudValues());
+    if (!this.hurrying && this.timer.left < MUSIC.hurryUnder) {
+      this.hurrying = true;
+      playSound(SOUNDS.hurry);
+    }
+    // The same track carries on; a new one (the Baron awake, the clock low) takes over.
+    playMusic(this.music());
     if (this.timer.isOut) {
       this.timeUp();
+      return;
+    }
+    if (this.controls.justPressed('pause')) {
+      this.pause();
       return;
     }
 
@@ -250,6 +303,7 @@ export class LevelScene extends Phaser.Scene {
       deltaMs,
     );
     this.rusty.showPose(result);
+    if (result.jumped) playSound(this.rusty.isBig ? SOUNDS.jumpBig : SOUNDS.jumpSmall);
     if (this.controls.isDown('down') && this.standingOnPipeEntry()) {
       this.sinkIntoPipe();
       return;
@@ -258,12 +312,17 @@ export class LevelScene extends Phaser.Scene {
       this.catchWheel(this.levelEnd);
       return;
     }
+    if (this.lever?.touchedBy(body)) {
+      this.pullLever(this.lever);
+      return;
+    }
     if (this.rusty.power === 'steam' && result.pose !== 'duck' && this.controls.justPressed('run')) {
-      this.steamPuffs.fire(this.rusty.x, this.rusty.y, result.facing);
+      if (this.steamPuffs.fire(this.rusty.x, this.rusty.y, result.facing)) playSound(SOUNDS.steamPuff);
     }
     this.items.update();
     this.steamPuffs.update(this.cameras.main);
     this.enemies.update(this.cameras.main, deltaMs);
+    this.baron?.advance(this.cameras.main, deltaMs);
 
     // Rusty's origin is at his feet, so this is the top of the sprite: he has to be completely out of sight.
     if (this.rusty.y - this.rusty.displayHeight >= this.level.heightInPixels) this.fallIntoPit();
@@ -301,11 +360,28 @@ export class LevelScene extends Phaser.Scene {
     this.previousFeetY = body.bottom;
   }
 
+  /** Freezes the level and lays the pause menu over it. */
+  private pause(): void {
+    const data: PauseSceneData = { pausedScene: SCENES.level };
+    this.scene.pause();
+    this.scene.launch(SCENES.pause, data);
+  }
+
+  /** The world's loop, the Baron's once he is awake, and either one faster once the clock is low. */
+  private music(): MusicTrack {
+    const world = WORLD_MUSIC[levelId(this.run).charAt(0)] ?? STREETS_MUSIC;
+    const track = this.baron?.isAwake ? BOSS_MUSIC : world;
+    return this.hurrying ? hurried(track) : track;
+  }
+
   /** Rusty has dropped out of the bottom of the level. The level stays up for a moment, then the life is lost. */
   private fallIntoPit(): void {
     this.lifeLost = true;
+    stopMusic();
+    playSound(SOUNDS.defeat);
     this.rusty.body.setEnable(false);
     this.enemies.freeze();
+    this.baron?.freeze();
     this.time.delayedCall(LEVEL.pitLifeLostDelayMs, () => this.loseLife());
   }
 
@@ -360,6 +436,7 @@ export class LevelScene extends Phaser.Scene {
   /** Coins are worth points, and every hundredth one is an extra life. */
   private addCoin(): void {
     const { coins, life } = collectCoin(this.coins);
+    playSound(SOUNDS.coin);
     this.coins = coins;
     this.score += SCORING.coin;
     if (life) this.addLife();
@@ -367,6 +444,7 @@ export class LevelScene extends Phaser.Scene {
 
   /** Enemies beaten one after another are worth more each time, and in the end a life. */
   private scoreBeatenEnemy(x: number, topY: number, how: BeatKind): void {
+    playSound(how === 'kicked' ? SOUNDS.kick : SOUNDS.stomp);
     if (how === 'kicked') {
       this.score += SCORING.kick;
       floatLabel(this, x, topY, String(SCORING.kick), COLORS.text);
@@ -381,6 +459,7 @@ export class LevelScene extends Phaser.Scene {
   /** An extra life, with a green label above Rusty unless it was earned somewhere else. */
   private addLife(x = this.rusty.x, y = this.rusty.y - this.rusty.displayHeight): void {
     this.run = gainLife(this.run);
+    playSound(SOUNDS.oneUp);
     floatLabel(this, x, y, '1UP', COLORS.success);
   }
 
@@ -390,9 +469,11 @@ export class LevelScene extends Phaser.Scene {
     switch (kind) {
       case 'gear':
       case 'steamValve':
+        playSound(SOUNDS.powerUp);
         this.rusty.transformTo(collectPowerUp(this.rusty.power, kind));
         break;
       case 'goldenGasket':
+        playSound(SOUNDS.powerUp);
         this.rusty.startGasket();
         break;
       case 'wrench':
@@ -411,6 +492,7 @@ export class LevelScene extends Phaser.Scene {
       this.defeat();
       return;
     }
+    playSound(SOUNDS.powerDown);
     this.rusty.startHurtInvincibility();
     this.rusty.transformTo(power);
   }
@@ -418,7 +500,10 @@ export class LevelScene extends Phaser.Scene {
   /** Small Rusty is hit: everything freezes, then he hops up and falls out of the level, through the ground. */
   private defeat(): void {
     this.lifeLost = true;
+    stopMusic();
+    playSound(SOUNDS.defeat);
     this.enemies.freeze();
+    this.baron?.freeze();
     this.tileCollider.destroy();
     this.rusty.setCollideWorldBounds(false);
     this.rusty.body.setVelocity(0, 0);
@@ -448,6 +533,7 @@ export class LevelScene extends Phaser.Scene {
   /** Down the pipe: Rusty sinks out of sight behind it, and the room below loads. */
   private sinkIntoPipe(): void {
     this.throughPipe = true;
+    playSound(SOUNDS.pipe);
     this.rusty.body.setVelocity(0, 0);
     this.rusty.body.setEnable(false);
     this.rusty.setDepth(BEHIND_TILES_DEPTH);
@@ -474,6 +560,7 @@ export class LevelScene extends Phaser.Scene {
   /** Back from the room: he rises out of the pipe under the return marker. */
   private riseFromPipe(cell: Cell): void {
     this.throughPipe = true;
+    playSound(SOUNDS.pipe);
     const pipeTop = (cell.row + 1) * LEVEL.tileSize;
     // The marker sits above the left half of a two-tile pipe, and he comes up its middle.
     this.rusty.setPosition((cell.column + 1) * LEVEL.tileSize, pipeTop + this.rusty.displayHeight);
@@ -506,6 +593,8 @@ export class LevelScene extends Phaser.Scene {
    */
   private catchWheel(levelEnd: LevelEnd): void {
     this.ending = 'wheel';
+    stopMusic();
+    playSound(SOUNDS.wheel);
     this.enemies.freeze();
     const bonus = wheelBonus(levelEnd.heightCaught(this.rusty.y));
     this.score += bonus;
@@ -523,7 +612,36 @@ export class LevelScene extends Phaser.Scene {
         this.rusty.body.setEnable(true);
         this.walkOffUntil = this.time.now + LEVEL_END.walkOffMs;
         this.ending = 'walking';
+        playSound(SOUNDS.levelClear);
       },
+    });
+  }
+
+  /**
+   * Rusty reached the lever behind the Sludge Baron. The clock stops, the pressure is let out,
+   * the grates drop away under the Baron and he is flushed down into his own sludge. Then the
+   * clock is counted into the score as at the end of any other level.
+   */
+  private pullLever(lever: PressureLever): void {
+    this.ending = 'lever';
+    stopMusic();
+    playSound(SOUNDS.lever);
+    this.enemies.freeze();
+    lever.pull();
+    this.score += SCORING.baronFlushed;
+    floatLabel(this, this.rusty.x, this.rusty.y - this.rusty.displayHeight, String(SCORING.baronFlushed), COLORS.text);
+    this.hud.show(this.hudValues());
+    this.rusty.body.setVelocityX(0);
+    this.rusty.showPose({ pose: 'stand', facing: 1 });
+
+    for (const { column, row } of this.level.baronHall?.grates ?? []) {
+      this.level.layer.removeTileAt(column, row, true, true);
+    }
+    this.cameras.main.shake(BOSS.shakeMs, BOSS.shakeIntensity);
+    this.baron?.flush();
+    this.time.delayedCall(BOSS.flushedMs, () => {
+      playSound(SOUNDS.levelClear);
+      this.countClockIntoScore();
     });
   }
 
@@ -553,6 +671,7 @@ export class LevelScene extends Phaser.Scene {
           return;
         }
         this.score += SCORING.timeUnit;
+        if (this.timer.left % MUSIC.tickEveryUnits === 0) playSound(SOUNDS.tick);
         this.hud.show(this.hudValues());
       },
     });
@@ -572,14 +691,23 @@ export class LevelScene extends Phaser.Scene {
   private clearLevel(): void {
     const run = this.currentRun();
     const nextRun = advanceLevel(run);
-    if (nextRun) fadeToScene(this, SCENES.worldIntro, nextRun);
-    else fadeToScene(this, SCENES.ending, { score: run.score });
+    // Arriving at a new world after clearing a level opens with its story.
+    const intro: WorldIntroData | undefined = nextRun && { ...nextRun, story: true };
+    if (intro) fadeToScene(this, SCENES.worldIntro, intro);
+    else {
+      const ending: EndingData = { score: run.score, power: run.power };
+      fadeToScene(this, SCENES.ending, ending);
+    }
   }
 
   private loseLife(): void {
     const run = this.currentRun();
     const nextRun = loseLife(run);
     if (nextRun) fadeToScene(this, SCENES.worldIntro, nextRun);
-    else fadeToScene(this, SCENES.gameOver, { score: run.score });
+    else {
+      // Game Over offers to go on from the start of this world.
+      const gameOver: GameOverData = { score: run.score, levelIndex: run.levelIndex };
+      fadeToScene(this, SCENES.gameOver, gameOver);
+    }
   }
 }

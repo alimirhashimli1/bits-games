@@ -30,14 +30,15 @@ export class SteamPuffs {
     scene.physics.add.collider(this.group, layer);
   }
 
-  /** Fires a puff from Rusty's feet at (`feetX`, `feetY`), unless too many are already out. */
-  fire(feetX: number, feetY: number, direction: 1 | -1): void {
-    if (this.group.countActive() >= STEAM.maxPuffs) return;
+  /** Fires a puff from Rusty's feet at (`feetX`, `feetY`), unless too many are already out. True if it fired. */
+  fire(feetX: number, feetY: number, direction: 1 | -1): boolean {
+    if (this.group.countActive() >= STEAM.maxPuffs) return false;
     const puff = new SteamPuff(this.scene, feetX + direction * STEAM.spawnAhead, feetY - STEAM.spawnHeight, direction);
     // Adding to the group creates the body and applies the group's defaults, so movement is set afterwards.
     this.group.add(puff);
     puff.body.setSize(STEAM.bodySize, STEAM.bodySize, true);
     puff.body.setVelocityX(direction * STEAM.speed);
+    return true;
   }
 
   /** Puffs burst against anything in `targets`, and `onHit` says what that does to it. */

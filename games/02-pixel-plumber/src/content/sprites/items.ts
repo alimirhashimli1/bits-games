@@ -79,7 +79,7 @@ export const DEBRIS_SHEET = {
   frames: { piece: DEBRIS_PIECE },
 } as const satisfies SpriteSheetDefinition;
 
-/** The same piece in world 2's and world 3's colours, so a broken brick bursts into its own brick. */
+/** The same piece in each later world's colours, so a broken brick bursts into its own brick. */
 export const DEBRIS_SEWER_SHEET = {
   key: 'brick-debris-sewer',
   palette: {
@@ -98,6 +98,17 @@ export const DEBRIS_ROOFTOP_SHEET = {
     r: ART_COLORS.chimney,
     e: ART_COLORS.chimneyShade,
     n: ART_COLORS.chimneyMortar,
+  },
+  frames: { piece: DEBRIS_PIECE },
+} as const satisfies SpriteSheetDefinition;
+
+export const DEBRIS_BOILER_SHEET = {
+  key: 'brick-debris-boiler',
+  palette: {
+    L: ART_COLORS.furnaceLight,
+    r: ART_COLORS.furnace,
+    e: ART_COLORS.furnaceShade,
+    n: ART_COLORS.furnaceMortar,
   },
   frames: { piece: DEBRIS_PIECE },
 } as const satisfies SpriteSheetDefinition;

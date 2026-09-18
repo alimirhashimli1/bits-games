@@ -1,6 +1,7 @@
 import { playSound } from '@shared/audio/audioEngine';
 import { ControlsScene as SharedControlsScene } from '@shared/phaser/controlsScene';
 
+import { COLORS } from '../config';
 import { CONTROLS_TABLE } from '../content/controls';
 import { SOUNDS } from '../content/sounds';
 import { SCENES } from './sceneKeys';
@@ -12,6 +13,7 @@ export class ControlsScene extends SharedControlsScene {
       key: SCENES.controls,
       backKey: SCENES.title,
       controls: CONTROLS_TABLE,
+      backgroundColor: COLORS.screen,
       onConfirm: () => playSound(SOUNDS.confirm),
     });
   }

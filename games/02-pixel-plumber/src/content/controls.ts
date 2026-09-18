@@ -4,20 +4,19 @@ import { COLORS } from '../config';
 
 /** The controls, as rows of [action, keyboard, gamepad], for the controls screen. */
 export const CONTROL_ROWS: readonly ControlRow[] = [
-  ['WALK / RUN', 'ARROWS', 'D-PAD'],
-  ['SWITCH STANCE', 'SHIFT', 'Y'],
-  ['PUNCH', 'Z', 'X'],
-  ['KICK', 'X', 'A'],
-  ['BLOCK', 'C', 'B'],
-  ['AIM HIGH / LOW', 'UP / DOWN', 'UP / DOWN'],
+  ['MOVE', 'ARROWS', 'D-PAD'],
+  ['DUCK / DOWN A PIPE', 'DOWN', 'DOWN'],
+  ['JUMP', 'Z / SPACE', 'A'],
+  ['RUN / STEAM', 'X', 'X / B'],
   ['PAUSE', 'ESC', 'START'],
   ['MUTE', 'M', '-'],
 ];
 
-/** Shown under the table: the two rules that decide most fights. */
+/** Shown under the table. */
 export const CONTROL_NOTES: readonly string[] = [
-  'RUNNING STANCE IS FAST BUT CANNOT FIGHT.',
-  'A HIGH GUARD STOPS HIGH AND MID BLOWS.',
+  'HOLD JUMP TO JUMP HIGHER, AND RUN',
+  'FOR LONGER JUMPS.',
+  'STEAM RUSTY FIRES PUFFS WITH RUN.',
 ];
 
 /** The table as the title's controls screen and the pause menu show it. */

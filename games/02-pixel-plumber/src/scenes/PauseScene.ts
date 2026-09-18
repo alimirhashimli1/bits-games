@@ -9,14 +9,18 @@ import { SCENES } from './sceneKeys';
 
 export type { PauseSceneData } from '@shared/phaser/pauseScene';
 
-/** The shared pause menu, laid over the frozen fight, in Dojo Quest's colours and sounds. */
+/**
+ * The shared pause menu, laid over the frozen level. The music stops while it is open; the
+ * level starts its loop again when it resumes.
+ */
 export class PauseScene extends SharedPauseScene {
   constructor() {
     super({
       key: SCENES.pause,
       titleKey: SCENES.title,
       controls: CONTROLS_TABLE,
-      dimColor: COLORS.background,
+      dimColor: COLORS.screen,
+      onOpen: () => stopMusic(),
       onQuit: () => stopMusic(),
       onMove: () => playSound(SOUNDS.menuMove),
       onConfirm: () => playSound(SOUNDS.confirm),

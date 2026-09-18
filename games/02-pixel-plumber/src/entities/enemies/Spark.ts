@@ -60,9 +60,11 @@ export class Spark extends Enemy {
     });
 
     const flame = along(ENEMIES.sparkRadius);
-    this.setPosition(flame.x, flame.y);
-    // The body is moved by hand, so it has to be told where the sprite went.
-    this.body.updateFromGameObject();
+    // Moved by hand, so the sprite and body are put there together. Moving the sprite and then
+    // syncing the body left the body's last position behind, and on a frame with a different
+    // number of physics steps (as after the level restarts on the way back up a pipe) Arcade
+    // added the difference to the sprite, which then jumped 37 pixels each way every frame.
+    this.body.reset(flame.x, flame.y);
     this.links.forEach((link, index) => {
       const { x, y } = along((ENEMIES.sparkRadius * (index + 1)) / (this.links.length + 1));
       link.setPosition(x, y);

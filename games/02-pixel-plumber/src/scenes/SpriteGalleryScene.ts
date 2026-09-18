@@ -4,6 +4,14 @@ import type { ActionInput } from '@shared/phaser/actionInput';
 import { addPixelText } from '@shared/phaser/pixelText';
 
 import { COLORS, SCREEN, SCREEN_CONTROLS } from '../config';
+import {
+  BARON_ANIMATIONS,
+  BARON_SHEET,
+  LEVER_ANIMATIONS,
+  LEVER_SHEET,
+  SLUDGE_ANIMATIONS,
+  SLUDGE_SHEET,
+} from '../content/sprites/boss';
 import { ENEMY_ANIMATIONS, ENEMY_SHEET, SPROUT_ANIMATIONS, SPROUT_SHEET } from '../content/sprites/enemies';
 import { VALVE_WHEEL_ANIMATIONS, VALVE_WHEEL_SHEET } from '../content/sprites/levelEnd';
 import {
@@ -70,6 +78,10 @@ const GALLERY: ReadonlyArray<readonly [label: string, texture: string, animation
   ['SPARK', ENEMY_SHEET.key, ENEMY_ANIMATIONS.spark.key],
   ['CHAIN', ENEMY_SHEET.key, ENEMY_ANIMATIONS.chainLink.key],
   ['WHEEL', VALVE_WHEEL_SHEET.key, VALVE_WHEEL_ANIMATIONS.turn.key],
+  ['BARON', BARON_SHEET.key, BARON_ANIMATIONS.stand.key],
+  ['B THROW', BARON_SHEET.key, BARON_ANIMATIONS.throw.key],
+  ['SLUDGE', SLUDGE_SHEET.key, SLUDGE_ANIMATIONS.fly.key],
+  ['LEVER', LEVER_SHEET.key, LEVER_ANIMATIONS.pull.key],
 ];
 
 const PAGES = Math.ceil(GALLERY.length / PER_PAGE);
