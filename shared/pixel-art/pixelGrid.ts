@@ -66,6 +66,22 @@ export class PixelGrid {
     });
   }
 
+  /** Surrounds everything drawn so far with a one-pixel border: every empty pixel that touches a drawn one, side by side. */
+  outline(symbol: string): void {
+    const drawn = (x: number, y: number): boolean => {
+      const cell = this.cells[y]?.[x];
+      return cell !== undefined && cell !== TRANSPARENT_PIXEL && cell !== symbol;
+    };
+    const border: Array<readonly [number, number]> = [];
+    this.cells.forEach((row, y) => {
+      row.forEach((cell, x) => {
+        if (cell !== TRANSPARENT_PIXEL) return;
+        if (drawn(x - 1, y) || drawn(x + 1, y) || drawn(x, y - 1) || drawn(x, y + 1)) border.push([x, y]);
+      });
+    });
+    border.forEach(([x, y]) => this.plot(x, y, symbol));
+  }
+
   toPixelMap(): PixelMap {
     return this.cells.map((row) => row.join(''));
   }

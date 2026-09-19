@@ -24,9 +24,15 @@ export class ActionInput<Action extends string> {
   private readonly keyPressesSinceUpdate = new Set<Action>();
   private held = new Set<Action>();
   private pressed = new Set<Action>();
+  private readonly gamepadSlot: number | undefined;
 
-  constructor(scene: Phaser.Scene, bindings: ActionBindings<Action>) {
+  /**
+   * `gamepadSlot` limits the gamepad buttons to one pad, counted in the order they connected
+   * (0 = the first), so two players can each have their own. Without it every pad counts.
+   */
+  constructor(scene: Phaser.Scene, bindings: ActionBindings<Action>, gamepadSlot?: number) {
     this.bindings = bindings;
+    this.gamepadSlot = gamepadSlot;
     // Object.keys loses the key type, but the keys come straight from `bindings`.
     this.actions = Object.keys(bindings) as Action[];
 
@@ -54,7 +60,8 @@ export class ActionInput<Action extends string> {
   update(): void {
     const held = new Set<Action>();
     const pressed = new Set<Action>();
-    const gamepads = readGamepads();
+    const connected = readGamepads();
+    const gamepads = this.gamepadSlot === undefined ? connected : connected.slice(this.gamepadSlot, this.gamepadSlot + 1);
 
     for (const action of this.actions) {
       const isActive = this.isActive(action, gamepads);

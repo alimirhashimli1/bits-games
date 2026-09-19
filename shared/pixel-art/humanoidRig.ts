@@ -39,7 +39,22 @@ export interface HumanoidBody {
     readonly skin: string;
     readonly skinShade: string;
     readonly belt: string;
+    /** Upper arms, which default to the cloth (long sleeves). Use the skin symbols for bare arms. */
+    readonly sleeve?: string;
+    readonly sleeveShade?: string;
+    /** Legs, which default to the cloth. */
+    readonly legs?: string;
+    readonly legsShade?: string;
+    /** Fists and feet, which default to the skin: gloves, hand wraps, boots. */
+    readonly fist?: string;
+    readonly fistShade?: string;
+    readonly foot?: string;
+    readonly footShade?: string;
   };
+  /** An arm with no hand: its forearm ends at the wrist. Both hands are drawn if left out. */
+  readonly missingHand?: 'near' | 'far';
+  /** A symbol to outline the whole figure with, one pixel wide. No outline if left out. */
+  readonly outline?: string;
   /** Optional cloak hanging from the shoulders, drawn behind the body. */
   readonly cape?: {
     readonly symbol: string;
@@ -66,45 +81,51 @@ export function drawHumanoid(pose: HumanoidPose, body: HumanoidBody): PixelMap {
   const { symbols, thickness } = body;
 
   if (body.cape) drawCape(grid, body.cape, pose, thickness.torso);
-  drawLeg(grid, body, pose.hip, pose.farLeg, symbols.clothShade, symbols.skinShade);
-  drawArm(grid, body, pose.shoulder, pose.farArm, symbols.clothShade, symbols.skinShade);
+  drawLeg(grid, body, pose.hip, pose.farLeg, 'far');
+  drawArm(grid, body, pose.shoulder, pose.farArm, 'far');
 
   grid.line(pose.shoulder, pose.hip, thickness.torso, symbols.cloth);
   grid.line(pointTowards(pose.hip, pose.shoulder, BELT_SIZE - 1), pose.hip, thickness.torso, symbols.belt);
 
-  drawLeg(grid, body, pose.hip, pose.nearLeg, symbols.cloth, symbols.skin);
+  drawLeg(grid, body, pose.hip, pose.nearLeg, 'near');
   drawHead(grid, body.head, pose);
-  drawArm(grid, body, pose.shoulder, pose.nearArm, symbols.cloth, symbols.skin);
+  drawArm(grid, body, pose.shoulder, pose.nearArm, 'near');
 
+  if (body.outline) grid.outline(body.outline);
   return grid.toPixelMap();
 }
 
-function drawArm(
-  grid: PixelGrid,
-  body: HumanoidBody,
-  shoulder: Point,
-  [elbow, hand]: HumanoidPose['nearArm'],
-  sleeveSymbol: string,
-  skinSymbol: string,
-): void {
-  grid.line(shoulder, elbow, body.thickness.upperArm, sleeveSymbol);
-  grid.line(elbow, hand, body.thickness.forearm, skinSymbol);
-  grid.square(hand, body.thickness.fist, skinSymbol);
+/** Near limbs are in front of the body in full colour; far limbs are behind it, in shade. */
+type Side = 'near' | 'far';
+
+/** The symbol for each part of a limb on one side, with the defaults filled in. */
+function limbSymbols({ symbols }: HumanoidBody, side: Side) {
+  const near = side === 'near';
+  const cloth = near ? symbols.cloth : symbols.clothShade;
+  const skin = near ? symbols.skin : symbols.skinShade;
+  return {
+    sleeve: (near ? symbols.sleeve : symbols.sleeveShade) ?? cloth,
+    forearm: skin,
+    fist: (near ? symbols.fist : symbols.fistShade) ?? skin,
+    legs: (near ? symbols.legs : symbols.legsShade) ?? cloth,
+    foot: (near ? symbols.foot : symbols.footShade) ?? skin,
+  };
 }
 
-function drawLeg(
-  grid: PixelGrid,
-  body: HumanoidBody,
-  hip: Point,
-  [knee, foot]: HumanoidPose['nearLeg'],
-  clothSymbol: string,
-  skinSymbol: string,
-): void {
-  grid.line(hip, knee, body.thickness.leg, clothSymbol);
-  grid.line(knee, foot, body.thickness.leg, clothSymbol);
+function drawArm(grid: PixelGrid, body: HumanoidBody, shoulder: Point, [elbow, hand]: HumanoidPose['nearArm'], side: Side): void {
+  const parts = limbSymbols(body, side);
+  grid.line(shoulder, elbow, body.thickness.upperArm, parts.sleeve);
+  grid.line(elbow, hand, body.thickness.forearm, parts.forearm);
+  if (body.missingHand !== side) grid.square(hand, body.thickness.fist, parts.fist);
+}
+
+function drawLeg(grid: PixelGrid, body: HumanoidBody, hip: Point, [knee, foot]: HumanoidPose['nearLeg'], side: Side): void {
+  const parts = limbSymbols(body, side);
+  grid.line(hip, knee, body.thickness.leg, parts.legs);
+  grid.line(knee, foot, body.thickness.leg, parts.legs);
 
   const [footX, footY] = foot;
-  grid.fillRect(footX - 1, footY - FOOT_HEIGHT + 1, FOOT_LENGTH, FOOT_HEIGHT, skinSymbol);
+  grid.fillRect(footX - 1, footY - FOOT_HEIGHT + 1, FOOT_LENGTH, FOOT_HEIGHT, parts.foot);
 }
 
 /**

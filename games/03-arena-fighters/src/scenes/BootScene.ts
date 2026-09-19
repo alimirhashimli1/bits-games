@@ -1,18 +1,29 @@
 import * as Phaser from 'phaser';
 
-import { addCenteredPixelText } from '@shared/phaser/pixelText';
+import { devStartScene } from '@shared/phaser/devStartScene';
+import { registerSprites } from '@shared/phaser/pixelSprites';
 
-import { COLORS, SCREEN } from '../config';
-import { SCENES } from './sceneKeys';
+import { SPRITES } from '../content/sprites';
+import type { MatchResult } from '../systems/matchSetup';
+import { devMatchSetup } from './devMatchSetup';
+import { SCENES, type SceneKey } from './sceneKeys';
 
-/** First scene. For now it only shows the game's name, until the scene flow exists. */
+/** Scenes that the `?scene=` development shortcut may jump to. */
+const JUMPABLE_SCENES: readonly SceneKey[] = Object.values(SCENES).filter((key) => key !== SCENES.boot);
+
+/** First scene: turns all pixel art into textures, then opens the title screen. */
 export class BootScene extends Phaser.Scene {
   constructor() {
     super(SCENES.boot);
   }
 
   create(): void {
-    addCenteredPixelText(this, SCREEN.height / 2 - 12, 'ARENA FIGHTERS', { color: COLORS.title, scale: 2 });
-    addCenteredPixelText(this, SCREEN.height / 2 + 12, 'IN DEVELOPMENT', { color: COLORS.muted });
+    registerSprites(this, SPRITES);
+
+    // Development only: the address bar can jump to any scene with any match (see devMatchSetup).
+    const setup = devMatchSetup();
+    const result: MatchResult = { setup, winner: 0 };
+    const scene = devStartScene(JUMPABLE_SCENES) ?? SCENES.title;
+    this.scene.start(scene, scene === SCENES.results ? result : setup);
   }
 }

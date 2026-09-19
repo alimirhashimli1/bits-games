@@ -40,7 +40,7 @@ export const GAME_CATALOG: readonly GameEntry[] = [
     title: 'Arena Fighters',
     genre: 'Versus Fighter',
     description:
-      'Pick a fighter and battle the CPU, a friend on the same keyboard, or anyone online by sending them a link.',
+      'Pick one of ten fighters and battle the CPU, a friend on the same keyboard, or anyone online by sending them a link.',
     labelColor: '#9b5de5',
     status: 'in-development',
   },

@@ -1,20 +1,38 @@
 # 🥊 Game 03: Arena Fighters
 
-A one-on-one versus fighting game inspired by **Street Fighter II** (1991). Pick a fighter and battle the CPU, a friend on the same keyboard, or anyone online by sending them a link. All characters, story and art are original.
+A one-on-one versus fighting game inspired by **Street Fighter II** (1991). Pick one of fifteen fighters and battle the CPU, a friend on the same keyboard, or anyone online by sending them a link. All characters, story and art are original.
 
 ## Story
 
-Every ten years the **Iron Crown** tournament is held in the tower city of **Vanmoor**, and every ten years its host, **Magnus Vane**, keeps the crown. Four fighters have their own reasons to take it from him. Each one fights through the others to reach the top of his tower.
+Every ten years the **Iron Crown** tournament is held in the tower city of **Vanmoor**, and every ten years its host, **Magnus Vane**, keeps the crown. This time fifteen fighters answer the call, each with their own reason to take it from him. Only one can fight through the rest to reach the top of his tower.
 
 ## Fighters
 
-| Fighter | Style | Special moves |
-|---------|-------|---------------|
-| **Brand** | Balanced street brawler. The one to learn the game with. | *Ember Shot*: a fireball. *Flare Rise*: a rising uppercut that beats jump-ins. |
-| **Tala** | Fast dancer-kicker with a short reach and quick feet. | *Whirl Kick*: a spinning kick that travels. *Cartwheel*: a dash that passes through fireballs. |
-| **Grom** | Huge, slow wrestler who hits very hard. | *Boulder Toss*: a command throw. *Ram*: a charging headbutt. |
-| **Nova** | Long-legged kickboxer who controls space. | *Static Wave*: a slow projectile. *Thunder Heel*: an overhead axe kick that must be blocked standing. |
-| **Magnus Vane** | The boss. CPU only, at the end of arcade mode. | His own set, revealed in step 15. |
+Fifteen playable fighters, each with two special moves and a home arena, plus the boss. Every fighter's specials are entered the same way, with a punch (P = light or heavy punch; heavy gives the stronger version):
+
+- **Special 1: ← ↓ → + P.** On the keyboard, player 1 taps A, S, D, then F or G.
+- **Special 2: hold ←, then → + P.** A charge: hold ← (or ↙, which keeps the fighter in place) for half a second, then press → and the punch together.
+
+Directions are written for a fighter facing right; facing left, they are mirrored.
+
+| # | Fighter | Style | Special 1: ← ↓ → + P | Special 2: hold ←, then → + P | Home arena |
+|---|---------|-------|----------------------|-------------------------------|------------|
+| 1 | **Brand** | Balanced street brawler. The one to learn the game with. | *Ember Shot*: a fireball. | *Flare Rise*: a rising uppercut that beats jump-ins. | Harbour docks at dusk |
+| 2 | **Tala** | Fast dancer-kicker with a short reach and quick feet. | *Whirl Kick*: a spinning kick that travels. | *Cartwheel*: a dash that passes through projectiles. | Festival plaza with lanterns |
+| 3 | **Grom** | Huge, slow wrestler who hits very hard. | *Boulder Toss* (up close): a command throw. | *Ram*: a charging headbutt. | Mountain mine |
+| 4 | **Nova** | Long-legged kickboxer who controls space. | *Static Wave*: a slow projectile. | *Thunder Heel*: an overhead axe kick that must be blocked standing. | Power station |
+| 5 | **Kestrel** | Acrobat who lives in the air. | *Talon Dive*: a leap into a steep dive kick. | *Wall Leap*: leaps to the arena edge and springs back off the wall. | Bamboo forest |
+| 6 | **Old Wen** | Elderly master: slow feet, dangerous hands. | *Spirit Palm*: a short burst of force. | *Crane Stance*: a counter that catches a hit and answers it. | Monastery courtyard |
+| 7 | **Rook** | Patient soldier who charges his moves. | *Rail Shot*: a fast projectile. | *Hook Flip*: a flipping kick that beats jump-ins. | Airfield hangar |
+| 8 | **Knox** | Boxer with the fastest dash in the game. | *Rush Jab*: a dashing punch. | *Dash Upper*: a dashing uppercut. | Back-alley boxing gym |
+| 9 | **Cometa** | Masked high-flying wrestler. | *Star Clutch* (up close): a suplex command throw. | *Comet Press*: a flying body press. | Night-market wrestling ring |
+| 10 | **Sable** | Mysterious shadow fighter who keeps you guessing. | *Shade Orb*: a projectile (the heavy punch angles it upwards). | *Veil Step*: vanishes and reappears behind. | Moonlit ruins |
+| 11 | **Kanan** | Red-haired powerhouse, as strong as Grom but a striker, not a grappler. | *Quake Stomp*: stamps a shockwave along the floor that must be blocked crouching. | *Titan Rush*: a shoulder charge that bursts through projectiles. | Iron foundry |
+| 12 | **Mahmood** | One-handed fighter, light on his feet, who does most of his work with his legs. | *Lion Palm*: a long lunge behind his one palm. | *Rising Heel*: a springing heel kick that beats jump-ins. | City rooftops at sunset |
+| 13 | **Rajab** | A gambler who reads his opponent and calls their bluff. | *Card Toss*: razor-edged cards, faster than a fireball. | *Bluff*: a counter that catches a blow and answers it. | Casino hall |
+| 14 | **Azar** | A doctor, precise as a fencer. | *Syringe Dart*: a thrown injection. | *Needle Sting*: a quick fencer's lunge with a needle. | Clinic street at night |
+| 15 | **Osal** | A military doctor, trained to take people down and patch himself up. | *Field Tackle* (up close): a diving tackle and pin, a command throw. | *Adrenaline*: a shot that wins back health, once per round. | Field camp at dusk |
+| Boss | **Magnus Vane** | The host. CPU only, at the end of arcade mode. | His own set, designed in the boss step. | | The tower roof |
 
 ## How it plays
 
@@ -22,18 +40,18 @@ Every ten years the **Iron Crown** tournament is held in the tower city of **Van
 - **Four attack buttons:** light punch, heavy punch, light kick, heavy kick. Standing, crouching and jumping versions of each.
 - **Blocking:** hold away from the opponent. Standing blocks stop high attacks and overheads, crouching blocks stop low attacks. Blocked special moves still chip a little health.
 - **Throws:** light punch + light kick up close. Pressing the same buttons at the same moment escapes the throw.
-- **Special moves** use classic motion inputs, such as ↓ ↘ → + punch. The game reads the last half-second of inputs, so they do not need frame-perfect timing.
+- **Special moves** use the same two inputs for every fighter (see the table above): ← ↓ → + punch, and a charge, hold ← then → + punch. The game reads the recent inputs generously, so they do not need frame-perfect timing: the three directions can be tapped one by one.
 - **Combos:** some normal attacks can be cancelled into special moves on hit or block, and a combo counter shows the hits.
 - **Knockdowns:** heavy hits, throws and some specials knock the opponent down. They get up after a fixed time and cannot be hit while they are down.
 - **Game modes:**
-  - **Arcade:** fight the other three fighters, then Magnus Vane, with a story intro and an ending for each fighter. Continue after a loss.
+  - **Arcade:** fight seven of the other fighters in a shuffled order, then Magnus Vane, with a story intro and an ending for each fighter. Continue after a loss.
   - **Versus:** two players on one keyboard, one keyboard plus a gamepad, or two gamepads.
   - **Online:** one player creates a room and sends the link. The other opens it and the match starts. There are no accounts, and nothing is stored on a server.
-- **Five arenas**, one for each fighter plus the tower roof. Each has animated crowds and background details.
+- **Sixteen arenas**, one for each fighter plus the tower roof. Each has animated crowds and background details. In versus mode any arena can be picked.
 
 ## Controls
 
-The keyboard is shared in versus mode, so each player gets their own half. Gamepads work for either player. The final layout is fixed in step 4 and listed on the controls screen.
+The keyboard is shared in versus mode, so each player gets their own half. Gamepads work for either player: in versus the first pad to connect is player 1 and the second is player 2. Keyboards differ in how many keys they register at once, so two players on one keyboard may find some combinations do not come through; a gamepad avoids that.
 
 | Action | Player 1 | Player 2 | Gamepad |
 |--------|----------|----------|---------|
@@ -49,24 +67,117 @@ In arcade and online mode, the single player uses the Player 1 keys or any gamep
 ## Technical plan
 
 - **Engine:** Phaser (already installed) draws the game and runs the menus. The fight itself does **not** use Phaser physics.
+- **Scene flow** (`src/scenes/`): Boot → Title → Mode Select → Character Select → VS → Fight → Results, which offers a rematch, new fighters or the title. Esc steps back one screen at a time. A `MatchSetup` (`src/systems/matchSetup.ts`: the mode, both fighters, the arena and the match rules) is handed from scene to scene, so a rematch or "change fighters" starts from the last choices. Screens without a menu read their keys through `ScreenInput`, which ignores its first frame like the shared menu does, so a gamepad button still held from the last screen cannot skip the next one.
 - **Resolution:** 320×180 pixels through `@shared/phaser/createPixelGame`, the same as games 01 and 02.
 - **Fight simulation** (`src/systems/sim/`): the fight is a pure, fixed-step simulation that runs at 60 steps per second. Each step takes the current state and one input per player and returns the next state. The simulation does not read the clock, `Math.random` or anything else from Phaser.
-  - **Whole numbers only.** Positions and speeds are integers in sub-pixels (1 pixel = 256 units), and randomness comes from a seeded generator stored in the state. Two browsers given the same inputs therefore compute the same fight, frame for frame, which is what makes online play possible.
+  - **Whole numbers only.** Positions and speeds are integers in sub-pixels (1 pixel = 256 units), and only `+`, `-`, `*` and truncated division are used on them. Two browsers given the same inputs therefore compute the same fight, frame for frame, which is what makes online play possible.
+  - **No randomness inside.** Anything random, such as the CPU's choices, happens outside the simulation and reaches it as inputs, so there is no random seed to keep in step between two browsers.
+  - **One step** (`stepFight.ts`): both fighters move from their own input (`movement.ts`: walking, slower backwards, crouching, and jumps whose direction is fixed at take-off), then the bodies are sorted out (`pushboxes.ts`): overlapping push boxes are shared out half each, fighters who end up more than a screen apart are pulled back by whoever moved away, the arena walls hold them in, and a fighter pinned against a wall makes the other take the whole push. Last, fighters on the ground turn to face each other, unless they are in the middle of a move, so a dash that carries a fighter past the opponent keeps going the same way. In the air the push box starts above the feet, which is what lets a jump clear an opponent.
+  - **The clock** (`fixedStepClock.ts`) turns each screen frame into a whole number of steps, so the fight runs at the same speed on any refresh rate. The camera (`camera.ts`) is worked out from the state and centred between the fighters, and it stops at the arena's ends.
+  - **Replay check:** the fight scene records every step's inputs. **R** (a dev key until the real menus exist) replays them from the first state and compares a checksum (`checksum.ts`, FNV-1a over the state's numbers) with the live fight. The same checksum will catch desyncs in online play.
   - Phaser scenes only **draw** the current state: sprites, the HUD, camera and effects.
 - **Inputs** (`src/systems/input/`): every source, whether keyboard half, gamepad, CPU or online opponent, is turned into one small **bitmask per frame** (4 directions and 4 buttons). The simulation cannot tell who is playing, so the CPU cannot cheat and an online opponent is handled like any other player.
-  - A short **input history** is kept per player, and motion inputs (↓ ↘ →, → ↓ ↘, charge back then forward, …) are read from it with a little leniency.
-- **Frame data** (`src/content/fighters/`): every move is data: startup, active and recovery frames, damage, hitstun, blockstun, pushback, how it must be blocked (high, low or overhead) and what it can cancel into. Hitboxes and hurtboxes are listed per frame. Every number lives there or in `config.ts`.
-- **Hitbox debug view:** press **H** during a fight to see hurtboxes, hitboxes and throw boxes.
-- **Art:** fighters are posed with the shared humanoid rig (`@shared/pixel-art/humanoidRig`), each with its own body, head and palette. Arenas and effects are text pixel maps. There are no image files.
-- **CPU** (`src/systems/cpu/`): the CPU produces inputs just like a player. It reacts after a delay and makes mistakes on purpose, both set per difficulty. Each fighter has its own tendencies: Grom walks in for throws, and Nova keeps her distance.
-- **Online play** (`src/systems/net/`, PeerJS installed in step 18):
+  - The bits are four directions and the four buttons (`inputBits.ts`). Left + right held together cancel out and up + down counts as up, so nobody can walk forward and block at once. A button tapped and let go between two frames still counts as pressed.
+  - `LocalInput` reads one player's half of the keyboard and their gamepad (`PLAYER_CONTROLS` in `config.ts`). The shared `ActionInput` gained an optional **gamepad slot** for this: without one, every pad counts, which is what menus want; with one, a player listens only to their own pad. With one player at the keyboard (arcade, online), any pad drives player 1.
+  - The **input history** (the last 64 steps per player) lives in the fight state, so both players online read motions from exactly the same data.
+  - **Motions** (`motions.ts`) are read in keypad numbers seen from the fighter: 5 is neutral, 6 forward, 2 down, so ← ↓ → is 426 whichever way the fighter faces. There are only two motions, shared by every fighter so their specials are all entered the same way: **426** (the half circle ← ↙ ↓ ↘ →, whose diagonals are welcome but not needed) and the charge **(4)6**. The half circle's directions must appear in order within a second, with anything in between, and → within a quarter of a second of the button, so on a keyboard tapping A, S, D and then the punch one by one is enough. A charge must be held for 30 steps (half a second), with ↙ counting as ←, and the release may follow up to 10 steps after letting go, with the button within 8 steps of it.
+  - An input can finish both motions at once (a charge held, then ← ↓ →), so the reader reports every motion finished; each fighter lists the half-circle special first, so it wins.
+  - **Input debug view:** **I** in a fight shows each player's held direction and buttons, and their last press with the motions read with it.
+- **Frame data** (`src/content/fighters/`): every move is data: startup, active and recovery frames, damage, hitstun, blockstun, pushback, how it must be blocked (high, low or overhead) and what it can cancel into. Every number lives there or in `config.ts`.
+  - **A move is a list of segments** (`moves.ts`): a pose held for a number of steps. Segments that can hit name a **strike**: the limb it lands with (a fist, a foot, or the head for a headbutt) and the size of the box around it. A command throw's segments are marked as a **grab** instead. Startup is everything before the first strike or grab, active is the striking and grabbing segments, recovery is what follows. A fighter's moves are typed against the list of twelve normals, so none can be left out. Brand's are in `brand/brandMoves.ts`: a jab is 3 steps of startup, 3 active and 6 of recovery, while his roundhouse takes 8 to come out and 16 to recover.
+  - **Hurtboxes come from the pose** (`src/systems/sim/boxes.ts`): the head, the torso and each limb of whatever pose a fighter is in become a box, worked out once per pose from its joint positions and the body's thickness. An outstretched leg can be hit, which is what makes a missed heavy kick punishable, and every fighter gets boxes that fit their build with nothing drawn by hand. The **hitbox** sits on the striking fist or foot of the active pose. All of it is whole numbers, so both players online get the same boxes.
+  - **Starting a move** (`src/systems/sim/attacks.ts`): a newly pressed button starts the standing move, the crouching one if ↓ is held, or the jumping one in the air, once per jump. When buttons are pressed together the heaviest wins. A fighter stays put for the length of a ground move, and landing ends a jumping one. The pose a fighter is in (`pose.ts`) is part of the fight, since it decides their hurtboxes; the sprite simply shows it.
+  - `src/content/fighters/fighterData.ts` holds each built fighter's art, moves, specials, CPU style and **movement**: walking speeds forwards and back, jump height and jump drift (`fighterMovement.ts`). Brand uses the standard numbers from `config.ts`; others adjust them. Gravity is the same for everyone. Fighters not built yet stand in as Brand, in looks and in moves.
+- **Fifteen fighters without fifteen copies:** a fighter is a data folder (`src/content/fighters/<name>/`) with a body, poses, frame data, specials and CPU tendencies. Walking, jumping, blocking, hit reactions, throws and knockdowns are shared by everyone, so a new fighter is only the things that make them different. Special moves are built from a small set of shared behaviours (projectile, rising attack, dash attack, command throw, dive, teleport, counter), each tuned by numbers.
+- **Combat rules** (`src/systems/sim/`, numbers in `COMBAT` in `config.ts` and in each strike):
+  - **Status** (`fightState.ts`): a fighter is free, reeling (hitstun), holding a block (blockstun), knocked down (falling, lying, rising), throwing or being thrown. Only a free fighter answers their controls; the rest count down (`status.ts`). Health, a pushback slide and the combo count are part of the state too, and all of it goes into the checksum.
+  - **Strikes** carry their damage, hitstun, blockstun, pushback and **guard**: a mid is blocked standing or crouching, a low only crouching, an overhead only standing. Every jumping attack is an overhead.
+  - **Landing a blow** (`hits.ts`): both fighters' strikes are checked on the same step, so two blows landing together both count. A move hits once. **Blocking** is holding away from the attacker on the ground while free and not attacking, or while already blocking; there is no blocking in the air. A hit cancels the defender's own move; a hit in the air, a knockdown strike or the last of their health knocks them down. At 0 health the fighter is knocked out and stays down.
+  - **Pushback:** the one hit or blocking slides away, slowing each step. Against the wall they cannot go back, so the attacker slides back instead.
+  - **Hitstop:** both fighters freeze for 7 steps on a hit and 5 on a block. Inputs are still recorded during the freeze, so a motion can be entered in it, and buttons pressed in it are kept aside (`buffered` in the state) and count as fresh presses when it ends. That is how a special move is cancelled out of a normal that has just hit: the motion goes in during the freeze.
+  - **Knockdowns:** off their feet in an arc, then lying for 30 steps and rising for 20. There are no hurtboxes at any point of it, so nothing can hit a fighter who is down.
+  - **Throws** (`throws.ts`): light punch and light kick within 3 steps of each other, near a standing opponent who is not reeling or blocking. The first of the two presses has usually started a light normal, so a throw may take over during that move's first steps. The one thrown can break free with the same buttons during the first 10 steps; both then let go, are pushed apart and hold their guard for a moment, so the buttons that broke the throw do not also attack. Two throws at once break each other. A clean throw costs 120 health and knocks down. Nobody can be thrown during the invulnerable start of a rising special or while passing through in a dash. The throw status names which throw is under way (the ordinary one or a command throw), and the checksum includes it.
+  - **Cancels** (`attacks.ts`): once a normal has connected and is past its startup, it can be cut short. Light normals (`chain`) cancel into another light normal or a special move, which is how three crouching jabs chain into a combo; Brand's standing and crouching heavy punches (`special`) cancel into special moves only; his heavy kicks do not cancel. Light attacks push back only a little, so a chain stays in reach.
+- **Special moves** (`src/content/fighters/specials.ts`, each fighter's in their own folder, such as `brand/brandSpecials.ts`):
+  - A special is a motion, its move segments and one shared **behaviour** tuned by numbers. Specials are always started with a punch, so the kicks never give one: the light or heavy punch picks the light or heavy version of those numbers. So far there are six behaviours: **projectile**, **rising**, **dash**, **command throw**, **counter** and **heal**; the others (dive, teleport) arrive with the fighters who need them. A projectile can start a few pixels above its limb (`upPx`), which is how a shockwave rolls along the floor rather than half inside it, and its strike carries its own guard, so a low one must be blocked crouching.
+  - **Starting one:** when a button is pressed, the fighter's specials are tried in their listed order, longest motion first, and the first whose motion was just completed (read from the input history, facing the way the fighter faces) comes out. Otherwise the button gives a normal. Specials start from the ground, from a free fighter or as a cancel. Walking forward into a punch, crouching and then walking forward into one, a short hold before →, or a motion finished too long before the button all give a normal.
+  - **Projectiles** (`src/systems/sim/projectiles.ts`) are part of the fight state. One leaves the hand on its move's spawn step, flies at its own speed (the heavy version faster), and is used up when it touches its target, who blocks it or takes it like any other strike. Blocked specials **chip** a little health. Two projectiles from different players that touch cancel each other out, and a fighter can only have one out at a time: the motion then gives a normal instead.
+  - **Rising specials** launch the fighter on their launch step, strike on the way up and cannot be hit for their first few steps (longer for the heavy version). The move holds its airborne pose until the fighter lands, then plays its last segment as the recovery on landing, which is when a missed one is punished.
+  - **Brand:** *Ember Shot* (← ↓ → + P) throws a fireball on step 10 for 70 damage (15 chip). *Flare Rise* (hold ←, then → + P) comes out of a crouch into a rising uppercut for 110 damage that knocks down; the heavy version rises higher and cannot be hit for its first 8 steps, the light one for 4.
+  - **Dash specials** carry the fighter along the floor at their own speed from one step of the move to another (the heavy version faster, so further), striking through the move's segments if it has any. A dash can be **projectile-proof**, so projectiles fly straight through the fighter while they travel, and can **pass through** the opponent: neither pushes the other, so the fighter can come out on the far side. Once the dash is over, bodies push apart as usual. A dash can also **stop on contact**: its travel ends the moment it hits or is blocked, like Grom's charge meeting a wall. Knox's dashing punches (step 18) will reuse it.
+  - **Command throws** (`resolveCommandThrows` in `throws.ts`) are checked once both fighters have moved. On a grab step, an opponent in reach (the light version reaches further) who could be thrown is caught, whatever they are pressing: blocking does not help, and neither does the throw break. The throw then plays its own **hold** poses. Part-way through, the opponent is lifted overhead (off the floor, so the bodies do not push, and drawn lying flat, held like a log), and at the end they are tossed forward into a knockdown. A miss plays out the rest of the move, which is a long whiff. An opponent who is reeling, blocking or in the air cannot be caught, so a blocked jab must be waited out before the throw will catch.
+  - **Charge specials** use the charge reader from step 4: hold back (or down-back, which keeps the fighter in place) for half a second, then forward + the button within 10 steps of letting go. Holding a block counts as charging. Every fighter's second special is a charge.
+  - **Grom:** *Boulder Toss* (← ↓ → + P) grabs from 40 pixels between centres with the light punch or 34 with the heavy, for 190 or 230 damage. A miss leaves him reaching for 30 steps. *Ram* (hold ←, then → + P) is a headbutt charge, 44 pixels light or 64 heavy, for 110 damage that knocks down (18 chip). It stops dead on contact and is punishable when blocked: at close range Grom recovers about 12 steps after the one blocking. It is listed after Boulder Toss, since a charge held while doing the half circle would also read as Ram.
+  - **Tala:** *Whirl Kick* (← ↓ → + P) spins forward across the floor, 32 pixels light or 45 heavy, with five alternating kicks that can each land for 75 damage (12 chip). A move hits once, so it catches whatever it runs into, but it ends crouched and open: blocked, it leaves her about 9 steps to be punished. *Cartwheel* (hold ←, then → + P) turns her over on her hands and travels, about 45 pixels light and 63 heavy. It does no damage; projectiles pass through her and so does her opponent, so the light one closes the distance and the heavy one crosses up from about a jump's distance away.
+  - **Counters** (`answerWith` in `hits.ts`): during a counter's catch steps, a strike that would land on the fighter is caught instead. The attacker, in the middle of their own move and unable to block, takes the counter's answer at once, and the counter jumps to its answering poses. Uncaught, it ends where the answer would begin, and the time before is its whiff. Projectiles and throws are not caught.
+  - **Heals**: a heal wins back health on its heal step, never above full, and only once per round (`healUsed` in the fight state, part of the checksum). Starting it spends the once, so a hit before the heal lands wastes it. The HUD's health bar simply grows back.
+  - A command throw may leave out its **lift**: the opponent then stays on their feet, reeling, until the toss, as in a tackle.
+  - Special-move poses (`SPECIAL_POSE_NAMES` in `poseNames.ts`) are drawn into each fighter's sheet next to the shared ones, and projectile sprites (`src/content/sprites/projectiles.ts`) are built in code: the fireball is rings of white, yellow, orange and red around a hot core, with a ragged tail that flickers over three frames.
+  - The sprite gallery shows each special after the normals, and Enter holds it on its key pose. A command throw shows its reach and then the throw, and is held on the lift.
+  - The **H** debug view outlines a command throw's reach in green during its grab steps.
+  - **Combo counter:** hits taken while still reeling or falling count up, and "3 HITS" shows on the side of the one landing them.
+- **Rounds** (`src/systems/sim/rounds.ts`, timings in `ROUND` in `config.ts`): the rounds are part of the fight state, so both players online agree on the clock, every KO and every winner.
+  - A round goes **intro** ("ROUND 1", or "FINAL ROUND" when both are one win from the match) → **fight** ("FIGHT!", and the clock runs; it stops during hitstop) → **KO** or **TIME** → **result** (the winner's name and win pose, or "DRAW") → the next round, set up afresh, or the end of the match. Controls only count during the fight itself, so nobody can hit a fighter who is already down and out.
+  - A KO wins the round, and two at once are a draw ("DOUBLE K.O."). When time runs out, more health wins and equal health is a draw. A drawn round counts for nobody.
+  - **Best of three:** the first to two round wins takes the match. After the third round the one with more wins takes it, and equal wins are a **draw game**.
+  - The round length and the wins needed are **match rules**, carried in the `MatchSetup` (99 seconds and 2 wins unless changed; the options screen in step 27 will set them). The fight turns the seconds into steps.
+  - Once the match is decided, the fight lingers for a moment and then shows the results, which also know a draw game.
+- **The HUD** (`src/scenes/hud/FightHud.ts`) is drawn from the state each frame: health bars that lose health from their inner end, next to the clock, with an orange strip that catches up to show recent damage; the round clock between them; names and round-win markers under the bars; the combo count on the side of the one landing it; and the big announcements in the middle.
+- **Hitbox debug view:** press **H** during a fight to see push boxes (yellow), hurtboxes (blue), hitboxes (red) and throw reach (green outline), with each move's phase and step, such as `ACTIVE 9/29`, or what holds a fighter up (`HITSTUN 11`, `BLOCKSTUN 7`, `DOWN LYING`, `THROW 5`) over their head.
+- **Frame advance:** **P** freezes the fight and **O** runs exactly one step, as in a training mode. Together with **H** it shows a move frame by frame: Brand's standing heavy kick has no hitbox on steps 1 to 8, one on his foot on steps 9 to 13, and none from 14 on while his leg is still out.
+- **Art:** fighters are posed with the shared humanoid rig (`@shared/pixel-art/humanoidRig`), each with their own body, head and palette. Arenas and effects are text pixel maps. There are no image files.
+  - **The rig grew three options** for this game, all optional so Dojo Quest draws exactly as before. An arm can be drawn with **no hand** (`missingHand`), its forearm ending at the wrist, which is how Mahmood is drawn. Sleeves, trousers, fists and feet can each have their own colour instead of the cloth and skin: that is how Brand has bare arms, hand wraps, jeans and boots, and how ten fighters can look like ten different people. A body can also ask for a one-pixel **outline**, which keeps the figures readable against busy arenas.
+  - **Frames** are 64×64, facing right, feet on row 62 with the outline on row 63, and the body's centre on x = 32, so a flipped sprite stays in place. A standing fighter is about 57 pixels tall, matching the 56-pixel push box.
+  - **One pose list for everyone** (`src/content/fighters/poseNames.ts`): idle, walk, crouch, jump, blocks, hits, knockdown, get-up and win poses, plus the twelve normals and windups for the heavy ones. A fighter's poses are typed against this list, so leaving one out does not compile, and every fighter shares the same animations (`src/content/sprites/fighterSprites.ts`).
+  - **Brand** (`src/content/fighters/brand/`): spiky dark hair, a sleeveless red top, bare arms with white hand wraps, blue jeans and brown boots. His normals are a jab, a rear straight, a snap kick and a high roundhouse standing; a low jab, a rising uppercut, a shin poke and a sweep crouching; and two punches, a knee and a flying kick in the air.
+  - **Tala** (`src/content/fighters/tala/`): slimmer than Brand, with a dark ponytail and a gold headband, a teal top, bare arms, flowing orange trousers with a gold sash, and bare feet. She fights from a low, loose dancer's stance with her lead hand out. Her normals are quicker and a little lighter than Brand's, and her kicks reach further than her punches: a palm, a hammer fist, a shin kick and a high hook kick standing; a low palm, a rising palm against jump-ins, a low shin kick and a long spinning sweep crouching; and two palms, a knee and a split kick in the air. She walks faster than Brand (448 forwards, 384 back) and jumps a little higher and further. Her blocks, hits, falls and jumps reuse Brand's poses, since the body mechanics are the same.
+  - **Grom** (`src/content/fighters/grom/`): a bald, bearded giant with a heavy brow, an olive wrestling singlet with a wide leather belt, bare arms with leather wrist wraps, a miner's brown trousers and iron-grey boots. He is built much thicker than Brand (a 15-pixel torso), so his hurtboxes are bigger too. He stands hunched with his hands low and open, ready to grab. His normals are the slowest in the game and hit the hardest:
+    - standing: a heavy jab, a two-handed hammer blow, a stamping kick and a big boot;
+    - crouching: a low punch, a rising forearm against jump-ins, a shin kick and a sliding sweep;
+    - in the air: an elbow, a double-fist club, a knee and a two-footed stomp.
+
+    He walks slowly (320 forwards, 256 back) and jumps low. His jumps, falls and getting up reuse Brand's poses; his own are the stance, walk, blocks, hits, wins, normals and the five special-move poses (reach, lift, heave, ram windup and charge).
+  - **Drawing a fighter** (`src/entities/FighterView.ts`) only reads the state: idle, walking forwards or backwards (by the direction of travel against the direction faced), crouching, and a jump shown as rising, tucked at the top or falling, by its speed. Fighters without art of their own are drawn as Brand until their roster step.
+  - **Kanan** (`src/content/fighters/kanan/`): a wild red mane and full red beard, a black vest, bare arms with leather wrist bands, grey work trousers and black boots, built nearly as thick as Grom but standing tall with his fists up. His normals are a brawler's version of Brand's: a step slower and much harder (a 115-damage overhand smash, a 120-damage roundhouse). He walks at 352 forwards and 288 back and jumps low. *Quake Stomp* throws a 90-damage shockwave along the floor on step 11 (512 light, 768 heavy); it hits low, so it must be blocked crouching, and it can be jumped. *Titan Rush* is a shoulder charge (the head leads, so it is a head strike) for 120 damage that knocks down, projectile-proof and stopping on contact.
+  - **Mahmood** (`src/content/fighters/mahmood/`): short black hair and a trimmed beard, a blue track top, black trousers and white trainers, and one hand: his far arm ends at the wrist and is held in to guard his ribs. Every strike he lands is with his one hand or his feet, so his punches are a little lighter than Brand's and his kicks a little stronger. He walks faster than Brand (400 forwards, 336 back). *Lion Palm* lunges behind his palm after a 9-step windup, stopping on contact, for 75 damage. *Rising Heel* springs up with the heel thrown straight up for 105 damage that knocks down, invulnerable for its first 5 steps (9 heavy).
+  - **Rajab** (`src/content/fighters/rajab/`): slicked-back hair and a thin moustache, a burgundy waistcoat over white shirt sleeves, black suit trousers and polished shoes. He shares Brand's build, normals and footwork. *Card Toss* flicks razor-edged cards (the `card` sprite spins face, edge and back) for 60 damage, faster than a fireball (896 light, 1216 heavy) and quicker to recover from. *Bluff* opens his arms for 22 steps; a blow caught in that time is answered with a backhand for 115 that knocks down.
+  - **Azar** (`src/content/fighters/azar/`): neat brown hair, round glasses and a long white doctor's coat whose tails (the rig's cape) swing behind him. He shares Brand's build, normals and footwork, but stands upright like a fencer. *Syringe Dart* throws an injection needle first (the `syringe` sprite, half full of green serum with a glint running along the barrel) on step 7 for 85 damage. *Needle Sting* is a fencer's lunge that comes out in 4 steps, stopping on contact, for 95 damage.
+  - **Osal** (`src/content/fighters/osal/`): a dark green beret, stubble, an olive field jacket, khaki trousers and combat boots, in a low, square soldier's guard. He shares Brand's normals and footwork. *Field Tackle* dives in low and pins the opponent: a command throw with no lift, reaching 40 pixels light or 35 heavy, for 150 or 180 damage. *Adrenaline* jabs a shot into his own thigh and, 30 steps in, wins back 100 health (140 heavy), once per round; he is open for all 56 steps of it.
+  - **Sprite gallery:** `?scene=SpriteGallery&p1=brand` in `npm run dev` shows every animation, reaction and normal, ten to a page. ← → change the page, and **Enter** holds every move on its key pose for a closer look.
+- **Arenas** (`src/content/arenas/`, drawn by `src/entities/ArenaView.ts`): an arena is data, drawn behind the fighters back to front:
+  - a **sky** of flat colour bands down to the horizon, fixed in place;
+  - **layers**, each a picture that scrolls at its own fraction of the camera's speed (Phaser's scroll factor), so the far city drifts slowly and the floor moves with the fighters. Each layer is made exactly as wide as its speed needs to cover the screen from one end of the arena to the other. A layer with several frames loops them;
+  - the **crowd**: a few kinds of people (`crowdPeople.ts`, drawn in code like everything else) standing at set spots, bobbing out of step with each other, who throw their arms up and cheer from a KO or the final bell until the next round; and the layers marked to stand **in front of the crowd**, such as a railing and the floor.
+  - Every arena is the same width, so the arena changes nothing in the fight itself and is not part of the fight state.
+  - **Home arenas:** each fighter has one (`HOME_ARENAS`), and for now a match is fought in player 2's, the way arcade mode meets each opponent at home; versus mode gets its own arena choice in step 24. The `MatchSetup` carries the arena, the VS screen names it, and arenas not painted yet fall back to the docks.
+  - **Harbour docks at dusk** (`docks.ts`): a purple-to-orange sky; the sun sinking into the sea through a gap in a city skyline with lit windows; dark water whose sun reflection breaks into streaks that shimmer over three frames; a far quay with a warehouse, a crane with its hook down, stacked containers and lamp posts; dockworkers behind a wooden railing; and a plank floor with staggered seams and nails, with an iron bollard marking each end of the arena.
+  - **Festival plaza at night** (`plaza.ts`, Tala's home): a deep blue sky with a moon and stars over the town's rooftops; a row of market stalls with red- and blue-striped awnings, glowing counters and goods on the shelves; strings of paper lanterns hung between poles, sagging in the middle and swaying a pixel in the breeze over two frames; festival-goers behind a low stone wall; and a floor of square stone tiles in two shades, with a stone pillar at each end of the arena.
+  - **Iron foundry** (`foundry.ts`, Kanan's home): smoky red air, chimneys and furnace mouths whose glow pulses, a gantry hung with chains, and a tipped crucible pouring a wavering stream of molten iron into a glowing channel; workers behind an iron railing, and riveted iron floor plates with a furnace door at each end.
+  - **City rooftops** (`rooftops.ts`, Mahmood's home): a sunset sky with the sun sinking behind a skyline of lit windows, water tanks, aerials and washing lines whose laundry swings in the wind; neighbours behind a brick parapet, and tarred roofing with a chimney stack at each end.
+  - **Casino hall** (`casino.ts`, Rajab's home): deep red walls with gold panels and twinkling chandeliers, slot machines with blinking lights between green card tables, gamblers behind a velvet rope on brass posts, and a red carpet latticed with gold, with a marble column at each end.
+  - **Clinic street** (`clinic.ts`, Azar's home): a night sky over lit towers, the clinic with its windows lit and a glowing green cross over the door, an ambulance whose roof lights flash red and blue, onlookers behind metal barriers, and paving slabs with a street lamp at each end. The crosses are green: the red cross is a protected emblem.
+  - **Field camp** (`fieldCamp.ts`, Osal's home): a dusky sky over rolling hills, rows of canvas tents with the medical tent's white flag and green cross rippling, supply crates and flickering lanterns, soldiers in helmets behind sandbags, and a rutted dirt floor with a stack of crates at each end.
+  - **Mountain mine** (`mine.ts`, Grom's home): a great cavern under the mountain, with a rock ceiling hung with stalactites and ore crystals in the walls that glint over two frames. Timber supports carry oil lamps whose glow flickers. A loaded ore cart stands on rails along a rock ledge. Miners in yellow and orange helmets watch from behind a plank barrier. The floor is packed earth and gravel, with a timber post at each end of the arena.
+- **Character select:** a 5 × 3 grid of portraits drawn from each fighter's head sprite, with a large preview of the fighter under the cursor.
+- **CPU** (`src/systems/cpu/`): the CPU produces inputs just like a player. It reacts after a delay and makes mistakes on purpose, both set per difficulty. Each fighter has their own tendencies: Grom walks in for throws, Nova keeps her distance, and Rook waits for you to jump.
+  - **Controllers** (`src/systems/input/controller.ts`): whatever drives a fighter — the keyboard and gamepad (`LocalInput`), the CPU, and later the other player online — is asked for one input per step, so the fight cannot tell them apart and the CPU cannot cheat. Its inputs are recorded like a player's, so the replay check covers CPU fights too. In arcade mode player 2 is the CPU.
+  - **How it plays** (`cpuPlayer.ts`): it sees its opponent as they were a few steps ago — that delay is its reaction time. On every step it defends first: it may block an attack or projectile it sees coming (once per attack), crouching for lows and standing for overheads if it reads them right, break a throw, or meet a jump-in with an anti-air. Then it carries on with its plan, a queue of inputs played one per step. When free, it thinks up a new plan every few steps: walk in or back off to its preferred distance, a jab chain, a sweep or a throw up close, a poke at mid range, a projectile or a jump-in from afar, and a kick on the way down. Sometimes it does something rash instead. After a normal hits, it may cancel it into a special. A fighter with dash specials uses them too: a striking dash as a mid-range attack, a non-striking one to close in, and a projectile-proof one to go straight through a fireball instead of blocking it.
+  - **Special moves come from the fighter's data:** the CPU types in its fighter's motions input by input, and holds charges long enough (`inputPlans.ts`), so every fighter's specials work for it without new code. A charge it is already holding, say from blocking, only needs the release, and a charge special is only used as a reaction (an anti-air, going through a fireball, a follow-up after a hit) when it is ready. A fighter whose anti-air is a charge, like Brand, waits crouching back while the opponent is out of throw range, as charge players do, so it is stored. Up close, a fighter with a command throw goes for it, using the heavy version only when the opponent is well within its shorter reach.
+  - **Levels** (`CPU_LEVELS` in `config.ts`): easy, normal and hard differ in reaction time, how often it thinks, and its chances of blocking, reading the guard, anti-airing, breaking throws, making a mistake and comboing. **Styles** (`cpuStyle.ts`, one per fighter, such as `brand/brandCpu.ts`): preferred distance, aggression, how often it jumps, throws projectiles and goes for throws. The CPU's randomness is its own and seeded, and lives outside the fight simulation.
+  - **Tested** by playing whole matches in the real simulation: a new player who walks in, mashes buttons and never blocks beats the easy CPU 10 times in 12, but loses all 12 to the hard CPU, and even the normal CPU, which blocks and uses specials, beats the hard CPU only once in 12. Two hard CPUs are evenly matched.
+  - **Matchups** are tested the same way, with hard CPUs playing each fighter from both sides. Tala against Brand: 42 wins to 37 with one draw over 80 matches. Before her Whirl Kick was toned down (90 damage and 14 steps of recovery, now 75 and 18), it did more damage than any other move and she won 17 in 24.
+  - **Grom** was tested with a new harness that uses different CPU seeds. Over 80 matches each: Grom against Brand 33 to 45 with 2 draws, Grom against Tala 30 to 50, and Brand against Tala 30 to 49 as the baseline in the same harness. On his first numbers he won only 10 in 40 against each. Sweeps did the most damage to his wide legs, and he was too slow to get close. So he now walks faster, his legs are a pixel thinner, his sweep and big boot come out a step sooner, and Boulder Toss reaches further and hurts more (it was 170 and 210).
+  - **Counters, heals and low projectiles:** the CPU catches an attack it sees coming with a ready counter half the time instead of blocking it, and uses one against jump-ins too; a fighter whose answer to jump-ins is a charge (Brand's Flare Rise, Mahmood's Rising Heel, Rajab's Bluff) waits crouching back from a distance, so it is stored. A fighter with a heal uses it from a distance once below 60% health. It blocks a projectile the way that projectile must be blocked (crouching for Kanan's shockwave), and it only uses a striking charge dash at mid range when the charge is already stored, rather than stopping to charge in front of the opponent.
+  - **The fifteen-fighter round-robin:** every built fighter against every other, 30 hard-CPU matches a pair with sides swapped (210 matches each). First results showed Mahmood's Lion Palm, then a 5-step lunge, was faster than the hard CPU's reactions (124 wins of 140) and Rajab far behind (35); after tuning, the totals are Rajab 118, Tala 116, Mahmood 103, Osal 101, Brand 100, Grom 99, Azar 90 and Kanan 88, so every fighter wins between 42% and 56%. Three single matchups remain one-sided for the CPU, around 6 to 24: Osal over Grom, Mahmood over Grom, and Tala over Mahmood.
+  - **One set of inputs for everyone:** when every fighter moved to the same two inputs, Brand's anti-air became a charge. At first his CPU almost never had it ready (twice in 80 matches), and he lost 18 to 61 to Grom, whose jumping stomp went unanswered. With the half-second charge and the crouch-back wait described above, the same harness gives, over 80 matches each: Grom against Brand 45 to 33 with 2 draws, Grom against Tala 35 to 42 with 3 draws, and Brand against Tala 35 to 43 with 2 draws.
+- **Online play** (`src/systems/net/`, PeerJS installed in step 25):
   - The host's PeerJS id goes into the link (`?room=…`). The guest's browser connects to the host directly (WebRTC). The signalling server only introduces the two browsers. It is the free public PeerJS server unless `VITE_PEER_HOST` in `.env.local` points to your own (see `.env.example`).
   - **Delay-based lockstep:** each browser sends its input for frame *N + delay*, and a frame is only simulated once both inputs for it have arrived. The delay is a few frames, chosen from the measured round-trip time when the match starts.
   - **Every message is untrusted** (rule 14). Each message is checked against a strict shape: known type, whole-number frame within a window around the current frame, input bitmask within 0–255, and a fighter id from the roster. Anything else is dropped. Messages are never put into the page as HTML.
   - **Desync check:** every second both sides compare a checksum of the fight state, and a mismatch ends the match with a message instead of letting the two games drift apart.
   - Disconnects and pauses are handled: if the opponent's inputs stop arriving, the fight freezes and shows a notice, and after a few seconds it returns to the menu.
   - The build CSP (`tooling/csp.ts`) is extended only by the signalling server's address.
-- **Dev shortcut:** in `npm run dev`, add `?scene=Fight` (or another scene name) to jump straight to a scene, and `&p1=brand&p2=grom&stage=dock` to pick the matchup.
+- **Dev shortcut:** in `npm run dev`, add `?scene=Fight` (or another scene name) to jump straight to a scene, and `&p1=brand&p2=grom` to pick the matchup, which is fought in player 2's home arena unless `&stage=docks` picks another. `&roundSeconds=5&roundsToWin=1` shortens a match for testing, `&cpu=hard` sets the CPU level, and `&p1cpu=normal` makes player 1 a CPU too, to watch two CPUs fight (`?scene=Fight&mode=arcade&p1cpu=normal`). The fight's dev keys (**R**, **I**, **H**, **P**, **O**) only work, and are only listed along the bottom, in development builds.
 
 ```
 games/03-arena-fighters/
@@ -78,7 +189,7 @@ games/03-arena-fighters/
    ├─ scenes/          Boot, Title, mode select, character select, VS, Fight, results, ...
    ├─ entities/        Drawn fighters, projectiles and effects
    ├─ systems/         sim/ (the fight), input/, cpu/, net/
-   └─ content/         Fighter bodies, poses and frame data, arenas, story, sounds, music
+   └─ content/         fighters/<name>/ (body, poses, frame data, specials, CPU style), arenas, story, sounds, music
 ```
 
 ## Build steps
@@ -87,55 +198,66 @@ Each step is ticked only when it is built **and** tested.
 
 ### Phase 1: Foundation
 
-- [ ] **1. Game page.** Add `index.html`, `main.ts` and `config.ts` using the shared game shell, and set the cartridge to `in-development` in the console menu.
+- [x] **1. Game page.** Add `index.html`, `main.ts` and `config.ts` using the shared game shell, and set the cartridge to `in-development` in the console menu.
   *Done when:* the game opens from the console menu and shows a placeholder screen.
-- [ ] **2. Scene flow.** Placeholder Boot → Title → Mode Select → Character Select → VS → Fight → Results scenes with transitions.
+- [x] **2. Scene flow.** Placeholder Boot → Title → Mode Select → Character Select → VS → Fight → Results scenes with transitions.
   *Done when:* you can step through every scene with key presses.
-- [ ] **3. Fight simulation core.** A fixed 60 Hz step with whole-number positions and a seeded random generator, kept separate from drawing. Two placeholder boxes walk, jump, push against each other and stop at the arena edges, and the camera follows both.
+- [x] **3. Fight simulation core.** A fixed 60 Hz step with whole-number positions and no randomness inside, kept separate from drawing. Two placeholder boxes walk, jump, push against each other and stop at the arena edges, and the camera follows both.
   *Done when:* the boxes move correctly, and replaying the same recorded inputs twice gives exactly the same final state.
 
-### Phase 2: Fighting
+### Phase 2: Fighting (with Brand)
 
-- [ ] **4. Inputs.** Keyboard halves for P1 and P2, gamepads, a per-frame input bitmask, input history and a motion-input reader.
-  *Done when:* both players can move independently, and a debug view shows ↓ ↘ → + punch being recognised.
-- [ ] **5. Brand's sprite.** Idle, walk, crouch, jump, block, hit, knockdown, get-up and win poses, plus standing, crouching and jumping normals.
+- [x] **4. Inputs.** Keyboard halves for P1 and P2, gamepads, a per-frame input bitmask, input history and a motion-input reader (including charge motions).
+  *Done when:* both players can move independently, and a debug view shows ↓ ↘ → + punch and a charge motion being recognised.
+- [x] **5. Brand's sprite.** Idle, walk, crouch, jump, block, hit, knockdown, get-up and win poses, plus standing, crouching and jumping normals.
   *Done when:* every animation plays correctly in a sprite gallery scene.
-- [ ] **6. Moves and frame data.** Startup, active and recovery frames with hitboxes and hurtboxes per frame, and the **H** debug view.
+- [x] **6. Moves and frame data.** Startup, active and recovery frames with hitboxes and hurtboxes per frame, and the **H** debug view.
   *Done when:* the debug view shows hitboxes only during active frames.
-- [ ] **7. Combat rules.** Hits, standing and crouching blocks, overheads and lows, hitstun, blockstun, chip damage, pushback, knockdowns, throws and throw escapes, cancels and the combo counter.
+- [x] **7. Combat rules.** Hits, standing and crouching blocks, overheads and lows, hitstun, blockstun, chip damage, pushback, knockdowns, throws and throw escapes, cancels and the combo counter.
   *Done when:* all of these work between two Brands.
-- [ ] **8. Special moves.** Brand's Ember Shot and Flare Rise from motion inputs, with projectiles that cancel each other out.
+- [x] **8. Special moves.** The shared special-move behaviours, starting with Brand's Ember Shot (projectile) and Flare Rise (rising attack), with projectiles that cancel each other out.
   *Done when:* both specials come out reliably from their motions, and never by accident while walking.
-- [ ] **9. Rounds and HUD.** Health bars, timer, round wins, *ROUND 1* / *FIGHT* / *KO* / *TIME* announcements, best of three and draws.
+- [x] **9. Rounds and HUD.** Health bars, timer, round wins, *ROUND 1* / *FIGHT* / *KO* / *TIME* announcements, best of three and draws.
   *Done when:* a full match can be won, lost and drawn.
+- [x] **10. Arenas.** The arena system (layered scrolling background, floor, animated crowd, arena edges) and Brand's harbour docks.
+  *Done when:* the docks animate behind a fight and the camera scrolls them correctly.
+- [x] **11. CPU opponent.** CPU inputs with reaction delay, deliberate mistakes, difficulty levels and per-fighter tendencies read from the fighter's data.
+  *Done when:* the easy CPU can be beaten by a new player and the hard CPU needs blocking and specials.
 
 ### Phase 3: The roster
 
-- [ ] **10. Tala.** Sprite, normals, Whirl Kick and Cartwheel.
-- [ ] **11. Grom.** Sprite, normals, Boulder Toss and Ram.
-- [ ] **12. Nova.** Sprite, normals, Static Wave and Thunder Heel.
-  *Done when (10–12):* the fighter is playable against every other fighter, and no matchup is one-sided in testing.
-- [ ] **13. CPU opponent.** CPU inputs with reaction delay, deliberate mistakes, difficulty levels and per-fighter tendencies.
-  *Done when:* the easy CPU can be beaten by a new player and the hard CPU needs blocking and specials.
-- [ ] **14. Arenas.** Four arenas with animated backgrounds, one per fighter.
-  *Done when:* every arena can be picked and animates while fighting.
-- [ ] **15. The boss.** Magnus Vane: his own body, moves and CPU behaviour, and the tower-roof arena.
+Each fighter step adds the fighter's sprite, normals, both specials (adding any new shared behaviour they need), CPU tendencies, portrait and home arena.
+*Done when (each):* the fighter is playable against every fighter built so far, their arena animates, and no matchup is one-sided in testing.
+
+- [x] **12. Tala** and the festival plaza.
+- [x] **13. Grom** and the mountain mine (adds command throws and charge specials).
+- [x] **13b. Kanan, Mahmood, Rajab, Azar and Osal**, with the iron foundry, city rooftops, casino hall, clinic street and field camp (adds counters, heals, low projectiles, throws without a lift and one-handed fighters). The roster grows to fifteen.
+- [ ] **14. Nova** and the power station (adds overhead specials).
+- [ ] **15. Kestrel** and the bamboo forest (adds dives and wall leaps).
+- [ ] **16. Old Wen** and the monastery courtyard (reuses counters).
+- [ ] **17. Rook** and the airfield hangar.
+- [ ] **18. Knox** and the boxing gym (adds dash attacks).
+- [ ] **19. Cometa** and the wrestling ring.
+- [ ] **20. Sable** and the moonlit ruins (adds teleports).
+- [ ] **21. The boss.** Magnus Vane: his own body, moves and CPU behaviour, and the tower-roof arena.
   *Done when:* he looks clearly different from the roster and the fight is beatable but noticeably harder.
 
 ### Phase 4: Game modes
 
-- [ ] **16. Arcade mode.** The ladder of three fighters and then the boss, rising difficulty, story intro and ending for each fighter, and continue after a loss.
-  *Done when:* arcade can be finished with every fighter and shows that fighter's ending.
-- [ ] **17. Local versus.** Both players choose on the character select screen, then pick an arena, and can rematch or change fighters after the match.
+- [ ] **22. Character select.** The 5 × 3 portrait grid for one or two players, the fighter preview, and alternate colours when both pick the same fighter.
+  *Done when:* both players can pick any of the fifteen fighters with keyboard and gamepad.
+- [ ] **23. Arcade mode.** Seven shuffled opponents and then the boss, rising difficulty, story intro and ending for each fighter, and continue after a loss.
+  *Done when:* arcade can be finished and every fighter's ending can be shown.
+- [ ] **24. Local versus.** Both players choose fighters, then an arena, and can rematch or change fighters after the match.
   *Done when:* a full versus match works on one keyboard and on keyboard + gamepad.
-- [ ] **18. Online play.** Install PeerJS, create a room and share its link, join from the link, delay-based lockstep, message validation, desync check, disconnect handling and the CSP update.
+- [ ] **25. Online play.** Install PeerJS, create a room and share its link, join from the link, delay-based lockstep, message validation, desync check, disconnect handling and the CSP update.
   *Done when:* a full online match plays between two browsers, invalid messages are dropped, and closing one tab is handled cleanly in the other.
 
 ### Phase 5: Polish and release
 
-- [ ] **19. Sound and music.** Hits, blocks, whiffs, specials, knockdowns and announcer jingles, plus a loop for each arena.
+- [ ] **26. Sound and music.** Hits, blocks, whiffs, specials, knockdowns and announcer jingles, plus a loop for each arena.
   *Done when:* every action has sound, and music loops without gaps.
-- [ ] **20. Title, pause and options.** Menus, controls screen, CPU difficulty, round time and number of rounds. There is no pause in online matches.
+- [ ] **27. Title, pause and options.** Menus, controls screen, CPU difficulty, round time and number of rounds. There is no pause in online matches.
   *Done when:* all menus work with keyboard and gamepad.
-- [ ] **21. Final check.** Full play-through of every mode, `npm run build`, `npm run security:audit`, set the game to `playable` in the console menu, and tick game 03 in the root README.
+- [ ] **28. Final check.** Full play-through of every mode, `npm run build`, `npm run security:audit`, set the game to `playable` in the console menu, and tick game 03 in the root README.
   *Done when:* all of the above pass.
