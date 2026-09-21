@@ -14,19 +14,16 @@ const HEADBUTT: Strike = {
   knockdown: true,
 };
 
-/**
- * Grom's special moves. Boulder Toss comes first: its motion ends in → + P, which a charge
- * held long enough (say, while blocking) would also read as Ram.
- */
+/** Grom's special moves, on the two motions every fighter shares: → + P and ↓ → + P. */
 export const GROM_SPECIALS: readonly SpecialMove[] = [
   {
     /**
-     * Boulder Toss (← ↓ → + P, up close): he wraps the opponent up, hoists them overhead
+     * Boulder Toss (→ + P, up close): he wraps the opponent up, hoists them overhead
      * and hurls them forward. It cannot be blocked or broken. The light punch reaches a little
      * further; the heavy one hurts more. A miss leaves him reaching at nothing for a long time.
      */
     name: 'boulderToss',
-    motion: 'halfCircleForward',
+    motion: 'forward',
     behaviour: {
       kind: 'commandThrow',
       rangePx: { light: 40, heavy: 34 },
@@ -52,12 +49,12 @@ export const GROM_SPECIALS: readonly SpecialMove[] = [
   },
   {
     /**
-     * Ram (hold ←, then → + P): he charges head first along the floor and stops dead on
+     * Ram (↓ → + P): he charges head first along the floor and stops dead on
      * whatever he meets. The heavy punch charges faster, so further. It knocks down on a hit,
      * and leaves him wide open if blocked.
      */
     name: 'ram',
-    motion: 'chargeBackForward',
+    motion: 'downForward',
     behaviour: { kind: 'dash', startStep: 6, endStep: 22, speed: { light: 704, heavy: 1024 }, stopsOnContact: true },
     move: {
       segments: [

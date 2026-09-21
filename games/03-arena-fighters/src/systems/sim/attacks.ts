@@ -10,8 +10,8 @@ import type {
 } from '../../content/fighters/specials';
 import type { FighterId } from '../../content/roster';
 import { INPUT, isHeld, type Button, type InputBits } from '../input/inputBits';
-import { completedMotions } from '../input/motions';
-import type { AttackState, FighterState } from './fightState';
+import { completedMotions, motionLength } from '../input/motions';
+import type { AttackState, Facing, FighterState } from './fightState';
 
 /** When several buttons are pressed on the same step, the heaviest wins. */
 const BUTTON_PRIORITY: readonly Button[] = ['heavyKick', 'heavyPunch', 'lightKick', 'lightPunch'];
@@ -34,6 +34,8 @@ export interface AttackInput {
   readonly pressed: InputBits;
   /** Inputs before this step, oldest first, for reading motions. */
   readonly history: readonly InputBits[];
+  /** The side this player's motions are read from, which never changes (see MOTION_FACING). */
+  readonly motionFacing: Facing;
   /** A fighter may only have one projectile out at a time. */
   readonly projectileOut: boolean;
 }
@@ -74,25 +76,28 @@ export function updateAttack(fighter: FighterState, controls: AttackInput): Figh
 }
 
 /**
- * When a punch was just pressed, the first of the fighter's specials, in their order, whose
- * motion was just finished. Special moves start from the ground only.
+ * When a punch was just pressed, the special of the fighter's whose motion was just finished.
+ * ↓ → finishes → as well, so the longer motion wins and only falls back to the shorter one when
+ * that special cannot be used now. Special moves start from the ground only.
  */
-function startSpecial(fighter: FighterState, { input, pressed, history, projectileOut }: AttackInput): FighterState | null {
+function startSpecial(fighter: FighterState, { input, pressed, history, motionFacing, projectileOut }: AttackInput): FighterState | null {
   if (fighter.posture === 'airborne') return null;
   const heavy = isHeld(pressed, SPECIAL_BUTTONS.heavy);
   if (!heavy && !isHeld(pressed, SPECIAL_BUTTONS.light)) return null;
 
-  const motions = completedMotions([...history, input], fighter.facing);
+  const motions = completedMotions([...history, input], motionFacing);
+  let chosen: SpecialMove | null = null;
   for (const special of fighterData(fighter.character).specials) {
     if (!motions.includes(special.motion)) continue;
     if (special.behaviour.kind === 'projectile' && projectileOut) continue;
-    const heal = special.behaviour.kind === 'heal';
-    if (heal && fighter.healUsed) continue;
-
-    const attack: AttackState = { move: special.name, step: 0, contact: 'none', heavy };
-    return { ...fighter, posture: 'standing', vx: 0, attack, healUsed: fighter.healUsed || heal };
+    if (special.behaviour.kind === 'heal' && fighter.healUsed) continue;
+    if (!chosen || motionLength(special.motion) > motionLength(chosen.motion)) chosen = special;
   }
-  return null;
+  if (!chosen) return null;
+
+  const heal = chosen.behaviour.kind === 'heal';
+  const attack: AttackState = { move: chosen.name, step: 0, contact: 'none', heavy };
+  return { ...fighter, posture: 'standing', vx: 0, attack, healUsed: fighter.healUsed || heal };
 }
 
 function startNormal(fighter: FighterState, { input, pressed }: AttackInput, buttons: readonly Button[]): FighterState {

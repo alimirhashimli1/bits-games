@@ -14,19 +14,16 @@ const SHOULDER: Strike = {
   knockdown: true,
 };
 
-/**
- * Kanan's special moves, on the two motions every fighter shares. Quake Stomp comes first: a
- * charge held while doing ← ↓ → would also read as Titan Rush.
- */
+/** Kanan's special moves, on the two motions every fighter shares: → + P and ↓ → + P. */
 export const KANAN_SPECIALS: readonly SpecialMove[] = [
   {
     /**
-     * Quake Stomp (← ↓ → + P): he raises his knee high and stamps, and a shockwave rolls along
+     * Quake Stomp (→ + P): he raises his knee high and stamps, and a shockwave rolls along
      * the floor. It hits low, so it must be blocked crouching, and it can be jumped. The heavy
      * punch sends it faster.
      */
     name: 'quakeStomp',
-    motion: 'halfCircleForward',
+    motion: 'forward',
     behaviour: {
       kind: 'projectile',
       spawnStep: 11,
@@ -49,11 +46,11 @@ export const KANAN_SPECIALS: readonly SpecialMove[] = [
   },
   {
     /**
-     * Titan Rush (hold ←, then → + P): a shoulder charge that bursts straight through
+     * Titan Rush (↓ → + P): a shoulder charge that bursts straight through
      * projectiles and stops dead on whatever it meets, knocking it down. Punishable if blocked.
      */
     name: 'titanRush',
-    motion: 'chargeBackForward',
+    motion: 'downForward',
     behaviour: {
       kind: 'dash',
       startStep: 7,

@@ -1,4 +1,4 @@
-import { STAGE } from '../../config';
+import { MOVEMENT, STAGE } from '../../config';
 import { fighterData } from '../../content/fighters/fighterData';
 import type { ProjectileBehaviour, SpecialName } from '../../content/fighters/specials';
 import type { FighterId } from '../../content/roster';
@@ -27,14 +27,37 @@ export function hasProjectile(projectiles: readonly ProjectileState[], owner: Pl
 }
 
 /**
- * Moves every projectile on and drops those that have left the arena, then adds any thrown this
- * step: a projectile special leaves the hand on its spawn step.
+ * Moves every projectile on and drops those that have left the arena, burnt out or hit the
+ * floor, then adds any thrown this step: a projectile special leaves the hand on its spawn step.
  */
 export function advanceProjectiles(fighters: Pair, projectiles: readonly ProjectileState[]): readonly ProjectileState[] {
-  const moved = projectiles
-    .map((projectile) => ({ ...projectile, x: projectile.x + projectile.vx }))
-    .filter((projectile) => projectile.x > -OFFSTAGE_MARGIN && projectile.x < toSubpixels(STAGE.width) + OFFSTAGE_MARGIN);
+  const moved = projectiles.flatMap((projectile) => {
+    const next = advanceOne(projectile, behaviourOf(fighters[projectile.owner].character, projectile.special));
+    if (!next) return [];
+    return next.x > -OFFSTAGE_MARGIN && next.x < toSubpixels(STAGE.width) + OFFSTAGE_MARGIN ? [next] : [];
+  });
   return [...moved, ...PLAYERS.flatMap((owner) => spawned(fighters[owner], owner))];
+}
+
+/**
+ * One projectile, one step on. A blast counts down where it went off; anything else travels,
+ * falling as it goes if it was lobbed. A lobbed throw that reaches the floor bursts there if its
+ * special says so, and is otherwise gone. Null means it is finished.
+ */
+function advanceOne(projectile: ProjectileState, behaviour: ProjectileBehaviour): ProjectileState | null {
+  if (projectile.burstSteps >= 0) {
+    return projectile.burstSteps > 0 ? { ...projectile, burstSteps: projectile.burstSteps - 1 } : null;
+  }
+  const flying = {
+    ...projectile,
+    x: projectile.x + projectile.vx,
+    y: projectile.y + projectile.vy,
+    vy: behaviour.arc ? projectile.vy - MOVEMENT.gravity : 0,
+  };
+  if (!behaviour.arc || flying.y > 0) return flying;
+  if (!behaviour.burst) return null;
+  // It goes off where it landed, sitting on the floor: no longer moving, and hitting much wider.
+  return { ...flying, y: toSubpixels(Math.floor(behaviour.burst.height / 2)), vx: 0, vy: 0, burstSteps: behaviour.burst.steps };
 }
 
 /**
@@ -62,8 +85,10 @@ export function resolveProjectiles(
     if (!hurtboxes(struck[target]).some((hurtbox) => overlaps(box, hurtbox))) return true;
 
     const behaviour = behaviourOf(fighters[projectile.owner].character, projectile.special);
-    const from: Facing = projectile.vx > 0 ? 1 : -1;
-    const strike = { ...behaviour.strike, limb: 'nearHand', width: behaviour.width, height: behaviour.height } as const;
+    const size = projectile.burstSteps >= 0 && behaviour.burst ? behaviour.burst : behaviour;
+    // A blast sits still, so which way it pushes comes from the side the one caught in it stands.
+    const from: Facing = projectile.vx !== 0 ? (projectile.vx > 0 ? 1 : -1) : struck[target].x >= projectile.x ? 1 : -1;
+    const strike = { ...behaviour.strike, limb: 'nearHand', width: size.width, height: size.height } as const;
     struck[target] = landBlow(struck[target], inputs[target], strike, from).defender;
     hitstop = Math.max(hitstop, hitstopFor(struck[target]));
     return false;
@@ -79,7 +104,7 @@ function spawned(fighter: FighterState, owner: PlayerIndex): ProjectileState[] {
   if (fighter.attack.step !== behaviour.spawnStep) return [];
 
   const hand = limbPosition(fighter, behaviour.fromLimb);
-  const speed = behaviour.speed[fighter.attack.heavy ? 'heavy' : 'light'];
+  const strength = fighter.attack.heavy ? 'heavy' : 'light';
   return [
     {
       owner,
@@ -87,16 +112,22 @@ function spawned(fighter: FighterState, owner: PlayerIndex): ProjectileState[] {
       heavy: fighter.attack.heavy,
       x: hand.x + fighter.facing * toSubpixels(behaviour.forwardPx),
       y: hand.y + toSubpixels(behaviour.upPx ?? 0),
-      vx: speed * fighter.facing,
+      vx: behaviour.speed[strength] * fighter.facing,
+      vy: behaviour.arc ? behaviour.arc[strength] : 0,
+      burstSteps: -1,
     },
   ];
 }
 
-/** The box a projectile hits with, centred on its position. Its size comes from its owner's special. */
+/**
+ * The box a projectile hits with, centred on its position. Its size comes from its owner's
+ * special: the blast of one that has gone off is far wider than the thing that was thrown.
+ */
 export function projectileBox(projectile: ProjectileState, fighters: Pair): Box {
   const behaviour = behaviourOf(fighters[projectile.owner].character, projectile.special);
-  const width = toSubpixels(behaviour.width);
-  const height = toSubpixels(behaviour.height);
+  const size = projectile.burstSteps >= 0 && behaviour.burst ? behaviour.burst : behaviour;
+  const width = toSubpixels(size.width);
+  const height = toSubpixels(size.height);
   return { left: projectile.x - width / 2, bottom: projectile.y - height / 2, width, height };
 }
 

@@ -104,23 +104,16 @@ export const PLAYER_CONTROLS = [
 
 /** How forgiving the motion reader is, in fight steps (60 per second). */
 export const INPUT_READING = {
-  /** Inputs remembered per player. Must cover a full charge plus its release. */
+  /** Inputs remembered per player. Must cover the longest motion several times over. */
   historySteps: 64,
-  /** A whole motion such as ↓ ↘ → must fit in this long: half a second. */
+  /** A whole motion such as ↓ → must fit in this long: half a second. */
   motionWindowSteps: 30,
-  /** The motion's last direction may come this long before the button. */
-  buttonLeniencySteps: 8,
   /**
-   * Long motions such as the half circle are usually typed as separate taps on a keyboard, so
-   * they get more time: a whole second in all, and a quarter between the last
-   * direction and the button.
+   * A motion's last direction must have been pressed this recently, and the button follows
+   * within the same window: a third of a second. Held any longer it counts as walking, not as
+   * the tap that starts a special, so → + punch while walking in is still an ordinary punch.
    */
-  longMotionWindowSteps: 60,
-  longMotionButtonLeniencySteps: 15,
-  /** A charge must be held this long: half a second. */
-  chargeSteps: 30,
-  /** After letting go of a charge, the release direction may come this long after. */
-  chargeReleaseSteps: 10,
+  tapSteps: 20,
 } as const;
 
 /** Keys for testing the fight. Keyboard only, and only in development builds. */

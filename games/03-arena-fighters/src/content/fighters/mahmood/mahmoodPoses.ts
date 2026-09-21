@@ -86,14 +86,17 @@ export const MAHMOOD_SPECIAL_POSES: Readonly<Partial<Record<SpecialPoseName, Hum
     nearLeg: [[39, 51], [40, 62]],
     farLeg: [[30, 57], [21, 62]],
   },
-  /** Springing up with the kicking heel thrown straight up past his face. */
+  /**
+   * Springing up with the kicking heel thrown out at head height in front of him, halfway
+   * between straight up and straight out, so it meets someone on the floor as well as in the air.
+   */
   heelRise: {
     head: [30, 16],
     shoulder: [30, 24],
     hip: [31, 39],
     nearArm: [[26, 30], [22, 34]],
     farArm: [[28, 31], [30, 33]],
-    nearLeg: [[37, 26], [40, 12]],
+    nearLeg: [[40, 33], [51, 22]],
     farLeg: [[29, 51], [27, 60]],
   },
 };

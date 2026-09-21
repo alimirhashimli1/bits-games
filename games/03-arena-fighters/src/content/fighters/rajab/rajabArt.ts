@@ -2,7 +2,7 @@ import { FIGHTER_FRAME, type FighterArt } from '../fighterArt';
 import { RAJAB_POSES, RAJAB_SPECIAL_POSES } from './rajabPoses';
 
 /**
- * Rajab: slicked-back black hair and a thin moustache, a burgundy waistcoat over a white shirt
+ * Rajab: slicked-back black hair and a clean-shaven face, a burgundy waistcoat over a white shirt
  * with the sleeves showing, black suit trousers and polished black shoes. Slimmer than Brand.
  * Symbols: o outline, h hair, s/S skin, k eye, c/C waistcoat, w/W shirt sleeves, b belt,
  * p/P trousers, f/F shoes. Upper-case symbols are the shaded far side.
@@ -19,7 +19,7 @@ export const RAJAB_ART: FighterArt = {
       'hhhhssskss',
       '.hhSssskss',
       '.hSsssssss',
-      '..Sshhhhs.',
+      '..Sssssss.',
       '..sssssss.',
       '...sssss..',
       '....sss...',

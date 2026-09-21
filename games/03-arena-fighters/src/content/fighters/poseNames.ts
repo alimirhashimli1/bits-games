@@ -70,16 +70,15 @@ export const SPECIAL_POSE_NAMES = [
   'heelRise',
   'cardWindup',
   'cardRelease',
-  'bluffStance',
-  'bluffAnswer',
+  'diceWindup',
+  'diceRoll',
   'dartWindup',
   'dartThrow',
   'stingLunge',
-  'tackleDive',
-  'tackleDrive',
-  'tacklePin',
-  'adrenalineInject',
-  'adrenalineFlex',
+  'rifleAim',
+  'rifleFire',
+  'grenadePull',
+  'grenadeThrow',
 ] as const;
 
 export type SpecialPoseName = (typeof SPECIAL_POSE_NAMES)[number];

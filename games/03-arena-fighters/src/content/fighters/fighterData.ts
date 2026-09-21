@@ -38,7 +38,7 @@ import { TALA_SPECIALS } from './tala/talaSpecials';
 export interface FighterData {
   readonly art: FighterArt;
   readonly moves: FighterMoves;
-  /** Tried in this order when an input completes more than one motion. */
+  /** Both of the fighter's specials. An input that finishes both motions starts the longer one. */
   readonly specials: readonly SpecialMove[];
   /** How the CPU fights with them. */
   readonly cpu: CpuStyle;

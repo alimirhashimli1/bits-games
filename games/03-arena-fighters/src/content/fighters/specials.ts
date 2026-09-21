@@ -17,11 +17,11 @@ export const SPECIAL_NAMES = [
   'lionPalm',
   'risingHeel',
   'cardToss',
-  'bluff',
+  'loadedDice',
   'syringeDart',
   'needleSting',
-  'fieldTackle',
-  'adrenaline',
+  'rifleShot',
+  'grenadeToss',
 ] as const;
 
 export type SpecialName = (typeof SPECIAL_NAMES)[number];
@@ -55,6 +55,20 @@ export interface ProjectileBehaviour {
   readonly strike: Omit<Strike, 'limb' | 'width' | 'height'>;
   /** Its sprite sheet (see src/content/sprites/projectiles.ts). */
   readonly sprite: string;
+  /**
+   * Lobbed rather than thrown flat: it leaves the hand rising this fast, in sub-pixels per step,
+   * and falls under the fight's gravity, so it only carries so far. Left out, it flies level.
+   */
+  readonly arc?: ByStrength;
+  /**
+   * What a lobbed throw does where it lands: it stops there and bursts for this many steps,
+   * hitting with a box this size in pixels. Left out, it is simply gone when it touches the floor.
+   */
+  readonly burst?: {
+    readonly steps: number;
+    readonly width: number;
+    readonly height: number;
+  };
 }
 
 /**

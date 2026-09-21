@@ -273,12 +273,15 @@ export const BRAND_SPECIAL_POSES: Readonly<Partial<Record<SpecialPoseName, Human
     nearLeg: [[40, 51], [40, 62]],
     farLeg: [[31, 57], [22, 62]],
   },
-  /** Stretched out and rising, the fist driven high above his head. */
+  /**
+   * Stretched out and rising, the fist driven up and out in front of him at forty-five degrees,
+   * so it catches someone standing in front as well as one coming down on him.
+   */
   flareRise: {
     head: [33, 14],
     shoulder: [32, 21],
     hip: [30, 37],
-    nearArm: [[37, 13], [40, 4]],
+    nearArm: [[40, 14], [48, 6]],
     farArm: [[27, 27], [25, 32]],
     nearLeg: [[34, 48], [32, 58]],
     farLeg: [[27, 46], [23, 55]],

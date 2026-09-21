@@ -1,6 +1,5 @@
-import { INPUT_READING } from '../../config';
 import { INPUT, type InputBits } from '../input/inputBits';
-import { completedMotions, MOTIONS, type MotionName } from '../input/motions';
+import { MOTIONS, type MotionName } from '../input/motions';
 import type { Facing } from '../sim/fightState';
 
 /** The direction bits for towards and away from the opponent, for a fighter facing `facing`. */
@@ -25,21 +24,13 @@ export function keypadBits(direction: number, facing: Facing): InputBits {
 }
 
 /**
- * The inputs, one per step, that perform a motion and press `button` on its last direction:
- * a sequence is played one direction a step, and a charge is held long enough and then released.
- * `history` is the fighter's own inputs so far: a charge already held (say, while blocking) only
- * needs its release.
+ * The inputs, one per step, that perform a motion and press `button` on its last direction. It
+ * starts by letting go of everything, so that the last direction reads as a fresh tap even when
+ * the CPU was already walking that way (see `completedMotions`).
  */
-export function motionInputs(motion: MotionName, facing: Facing, button: InputBits, history: readonly InputBits[]): InputBits[] {
-  const shape = MOTIONS[motion];
-  if (shape.kind === 'sequence') {
-    const steps = shape.directions.map((direction) => keypadBits(direction, facing));
-    return [...steps.slice(0, -1), (steps[steps.length - 1] ?? 0) | button];
-  }
-  const hold = keypadBits(shape.hold[0], facing);
-  const release = keypadBits(shape.release[0], facing) | button;
-  if (completedMotions([...history, release], facing).includes(motion)) return [release];
-  return [...Array.from({ length: INPUT_READING.chargeSteps + 2 }, () => hold), release];
+export function motionInputs(motion: MotionName, facing: Facing, button: InputBits): InputBits[] {
+  const steps = MOTIONS[motion].directions.map((direction) => keypadBits(direction, facing));
+  return [0, ...steps.slice(0, -1), (steps[steps.length - 1] ?? 0) | button];
 }
 
 /** A pause of `steps` steps with nothing pressed. */

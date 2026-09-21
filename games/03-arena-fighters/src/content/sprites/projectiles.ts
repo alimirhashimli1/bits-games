@@ -61,38 +61,197 @@ function shockwaveFrame(frame: number): PixelMap {
 }
 
 /**
- * Rajab's thrown cards, spinning as they fly: face on, edge on, and the back. Each is a white
- * card with a red pip, or its patterned back.
+ * Rajab's thrown cards, turning over as they fly: a big white face with a red diamond, the same
+ * card at an angle, its patterned back, and back at an angle. They never go fully edge on, so
+ * they read as cards the whole way across the arena.
  */
 const CARD_FRAMES: readonly PixelMap[] = [
   [
-    '..oooooo..',
-    '.owwwwwwo.',
-    'owwwrwwwwo',
-    'owwrrrwwwo',
-    'owwwrwwwwo',
-    '.owwwwwwo.',
-    '..oooooo..',
+    '.oooooooooo.',
+    'owwwwwwwwwwo',
+    'owwwwwrwwwwo',
+    'owwwwrrrwwwo',
+    'owwwrrrrrwwo',
+    'owwwwrrrwwwo',
+    'owwwwwrwwwwo',
+    'owwwwwwwwwwo',
+    '.oooooooooo.',
   ],
   [
-    '..........',
-    '..........',
-    '.oooooooo.',
-    'owwwwwwwwo',
-    '.oooooooo.',
-    '..........',
-    '..........',
+    '..oooooooo..',
+    '..owwwwwwo..',
+    '..owwwrwwo..',
+    '..owwrrrwo..',
+    '..owrrrrro..',
+    '..owwrrrwo..',
+    '..owwwrwwo..',
+    '..owwwwwwo..',
+    '..oooooooo..',
   ],
   [
-    '..oooooo..',
-    '.obbbbbbo.',
-    'obbwbbwbbo',
-    'obwbbwbbbo',
-    'obbwbbwbbo',
-    '.obbbbbbo.',
-    '..oooooo..',
+    '.oooooooooo.',
+    'obbbbbbbbbbo',
+    'obwbbwbbwbbo',
+    'obbwbbwbbwbo',
+    'obwbbwbbwbbo',
+    'obbwbbwbbwbo',
+    'obwbbwbbwbbo',
+    'obbbbbbbbbbo',
+    '.oooooooooo.',
+  ],
+  [
+    '..oooooooo..',
+    '..obbbbbbo..',
+    '..obwbbwbo..',
+    '..obbwbbwo..',
+    '..obwbbwbo..',
+    '..obbwbbwo..',
+    '..obwbbwbo..',
+    '..obbbbbbo..',
+    '..oooooooo..',
   ],
 ];
+
+const TRACER = { width: 16, height: 5, frames: 3 } as const;
+/** The round itself is the bright head at the front; the hot air behind it breaks up as it goes. */
+const TRACER_HEAD_X = TRACER.width - 3;
+const TRACER_MIDDLE = (TRACER.height - 1) / 2;
+
+/** One frame of Osal's rifle round, flying right: a white-hot head with a dashed trail behind it. */
+function tracerFrame(frame: number): PixelMap {
+  const rows: string[] = [];
+  for (let y = 0; y < TRACER.height; y++) {
+    let row = '';
+    for (let x = 0; x < TRACER.width; x++) {
+      const distance = Math.hypot((x - TRACER_HEAD_X) * 0.9, (y - TRACER_MIDDLE) * 1.7);
+      if (distance < 1.4) row += 'w';
+      else if (distance < 2.5) row += 'y';
+      else if (y === TRACER_MIDDLE && x < TRACER_HEAD_X && (x + frame) % 4 !== 0) row += 't';
+      else row += '.';
+    }
+    rows.push(row);
+  }
+  return rows;
+}
+
+/**
+ * Osal's grenade. Its frames are as big as the blast it becomes, since every frame of a sheet is
+ * one size: the shell itself is the small tumbling thing in the middle.
+ */
+const GRENADE = { width: 28, height: 20, shellRadius: 3.7, frames: 4, blastFrames: 4 } as const;
+const GRENADE_CENTER_X = (GRENADE.width - 1) / 2;
+const GRENADE_CENTER_Y = (GRENADE.height - 1) / 2;
+
+/** One frame of the grenade in the air: a ridged shell, its ridges turning over as it tumbles. */
+function grenadeFrame(frame: number): PixelMap {
+  const rows: string[] = [];
+  for (let y = 0; y < GRENADE.height; y++) {
+    let row = '';
+    for (let x = 0; x < GRENADE.width; x++) {
+      const distance = Math.hypot(x - GRENADE_CENTER_X, (y - GRENADE_CENTER_Y) * 0.95);
+      if (distance > GRENADE.shellRadius) row += '.';
+      else if (distance > GRENADE.shellRadius - 1) row += 'k';
+      else row += (x + y + frame) % 3 === 0 ? 'G' : 'g';
+    }
+    rows.push(row);
+  }
+  return rows;
+}
+
+/**
+ * One frame of the blast where it landed: a ball of fire that grows and turns to smoke, sitting
+ * on the floor, with its edge broken up so it never looks like a drawn circle.
+ */
+function blastFrame(frame: number): PixelMap {
+  const reach = 5 + frame * 3.4;
+  const rows: string[] = [];
+  for (let y = 0; y < GRENADE.height; y++) {
+    let row = '';
+    for (let x = 0; x < GRENADE.width; x++) {
+      const ragged = (x * 3 + y * 5 + frame) % 4 === 0 ? 1.1 : 0;
+      const distance = Math.hypot((x - GRENADE_CENTER_X) * 0.75, y - GRENADE_CENTER_Y) + ragged;
+      if (distance < reach * 0.3 && frame < 2) row += 'w';
+      else if (distance < reach * 0.55) row += 'y';
+      else if (distance < reach * 0.8) row += 'r';
+      else if (distance < reach) row += 'd';
+      else row += '.';
+    }
+    rows.push(row);
+  }
+  return rows;
+}
+
+/**
+ * Rajab's loaded dice, thrown low and skipping along the floor. Each frame shows another face,
+ * so they tumble as they go.
+ */
+const DICE_FRAMES: readonly PixelMap[] = [
+  [
+    '.oooooooo.',
+    'owwwwwwwwo',
+    'owkkwwkkwo',
+    'owkkwwkkwo',
+    'owwwwwwwwo',
+    'owwwwwwwwo',
+    'owkkwwkkwo',
+    'owkkwwkkwo',
+    'owwwwwwwwo',
+    '.oooooooo.',
+  ],
+  [
+    '.oooooooo.',
+    'owwwwwwwwo',
+    'owwwwwwwwo',
+    'owwwwwwwwo',
+    'owwwkkwwwo',
+    'owwwkkwwwo',
+    'owwwwwwwwo',
+    'owwwwwwwwo',
+    'owwwwwwwwo',
+    '.oooooooo.',
+  ],
+  [
+    '.oooooooo.',
+    'owwwwwwwwo',
+    'owkkwwkkwo',
+    'owkkwwkkwo',
+    'owwwkkwwwo',
+    'owwwkkwwwo',
+    'owkkwwkkwo',
+    'owkkwwkkwo',
+    'owwwwwwwwo',
+    '.oooooooo.',
+  ],
+];
+
+/** What a projectile's sprite is showing: the thing in flight, or the blast it left behind. */
+export type ProjectilePhase = 'flight' | 'blast';
+
+/**
+ * An animation per phase, named `<key>-flight` and `<key>-blast` (see `projectileAnimationKey`).
+ * Only a projectile that bursts where it lands needs the second one.
+ */
+function projectileSprites(
+  key: string,
+  palette: Readonly<Record<string, string>>,
+  frames: readonly PixelMap[],
+  blast: readonly PixelMap[] = [],
+): SpriteAssets {
+  const named = (phase: ProjectilePhase, maps: readonly PixelMap[]): Array<readonly [string, PixelMap]> =>
+    maps.map((map, index) => [`${phase}${index}`, map] as const);
+  const all = [...named('flight', frames), ...named('blast', blast)];
+  const animation = (phase: ProjectilePhase, maps: readonly PixelMap[], repeat: number) => ({
+    key: projectileAnimationKey(key, phase),
+    frames: named(phase, maps).map(([name]) => name),
+    frameRate: FRAME_RATE,
+    repeat,
+  });
+  return {
+    sheet: { key, palette, frames: Object.fromEntries(all) },
+    // A blast plays once and holds its last frame; everything else loops while it flies.
+    animations: [animation('flight', frames, -1), ...(blast.length > 0 ? [animation('blast', blast, 0)] : [])],
+  };
+}
 
 /**
  * Azar's syringe, needle first (facing right), half full of green serum, with a glint that runs
@@ -109,16 +268,7 @@ function syringeFrame(frame: number): PixelMap {
   ];
 }
 
-/** An animation that loops the sheet's frames, named `<key>-burn` (see `projectileAnimationKey`). */
-function projectileSprites(key: string, palette: Readonly<Record<string, string>>, frames: readonly PixelMap[]): SpriteAssets {
-  const names = frames.map((_, index) => `burn${index}`);
-  return {
-    sheet: { key, palette, frames: Object.fromEntries(frames.map((frame, index) => [`burn${index}`, frame])) },
-    animations: [{ key: projectileAnimationKey(key), frames: names, frameRate: FRAME_RATE, repeat: -1 }],
-  };
-}
-
-/** Every projectile's sprites. A projectile's sheet key is also the start of its animation key. */
+/** Every projectile's sprites. A projectile's sheet key is also the start of its animation keys. */
 export const PROJECTILE_SPRITES: readonly SpriteAssets[] = [
   // Brand's Ember Shot.
   projectileSprites(
@@ -134,15 +284,29 @@ export const PROJECTILE_SPRITES: readonly SpriteAssets[] = [
   ),
   // Rajab's Card Toss.
   projectileSprites('card', { o: '#1a1216', w: '#f4f0e6', r: '#d8342c', b: '#2a4c9e' }, CARD_FRAMES),
+  // Rajab's Loaded Dice.
+  projectileSprites('dice', { o: '#1a1216', w: '#f4f0e6', k: '#24202a' }, DICE_FRAMES),
   // Azar's Syringe Dart.
   projectileSprites(
     'syringe',
     { p: '#e6e6ee', h: '#8a96a8', w: '#cfe8f0', g: '#6ad07a', W: '#ffffff', n: '#c0c8d4' },
     [0, 1, 2].map(syringeFrame),
   ),
+  // Osal's Rifle Shot.
+  projectileSprites(
+    'tracer',
+    { w: '#fff8d8', y: '#ffc23a', t: '#d0703a' },
+    Array.from({ length: TRACER.frames }, (_, frame) => tracerFrame(frame)),
+  ),
+  // Osal's Grenade, and the blast where it lands.
+  projectileSprites(
+    'grenade',
+    { k: '#14121c', g: '#4a6a3a', G: '#2c4224', w: '#fff3b0', y: '#ffb03a', r: '#e4572e', d: '#5a5262' },
+    Array.from({ length: GRENADE.frames }, (_, frame) => grenadeFrame(frame)),
+    Array.from({ length: GRENADE.blastFrames }, (_, frame) => blastFrame(frame)),
+  ),
 ];
 
-export function projectileAnimationKey(sprite: string): string {
-  return `${sprite}-burn`;
+export function projectileAnimationKey(sprite: string, phase: ProjectilePhase = 'flight'): string {
+  return `${sprite}-${phase}`;
 }
-

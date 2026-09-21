@@ -3,9 +3,11 @@ import { OSAL_POSES, OSAL_SPECIAL_POSES } from './osalPoses';
 
 /**
  * Osal: a dark green beret over short hair and a few days' stubble, an olive field jacket,
- * khaki trousers and black combat boots. A little sturdier than Brand. Symbols: o outline,
- * r beret, h hair, s/S skin, k eye, c/C jacket, b belt, p/P trousers, f/F boots. Upper-case
- * symbols are the shaded far side.
+ * khaki trousers and black combat boots. A little sturdier than Brand, and the only one who
+ * brings kit to the fight: a rifle and a grenade, drawn as held props in his special poses.
+ * Symbols: o outline, r beret, h hair, s/S skin, k eye, c/C jacket, b belt, p/P trousers,
+ * f/F boots, g gunmetal, n rifle stock, y/Y muzzle flash, v grenade. Upper-case symbols are
+ * the shaded far side, except Y, the hottest part of the flash.
  */
 export const OSAL_ART: FighterArt = {
   body: {
@@ -54,5 +56,10 @@ export const OSAL_ART: FighterArt = {
     P: '#5e5238',
     f: '#1a1612',
     F: '#0e0c0a',
+    g: '#4a4a52',
+    n: '#5a3f28',
+    y: '#ffb03a',
+    Y: '#fff3b0',
+    v: '#4a6a3a',
   },
 };

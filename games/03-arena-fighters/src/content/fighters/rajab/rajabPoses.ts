@@ -38,7 +38,7 @@ export const RAJAB_POSES: FighterPoses = {
   win2: { ...STANCE, head: [38, 16], shoulder: [35, 23], nearArm: [[38, 30], [34, 32]], farArm: [[30, 30], [27, 34]] },
 };
 
-/** Poses for Card Toss and Bluff. */
+/** Poses for Card Toss and Loaded Dice. */
 export const RAJAB_SPECIAL_POSES: Readonly<Partial<Record<SpecialPoseName, HumanoidPose>>> = {
   /** The throwing hand drawn back across his chest, cards held flat. */
   cardWindup: {
@@ -54,23 +54,24 @@ export const RAJAB_SPECIAL_POSES: Readonly<Partial<Record<SpecialPoseName, Human
     shoulder: [33, 19],
     nearArm: [[41, 19], [49, 20]],
   },
-  /** Arms spread, palms open, leaning back: go on, then. */
-  bluffStance: {
-    ...STANCE,
-    head: [32, 11],
-    shoulder: [31, 19],
-    hip: [31, 36],
-    nearArm: [[37, 22], [41, 16]],
-    farArm: [[26, 22], [23, 16]],
+  /** Down into a crouch with the dice drawn back behind his heel, like a bowler. */
+  diceWindup: {
+    head: [33, 14],
+    shoulder: [31, 22],
+    hip: [29, 38],
+    nearArm: [[31, 30], [27, 36]],
+    farArm: [[29, 29], [32, 33]],
+    nearLeg: [[35, 50], [38, 62]],
+    farLeg: [[25, 50], [22, 62]],
   },
-  /** A sudden step in and a backhand across the face. */
-  bluffAnswer: {
-    head: [37, 12],
-    shoulder: [34, 20],
-    hip: [30, 36],
-    nearArm: [[42, 22], [51, 24]],
-    farArm: [[29, 27], [26, 31]],
-    nearLeg: [[38, 49], [43, 62]],
-    farLeg: [[25, 49], [21, 62]],
+  /** The roll: a long step in and a sweep of the arm that sends them skipping along the floor. */
+  diceRoll: {
+    head: [36, 16],
+    shoulder: [33, 23],
+    hip: [29, 38],
+    nearArm: [[40, 32], [47, 42]],
+    farArm: [[30, 30], [27, 35]],
+    nearLeg: [[37, 50], [42, 62]],
+    farLeg: [[24, 50], [20, 62]],
   },
 };

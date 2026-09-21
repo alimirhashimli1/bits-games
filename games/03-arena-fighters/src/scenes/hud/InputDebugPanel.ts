@@ -4,7 +4,7 @@ import { addPixelText } from '@shared/phaser/pixelText';
 
 import { COLORS, SCREEN } from '../../config';
 import { BUTTONS, isHeld, INPUT, newlyPressed, numpadDirection, type Button, type InputBits } from '../../systems/input/inputBits';
-import { completedMotions, type MotionName } from '../../systems/input/motions';
+import { completedMotions, MOTION_FACING, type MotionName } from '../../systems/input/motions';
 import type { PlayerIndex } from '../../systems/matchSetup';
 import type { FightState } from '../../systems/sim/fightState';
 
@@ -15,10 +15,10 @@ const BUTTON_LABELS: Readonly<Record<Button, string>> = {
   heavyKick: 'HK',
 };
 
-/** Motions in keypad notation; a bracketed direction is held to charge. */
+/** Motions in keypad notation, seen from the side the player started on. */
 const MOTION_LABELS: Readonly<Record<MotionName, string>> = {
-  halfCircleForward: '426',
-  chargeBackForward: '(4)6',
+  forward: '6',
+  downForward: '26',
 };
 
 const PLAYERS: readonly PlayerIndex[] = [0, 1];
@@ -29,7 +29,7 @@ const PLAYER_COLORS: Readonly<Record<PlayerIndex, number>> = { 0: COLORS.player1
 
 /**
  * Development view of what the fight reads from each player: the direction held (in keypad
- * numbers, as seen by that fighter), the buttons down, and the last press with any motions
+ * numbers, from the side that player started on), the buttons down, and the last press with any motions
  * that came with it. Toggled with I, hidden by default.
  */
 export class InputDebugPanel {
@@ -62,7 +62,7 @@ export class InputDebugPanel {
       const pressed = newlyPressed(input, history[history.length - 2] ?? 0);
       if (pressed === 0) continue;
 
-      const motions = completedMotions(history, state.fighters[player].facing).map((name) => MOTION_LABELS[name]);
+      const motions = completedMotions(history, MOTION_FACING[player]).map((name) => MOTION_LABELS[name]);
       const label = [...motions, buttonLabels(pressed)].join(' + ');
       this.setText(this.lastPress[player], player, `LAST ${label}`);
     }
@@ -73,7 +73,7 @@ export class InputDebugPanel {
     for (const player of PLAYERS) {
       const history = state.history[player];
       const input = history[history.length - 1] ?? 0;
-      const direction = numpadDirection(input, state.fighters[player].facing);
+      const direction = numpadDirection(input, MOTION_FACING[player]);
       this.setText(this.held[player], player, `HELD ${direction} ${buttonLabels(input)}`.trim());
     }
   }

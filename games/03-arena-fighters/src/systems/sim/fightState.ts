@@ -31,6 +31,10 @@ export interface ProjectileState {
   readonly x: number;
   readonly y: number;
   readonly vx: number;
+  /** Upward speed, for a lobbed throw that falls as it travels. Zero for one that flies level. */
+  readonly vy: number;
+  /** Steps of blast left where a lobbed throw landed, or -1 while it is still in the air. */
+  readonly burstSteps: number;
 }
 
 export type KnockdownPhase = 'falling' | 'lying' | 'rising';

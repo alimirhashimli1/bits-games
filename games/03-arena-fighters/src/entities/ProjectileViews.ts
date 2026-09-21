@@ -25,7 +25,7 @@ export class ProjectileViews {
         .setVisible(true)
         .setPosition(toPixels(projectile.x), STAGE.floorY - toPixels(projectile.y))
         .setFlipX(projectile.vx < 0)
-        .play(projectileAnimationKey(key), true);
+        .play(projectileAnimationKey(key, projectile.burstSteps >= 0 ? 'blast' : 'flight'), true);
     });
     this.sprites.slice(state.projectiles.length).forEach((sprite) => sprite.setVisible(false));
   }

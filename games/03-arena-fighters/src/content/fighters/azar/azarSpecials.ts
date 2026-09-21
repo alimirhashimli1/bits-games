@@ -13,15 +13,12 @@ const STING: Strike = {
   guard: 'mid',
 };
 
-/**
- * Azar's special moves, on the two motions every fighter shares. Syringe Dart comes first: a
- * charge held while doing ← ↓ → would also read as Needle Sting.
- */
+/** Azar's special moves, on the two motions every fighter shares: → + P and ↓ → + P. */
 export const AZAR_SPECIALS: readonly SpecialMove[] = [
   {
-    /** Syringe Dart (← ↓ → + P): he throws an injection overhand, needle first. The heavy punch throws it faster. */
+    /** Syringe Dart (→ + P): he throws an injection overhand, needle first. The heavy punch throws it faster. */
     name: 'syringeDart',
-    motion: 'halfCircleForward',
+    motion: 'forward',
     behaviour: {
       kind: 'projectile',
       spawnStep: 7,
@@ -43,11 +40,11 @@ export const AZAR_SPECIALS: readonly SpecialMove[] = [
   },
   {
     /**
-     * Needle Sting (hold ←, then → + P): a fencer's lunge that jabs a needle home, quick to
+     * Needle Sting (↓ → + P): a fencer's lunge that jabs a needle home, quick to
      * come out and stopping on whatever it meets. The heavy punch lunges further.
      */
     name: 'needleSting',
-    motion: 'chargeBackForward',
+    motion: 'downForward',
     behaviour: { kind: 'dash', startStep: 4, endStep: 12, speed: { light: 832, heavy: 1088 }, stopsOnContact: true },
     move: {
       segments: [

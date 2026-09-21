@@ -26,18 +26,15 @@ const HEEL: Strike = {
   knockdown: true,
 };
 
-/**
- * Mahmood's special moves, on the two motions every fighter shares. Lion Palm comes first: a
- * charge held while doing ← ↓ → would also read as Rising Heel.
- */
+/** Mahmood's special moves, on the two motions every fighter shares: → + P and ↓ → + P. */
 export const MAHMOOD_SPECIALS: readonly SpecialMove[] = [
   {
     /**
-     * Lion Palm (← ↓ → + P): a long lunge behind his one palm, which stops on whatever it meets.
+     * Lion Palm (→ + P): a long lunge behind his one palm, which stops on whatever it meets.
      * The heavy punch lunges further.
      */
     name: 'lionPalm',
-    motion: 'halfCircleForward',
+    motion: 'forward',
     behaviour: { kind: 'dash', startStep: 9, endStep: 18, speed: { light: 640, heavy: 896 }, stopsOnContact: true },
     move: {
       segments: [
@@ -50,12 +47,12 @@ export const MAHMOOD_SPECIALS: readonly SpecialMove[] = [
   },
   {
     /**
-     * Rising Heel (hold ←, then → + P): he springs up with his heel thrown straight up, which
+     * Rising Heel (↓ → + P): he springs up with his heel thrown straight up, which
      * beats jump-ins. It cannot be hit as it starts (longer for the heavy version, which also
      * rises higher), and it is wide open on the way down if it misses.
      */
     name: 'risingHeel',
-    motion: 'chargeBackForward',
+    motion: 'downForward',
     behaviour: {
       kind: 'rising',
       launchStep: 4,

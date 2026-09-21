@@ -1,5 +1,5 @@
 import { newlyPressed, type InputBits } from '../input/inputBits';
-import { recordInput } from '../input/motions';
+import { MOTION_FACING, recordInput } from '../input/motions';
 import { updateAttack } from './attacks';
 import type { Facing, FighterState, FightState } from './fightState';
 import { resolveHits } from './hits';
@@ -52,12 +52,14 @@ function stepFighters(state: FightState, inputs: StepInputs): FightState {
       input: inputs[0],
       pressed: pressed[0],
       history: history1,
+      motionFacing: MOTION_FACING[0],
       projectileOut: hasProjectile(state.projectiles, 0),
     }),
     updateAttack(grab2, {
       input: inputs[1],
       pressed: pressed[1],
       history: history2,
+      motionFacing: MOTION_FACING[1],
       projectileOut: hasProjectile(state.projectiles, 1),
     }),
   ] as const;

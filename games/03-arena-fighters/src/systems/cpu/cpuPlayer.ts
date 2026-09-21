@@ -5,7 +5,7 @@ import type { Guard } from '../../content/fighters/moves';
 import type { SpecialMove } from '../../content/fighters/specials';
 import type { Controller } from '../input/controller';
 import { INPUT, type InputBits } from '../input/inputBits';
-import { MOTIONS } from '../input/motions';
+import { MOTION_FACING } from '../input/motions';
 import type { PlayerIndex } from '../matchSetup';
 import { moveOf, specialOf } from '../sim/attacks';
 import type { AttackState, FighterState, FightState, ProjectileState } from '../sim/fightState';
@@ -49,8 +49,6 @@ export class CpuPlayer implements Controller {
   private readonly random: Random;
   /** The fight as it was over the last few steps; the CPU sees its opponent in the oldest. */
   private readonly memory: FightState[] = [];
-  /** Its own inputs so far, as the fight recorded them: what a charge is read from. */
-  private history: readonly InputBits[] = [];
   private queue: InputBits[] = [];
   /** What to hold when nothing is queued: walking in, backing off, or nothing. */
   private holding: InputBits = 0;
@@ -81,7 +79,6 @@ export class CpuPlayer implements Controller {
 
   inputFor(state: FightState): InputBits {
     this.remember(state);
-    this.history = state.history[this.me];
     if (state.round.phase !== 'fight') {
       this.reset();
       return 0;
@@ -155,12 +152,12 @@ export class CpuPlayer implements Controller {
   }
 
   /**
-   * An attack it means to deal with: catch it with a counter, if the fighter has one ready and
+   * An attack it means to deal with: catch it with a counter, if the fighter has one and
    * it chooses to, otherwise block.
    */
   private meetAttack(me: FighterState, them: FighterState): void {
     const counter = this.pickSpecial(me, 'counter');
-    const inputs = counter ? this.quickInputs(counter, me, true) : null;
+    const inputs = counter ? this.specialInputs(counter, true) : null;
     if (inputs && me.status.kind === 'free' && !me.attack && this.random.chance(COUNTER_CHANCE)) {
       this.queue = inputs;
       return;
@@ -171,7 +168,7 @@ export class CpuPlayer implements Controller {
   /** A projectile it means to deal with: dash straight through it if the fighter can in time, otherwise block. */
   private meetProjectile(me: FighterState, guard: Guard): void {
     const through = this.pickDash(me, { projectileProof: true });
-    const inputs = through ? this.quickInputs(through, me, true) : null;
+    const inputs = through ? this.specialInputs(through, true) : null;
     if (inputs && me.status.kind === 'free' && !me.attack && this.random.chance(DASH_THROUGH_CHANCE)) {
       this.queue = inputs;
       return;
@@ -202,7 +199,7 @@ export class CpuPlayer implements Controller {
     this.comboJudged = true;
     if (!this.random.chance(this.level.combo)) return 0;
     const followUps = [this.pickSpecial(me, 'projectile'), this.pickSpecial(me, 'rising')];
-    const inputs = followUps.map((special) => (special ? this.quickInputs(special, me, true) : null)).find((plan) => plan);
+    const inputs = followUps.map((special) => (special ? this.specialInputs(special, true) : null)).find((plan) => plan);
     if (inputs) this.queue = inputs;
     return this.queue.shift() ?? 0;
   }
@@ -213,11 +210,11 @@ export class CpuPlayer implements Controller {
     return HK;
   }
 
-  /** A rising special if the fighter has one ready, or a counter to catch the jump-in, otherwise a crouching heavy punch. */
+  /** A rising special if the fighter has one, or a counter to catch the jump-in, otherwise a crouching heavy punch. */
   private antiAir(me: FighterState): InputBits {
     this.antiAirReady = false;
     const [rising, counter] = [this.pickSpecial(me, 'rising'), this.pickSpecial(me, 'counter')];
-    this.queue = (rising && this.quickInputs(rising, me, true)) || (counter && this.quickInputs(counter, me, true)) || [DOWN | HP];
+    this.queue = (rising && this.specialInputs(rising, true)) || (counter && this.specialInputs(counter, true)) || [DOWN | HP];
     return this.queue.shift() ?? 0;
   }
 
@@ -226,27 +223,27 @@ export class CpuPlayer implements Controller {
     const style = fighterData(me.character).cpu;
     const gap = distance(me, them);
     const aggression = Math.min(1, style.aggression * this.level.aggression);
-    this.holding = this.rest(me, gap);
+    this.holding = 0;
 
     if (this.random.chance(this.level.mistake)) {
       this.rash(me);
     } else if (them.status.kind === 'knockdown') {
-      this.holding = gap > style.preferredRange ? forward(me.facing) : this.rest(me, gap);
+      this.holding = gap > style.preferredRange ? forward(me.facing) : 0;
     } else if (gap > style.preferredRange + 16) {
       this.fromAfar(state, me, gap, style);
     } else if (gap <= CPU_RANGES.close) {
       this.upClose(me, them, gap, aggression, style);
     } else if (this.random.chance(aggression)) {
-      // A striking dash as a mid-range attack, if it can go in at once: nobody stops to charge up at this range.
+      // A striking dash as a mid-range attack, to cover the ground between them.
       const dashAttack = this.pickDash(me, { strikes: true });
-      const dashInputs = dashAttack ? this.quickInputs(dashAttack, me, this.random.chance(0.5)) : null;
+      const dashInputs = dashAttack ? this.specialInputs(dashAttack, this.random.chance(0.5)) : null;
       if (dashInputs && this.random.chance(DASH_ATTACK_CHANCE)) {
         this.queue = dashInputs;
       } else {
         this.queue = this.random.chance(0.5) ? [HK] : [DOWN | HK];
       }
     } else {
-      this.holding = this.random.chance(0.5) ? forward(me.facing) : this.backOff(me, gap);
+      this.holding = this.random.chance(0.5) ? forward(me.facing) : back(me.facing);
     }
   }
 
@@ -256,14 +253,14 @@ export class CpuPlayer implements Controller {
     const heal = this.pickSpecial(me, 'heal');
     const hurt = me.health < COMBAT.maxHealth * HEAL_BELOW;
     if (heal && hurt && !me.healUsed && gap >= CPU_RANGES.projectile && this.random.chance(HEAL_CHANCE)) {
-      this.queue = this.specialInputs(heal, me, true);
+      this.queue = this.specialInputs(heal, true);
     } else if (projectile && !projectileOut && gap >= CPU_RANGES.projectile && this.random.chance(style.projectileLove)) {
-      this.queue = this.specialInputs(projectile, me, this.random.chance(0.5));
+      this.queue = this.specialInputs(projectile, this.random.chance(0.5));
     } else if (gap <= CPU_RANGES.jumpIn && this.random.chance(style.jumpiness)) {
       this.queue = [UP | forward(me.facing)];
     } else if (this.random.chance(DASH_IN_CHANCE) && this.pickDash(me, { strikes: false })) {
       const dashIn = this.pickDash(me, { strikes: false });
-      if (dashIn) this.queue = this.specialInputs(dashIn, me, false);
+      if (dashIn) this.queue = this.specialInputs(dashIn, false);
     } else {
       this.holding = forward(me.facing);
     }
@@ -274,7 +271,7 @@ export class CpuPlayer implements Controller {
     const commandThrow = this.pickSpecial(me, 'commandThrow');
     const grab = commandThrow?.behaviour.kind === 'commandThrow' ? commandThrow.behaviour.rangePx : null;
     if (commandThrow && grab && throwable && gap <= grab.light - GRAB_MARGIN && this.random.chance(style.throwLove * aggression)) {
-      this.queue = this.specialInputs(commandThrow, me, gap <= grab.heavy - GRAB_MARGIN);
+      this.queue = this.specialInputs(commandThrow, gap <= grab.heavy - GRAB_MARGIN);
     } else if (throwable && gap <= CPU_RANGES.throw && this.random.chance(style.throwLove * aggression)) {
       this.queue = [LP | LK];
     } else if (this.random.chance(aggression)) {
@@ -287,7 +284,7 @@ export class CpuPlayer implements Controller {
       ];
       this.queue = [...(this.random.pick(plans) ?? [LP])];
     } else {
-      this.holding = this.backOff(me, gap);
+      this.holding = back(me.facing);
     }
   }
 
@@ -311,34 +308,14 @@ export class CpuPlayer implements Controller {
     });
   }
 
-  /** The inputs that perform a special, released at once if its charge is already held. */
-  private specialInputs(special: SpecialMove, me: FighterState, heavy: boolean): InputBits[] {
-    return motionInputs(special.motion, me.facing, heavy ? HP : LP, this.history);
-  }
-
   /**
-   * What it holds while waiting, `gap` pixels from its opponent. A fighter whose answer to a
-   * jump-in (an anti-air or a counter) is a charge crouches holding back while the opponent is out
-   * of throw range, as charge players do, so it is ready; everyone else simply stands.
+   * The inputs that perform a special. They are read from the side this player started the round
+   * on, exactly as a person's are, so the CPU types the same motion whichever way its fighter
+   * happens to face. Every motion is short enough to go in on the spot, so a special is always
+   * available as a reaction.
    */
-  private rest(me: FighterState, gap: number): InputBits {
-    const reaction = this.pickSpecial(me, 'rising') ?? this.pickSpecial(me, 'counter');
-    const charges = reaction !== undefined && MOTIONS[reaction.motion].kind === 'charge';
-    return charges && gap > CPU_RANGES.close ? back(me.facing) | DOWN : 0;
-  }
-
-  /** Giving ground: walking back, or crouching back while a charged answer to jump-ins is worth keeping ready. */
-  private backOff(me: FighterState, gap: number): InputBits {
-    return this.rest(me, gap) || back(me.facing);
-  }
-
-  /**
-   * The inputs for a special that can go in straight away, for a reaction: a motion, or a charge
-   * already held. Null for a charge that would first have to be built up.
-   */
-  private quickInputs(special: SpecialMove, me: FighterState, heavy: boolean): InputBits[] | null {
-    const inputs = this.specialInputs(special, me, heavy);
-    return MOTIONS[special.motion].kind === 'charge' && inputs.length > 1 ? null : inputs;
+  private specialInputs(special: SpecialMove, heavy: boolean): InputBits[] {
+    return motionInputs(special.motion, MOTION_FACING[this.me], heavy ? HP : LP);
   }
 }
 

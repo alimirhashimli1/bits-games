@@ -18,6 +18,18 @@ export interface HumanoidPose {
   readonly farLeg: readonly [knee: Point, foot: Point];
   /** Quarter turns counter-clockwise for the head, e.g. 1 when lying on the back. */
   readonly headTurns?: number;
+  /** Something held in this pose, such as a weapon, drawn in front of the body. */
+  readonly prop?: HeldProp;
+}
+
+/**
+ * A pixel map drawn on top of the body, facing right like the pose itself: a rifle, a staff,
+ * a bottle. Its symbols come from the fighter's own palette, and the outline wraps it too.
+ */
+export interface HeldProp {
+  readonly map: PixelMap;
+  /** Frame position of the map's top-left corner. */
+  readonly at: Point;
 }
 
 /** How a humanoid looks: frame size, head sprite, limb thickness and palette symbols. */
@@ -53,6 +65,11 @@ export interface HumanoidBody {
   };
   /** An arm with no hand: its forearm ends at the wrist. Both hands are drawn if left out. */
   readonly missingHand?: 'near' | 'far';
+  /**
+   * How many pixels short of the wrist that arm stops, so the stump is plainly shorter than the
+   * other forearm. A pixel of forearm is always left, however short the pose's arm is. Default 0.
+   */
+  readonly stumpShortenPx?: number;
   /** A symbol to outline the whole figure with, one pixel wide. No outline if left out. */
   readonly outline?: string;
   /** Optional cloak hanging from the shoulders, drawn behind the body. */
@@ -90,6 +107,7 @@ export function drawHumanoid(pose: HumanoidPose, body: HumanoidBody): PixelMap {
   drawLeg(grid, body, pose.hip, pose.nearLeg, 'near');
   drawHead(grid, body.head, pose);
   drawArm(grid, body, pose.shoulder, pose.nearArm, 'near');
+  if (pose.prop) grid.stamp(pose.prop.map, pose.prop.at[0], pose.prop.at[1]);
 
   if (body.outline) grid.outline(body.outline);
   return grid.toPixelMap();
@@ -114,9 +132,16 @@ function limbSymbols({ symbols }: HumanoidBody, side: Side) {
 
 function drawArm(grid: PixelGrid, body: HumanoidBody, shoulder: Point, [elbow, hand]: HumanoidPose['nearArm'], side: Side): void {
   const parts = limbSymbols(body, side);
+  const handless = body.missingHand === side;
   grid.line(shoulder, elbow, body.thickness.upperArm, parts.sleeve);
-  grid.line(elbow, hand, body.thickness.forearm, parts.forearm);
-  if (body.missingHand !== side) grid.square(hand, body.thickness.fist, parts.fist);
+  grid.line(elbow, handless ? stumpEnd(elbow, hand, body.stumpShortenPx ?? 0) : hand, body.thickness.forearm, parts.forearm);
+  if (!handless) grid.square(hand, body.thickness.fist, parts.fist);
+}
+
+/** Where a handless forearm stops: short of the wrist, but never closer than a pixel from the elbow. */
+function stumpEnd(elbow: Point, hand: Point, shortenPx: number): Point {
+  const length = Math.hypot(hand[0] - elbow[0], hand[1] - elbow[1]);
+  return pointTowards(elbow, hand, Math.max(1, length - shortenPx));
 }
 
 function drawLeg(grid: PixelGrid, body: HumanoidBody, hip: Point, [knee, foot]: HumanoidPose['nearLeg'], side: Side): void {

@@ -14,15 +14,12 @@ const UPPERCUT: Strike = {
   knockdown: true,
 };
 
-/**
- * Brand's special moves, on the two motions every fighter shares. Ember Shot comes first: a
- * charge held while doing ← ↓ → would also read as Flare Rise.
- */
+/** Brand's special moves, on the two motions every fighter shares: → + P and ↓ → + P. */
 export const BRAND_SPECIALS: readonly SpecialMove[] = [
   {
-    /** Ember Shot (← ↓ → + P): a fireball. The heavy punch throws a faster one. */
+    /** Ember Shot (→ + P): a fireball. The heavy punch throws a faster one. */
     name: 'emberShot',
-    motion: 'halfCircleForward',
+    motion: 'forward',
     behaviour: {
       kind: 'projectile',
       spawnStep: 10,
@@ -44,11 +41,11 @@ export const BRAND_SPECIALS: readonly SpecialMove[] = [
   },
   {
     /**
-     * Flare Rise (hold ←, then → + P): a rising uppercut that cannot be hit as it starts, and is
-     * wide open if it misses. Holding a block charges it, ready to meet a jump-in.
+     * Flare Rise (↓ → + P): a rising uppercut that cannot be hit as it starts, and is
+     * wide open if it misses. His answer to a jump-in.
      */
     name: 'flareRise',
-    motion: 'chargeBackForward',
+    motion: 'downForward',
     behaviour: {
       kind: 'rising',
       launchStep: 3,

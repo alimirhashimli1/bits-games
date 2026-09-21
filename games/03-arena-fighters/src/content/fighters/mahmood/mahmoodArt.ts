@@ -3,7 +3,8 @@ import { MAHMOOD_POSES, MAHMOOD_SPECIAL_POSES } from './mahmoodPoses';
 
 /**
  * Mahmood: short black hair and a trimmed beard, a blue track top with long sleeves, black
- * trousers and white trainers. He has one hand: his far arm ends at the wrist. Brand's build.
+ * trousers and white trainers. He has one hand: his far arm is shorter than the other and
+ * stops short of the wrist, with no hand on the end of it. Brand's build.
  * Symbols: o outline, h hair, s/S skin, k eye, c/C top, b waistband, p/P trousers, f/F
  * trainers. Upper-case symbols are the shaded far side.
  */
@@ -37,6 +38,7 @@ export const MAHMOOD_ART: FighterArt = {
       footShade: 'F',
     },
     missingHand: 'far',
+    stumpShortenPx: 3,
     outline: 'o',
   },
   poses: MAHMOOD_POSES,

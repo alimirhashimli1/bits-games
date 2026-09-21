@@ -78,7 +78,8 @@ function fighterValues(fighter: FighterState): number[] {
 }
 
 function projectileValues(projectile: ProjectileState): number[] {
-  return [projectile.owner, SPECIAL_NAMES.indexOf(projectile.special), projectile.heavy ? 1 : 0, projectile.x, projectile.y, projectile.vx];
+  const { owner, special, heavy, x, y, vx, vy, burstSteps } = projectile;
+  return [owner, SPECIAL_NAMES.indexOf(special), heavy ? 1 : 0, x, y, vx, vy, burstSteps];
 }
 
 /** 0 or 1 for a player, 2 for a draw, -1 while undecided. */

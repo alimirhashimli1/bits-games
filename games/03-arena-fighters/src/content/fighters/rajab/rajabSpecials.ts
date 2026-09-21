@@ -1,26 +1,23 @@
 import type { SpecialMove } from '../specials';
 
-/**
- * Rajab's special moves, on the two motions every fighter shares. Card Toss comes first: a
- * charge held while doing ← ↓ → would also read as Bluff.
- */
+/** Rajab's special moves, on the two motions every fighter shares: → + P and ↓ → + P. */
 export const RAJAB_SPECIALS: readonly SpecialMove[] = [
   {
     /**
-     * Card Toss (← ↓ → + P): a flick of the wrist sends razor-edged cards spinning across the
-     * arena. They fly faster than a fireball and he recovers sooner, but they hurt less. The
-     * heavy punch throws them faster still.
+     * Card Toss (→ + P): a flick of the wrist sends razor-edged cards spinning across the
+     * arena, turning over as they fly. They go faster than a fireball and he recovers sooner,
+     * but they hurt less. The heavy punch throws them faster still.
      */
     name: 'cardToss',
-    motion: 'halfCircleForward',
+    motion: 'forward',
     behaviour: {
       kind: 'projectile',
       spawnStep: 8,
       fromLimb: 'nearHand',
       forwardPx: 6,
       speed: { light: 896, heavy: 1216 },
-      width: 10,
-      height: 7,
+      width: 12,
+      height: 9,
       strike: { damage: 60, chip: 11, hitstun: 15, blockstun: 13, push: 512, guard: 'mid' },
       sprite: 'card',
     },
@@ -34,26 +31,28 @@ export const RAJAB_SPECIALS: readonly SpecialMove[] = [
   },
   {
     /**
-     * Bluff (hold ←, then → + P): he opens his arms and dares a blow. Anything thrown at him by
-     * hand or foot in that moment is caught and answered with a backhand that knocks down.
-     * Projectiles and throws are not caught, and if nothing comes he is left open.
+     * Loaded Dice (↓ → + P): he rolls a pair of weighted dice low along the floor, where they
+     * skip along at shin height. They must be blocked crouching, and they can be jumped clean
+     * over. The heavy punch rolls them faster.
      */
-    name: 'bluff',
-    motion: 'chargeBackForward',
+    name: 'loadedDice',
+    motion: 'downForward',
     behaviour: {
-      kind: 'counter',
-      catchStart: 3,
-      catchEnd: 25,
-      answerStep: 40,
-      answer: { damage: 115, hitstun: 20, blockstun: 0, push: 640, guard: 'mid', knockdown: true },
+      kind: 'projectile',
+      spawnStep: 9,
+      fromLimb: 'nearHand',
+      forwardPx: 4,
+      speed: { light: 704, heavy: 960 },
+      width: 11,
+      height: 10,
+      strike: { damage: 70, chip: 12, hitstun: 17, blockstun: 14, push: 576, guard: 'low' },
+      sprite: 'dice',
     },
     move: {
       segments: [
-        { pose: 'bluffStance', steps: 3 },
-        { pose: 'bluffStance', steps: 22 },
-        { pose: 'idle2', steps: 15 },
-        // Only reached when a blow was caught.
-        { pose: 'bluffAnswer', steps: 18 },
+        { pose: 'diceWindup', steps: 9 },
+        { pose: 'diceRoll', steps: 18 },
+        { pose: 'idle2', steps: 5 },
       ],
     },
   },

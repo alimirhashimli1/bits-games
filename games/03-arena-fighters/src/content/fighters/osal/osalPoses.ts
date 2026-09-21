@@ -1,11 +1,12 @@
 import type { HumanoidPose } from '@shared/pixel-art/humanoidRig';
+import type { PixelMap } from '@shared/pixel-art/pixelMap';
 
 import { BRAND_POSES } from '../brand/brandPoses';
 import type { FighterPoses, SpecialPoseName } from '../poseNames';
 
 /*
  * Osal's poses, in the same 64×64 frame as everyone's (feet on row 62, centre near x = 32).
- * He stands in a soldier's guard, low and square, trained to take people down. His strikes,
+ * He stands in a soldier's guard, low and square, and fights with what he carries. His strikes,
  * jumps and falls share Brand's body mechanics, so those come from Brand's set.
  */
 
@@ -37,56 +38,72 @@ export const OSAL_POSES: FighterPoses = {
   win2: { ...STANCE, head: [34, 11], shoulder: [32, 19], hip: [30, 36], nearArm: [[34, 27], [31, 34]], farArm: [[28, 27], [29, 34]] },
 };
 
-/** Poses for Field Tackle and Adrenaline. */
+/**
+ * His service rifle, facing right: a wooden stock at the butt, the receiver and magazine in the
+ * middle, and the barrel running out in front. Its symbols come from Osal's own palette, and the
+ * figure's outline wraps it like the rest of him.
+ */
+const RIFLE: PixelMap = [
+  '........gg..............',
+  'nnnnnnngggggggggggggggg.',
+  '.nnnnn..ggg.............',
+  '.........gg.............',
+];
+
+/** The same rifle the moment it goes off, with the muzzle flash on the end of the barrel. */
+const RIFLE_FIRING: PixelMap = [
+  '........gg.............y....',
+  'nnnnnnnggggggggggggggggyYyy.',
+  '.nnnnn..ggg............yYy..',
+  '.........gg.............y...',
+];
+
+/** The grenade in his fist, before he lets go of it. */
+const HELD_GRENADE: PixelMap = ['.vv.', 'vvvv', 'vvvv', '.vv.'];
+
+/** Poses for Rifle Shot and Grenade. */
 export const OSAL_SPECIAL_POSES: Readonly<Partial<Record<SpecialPoseName, HumanoidPose>>> = {
-  /** Diving in low, arms out to wrap the legs. */
-  tackleDive: {
-    head: [42, 24],
-    shoulder: [38, 28],
-    hip: [28, 40],
-    nearArm: [[45, 32], [52, 34]],
-    farArm: [[43, 30], [50, 31]],
-    nearLeg: [[38, 51], [44, 62]],
-    farLeg: [[20, 51], [13, 61]],
+  /** The rifle up at his shoulder, cheek down on the stock, front hand under the barrel. */
+  rifleAim: {
+    head: [34, 13],
+    shoulder: [32, 21],
+    hip: [30, 38],
+    nearArm: [[38, 28], [44, 27]],
+    farArm: [[32, 29], [36, 27]],
+    nearLeg: [[36, 50], [40, 62]],
+    farLeg: [[24, 50], [20, 62]],
+    prop: { map: RIFLE, at: [24, 23] },
   },
-  /** Shoulder buried in the midriff, driving forward. */
-  tackleDrive: {
-    head: [42, 22],
-    shoulder: [38, 26],
-    hip: [28, 40],
-    nearArm: [[42, 34], [46, 30]],
-    farArm: [[40, 32], [44, 28]],
-    nearLeg: [[37, 51], [43, 62]],
-    farLeg: [[21, 51], [14, 61]],
+  /** The shot: the whole rifle driven back into his shoulder, flame off the muzzle. */
+  rifleFire: {
+    head: [33, 13],
+    shoulder: [31, 21],
+    hip: [30, 38],
+    nearArm: [[37, 28], [43, 27]],
+    farArm: [[31, 29], [35, 27]],
+    nearLeg: [[36, 50], [40, 62]],
+    farLeg: [[24, 50], [20, 62]],
+    prop: { map: RIFLE_FIRING, at: [23, 23] },
   },
-  /** Down on one knee over the one he has taken down, pinning them. */
-  tacklePin: {
-    head: [40, 32],
-    shoulder: [36, 38],
-    hip: [28, 48],
-    nearArm: [[42, 46], [46, 54]],
-    farArm: [[38, 46], [41, 54]],
-    nearLeg: [[38, 52], [40, 62]],
-    farLeg: [[28, 58], [20, 62]],
+  /** Pin out, the grenade cocked back beside his ear. */
+  grenadePull: {
+    head: [34, 13],
+    shoulder: [32, 21],
+    hip: [30, 38],
+    nearArm: [[34, 24], [30, 18]],
+    farArm: [[31, 28], [35, 26]],
+    nearLeg: [[35, 50], [39, 62]],
+    farLeg: [[25, 50], [21, 62]],
+    prop: { map: HELD_GRENADE, at: [28, 16] },
   },
-  /** Head down, jabbing a shot of adrenaline into his own thigh. */
-  adrenalineInject: {
-    head: [34, 15],
-    shoulder: [31, 23],
-    hip: [29, 38],
-    nearArm: [[34, 31], [30, 41]],
-    farArm: [[27, 30], [24, 36]],
-    nearLeg: [[35, 50], [38, 62]],
-    farLeg: [[25, 50], [22, 62]],
-  },
-  /** It kicks in: chest out, head up, fists clenched at his sides. */
-  adrenalineFlex: {
-    head: [33, 10],
-    shoulder: [31, 19],
-    hip: [30, 36],
-    nearArm: [[37, 26], [39, 33]],
-    farArm: [[25, 26], [23, 33]],
-    nearLeg: [[36, 49], [39, 62]],
-    farLeg: [[24, 49], [21, 62]],
+  /** The throw: a long overarm lob, the other arm swung back behind him. */
+  grenadeThrow: {
+    head: [36, 13],
+    shoulder: [33, 21],
+    hip: [30, 38],
+    nearArm: [[40, 18], [47, 20]],
+    farArm: [[31, 28], [28, 32]],
+    nearLeg: [[38, 50], [43, 62]],
+    farLeg: [[24, 50], [20, 62]],
   },
 };
