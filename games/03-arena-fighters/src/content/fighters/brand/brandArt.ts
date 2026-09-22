@@ -1,5 +1,5 @@
 import { FIGHTER_FRAME, type FighterArt } from '../fighterArt';
-import { BRAND_POSES, BRAND_SPECIAL_POSES } from './brandPoses';
+import { BRAND_POSES, BRAND_SPECIAL_POSES, REACHING_KICKS } from './brandPoses';
 
 /**
  * Brand: spiky dark hair, a sleeveless red top, bare arms with white hand wraps, blue jeans
@@ -41,7 +41,7 @@ export const BRAND_ART: FighterArt = {
     },
     outline: 'o',
   },
-  poses: BRAND_POSES,
+  poses: { ...BRAND_POSES, ...REACHING_KICKS },
   specialPoses: BRAND_SPECIAL_POSES,
   palette: {
     o: '#14121c',

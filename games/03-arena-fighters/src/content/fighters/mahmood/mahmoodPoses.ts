@@ -1,16 +1,16 @@
 import type { HumanoidPose } from '@shared/pixel-art/humanoidRig';
 
-import { BRAND_POSES } from '../brand/brandPoses';
+import { BRAND_POSES, REACHING_KICKS } from '../brand/brandPoses';
 import type { FighterPoses, SpecialPoseName } from '../poseNames';
 
 /*
  * Mahmood's poses, in the same 64×64 frame as everyone's (feet on row 62, centre near x = 32).
- * He fights side-on on light feet, his one hand forward and the other arm held in to guard
- * his body. Every blow he lands is with that hand or his feet, and his legs do most of the
- * work. His kicks, jumps and falls share Brand's body mechanics, so those come from Brand's set.
+ * He fights side-on on light feet, his handless front arm forward and his hand held in to guard
+ * his body. His legs do most of the work: his kicks (Brand's long-reaching ones), jumps and
+ * falls share Brand's body mechanics, so those come from Brand's set.
  */
 
-/** Side-on and light on his feet: hand forward, the other arm tucked in across his ribs. */
+/** Side-on and light on his feet: the short arm forward, the hand tucked in across his ribs. */
 const STANCE: HumanoidPose = {
   head: [35, 11],
   shoulder: [32, 19],
@@ -33,6 +33,7 @@ const JUMP_TUCK: HumanoidPose = {
 
 export const MAHMOOD_POSES: FighterPoses = {
   ...BRAND_POSES,
+  ...REACHING_KICKS,
 
   idle1: STANCE,
   idle2: { ...STANCE, head: [35, 12], shoulder: [32, 20], nearArm: [[37, 26], [43, 22]], farArm: [[31, 28], [35, 28]] },
@@ -44,11 +45,11 @@ export const MAHMOOD_POSES: FighterPoses = {
 
   jumpTuck: JUMP_TUCK,
 
-  /** A quick palm to the face. */
+  /** A quick jab of the front arm to the face. */
   standLP: { ...STANCE, head: [36, 11], shoulder: [33, 19], nearArm: [[42, 19], [50, 18]] },
-  /** The hand drawn back to the hip... */
+  /** The front arm drawn back to the hip... */
   standHPWindup: { ...STANCE, head: [33, 12], shoulder: [30, 20], nearArm: [[31, 28], [27, 31]] },
-  /** ...and driven out in a heavy palm strike, the whole body behind it. */
+  /** ...and driven out in a heavy forearm strike, the whole body behind it. */
   standHP: {
     ...STANCE,
     head: [38, 12],
@@ -60,13 +61,13 @@ export const MAHMOOD_POSES: FighterPoses = {
   },
 
   jumpLP: { ...JUMP_TUCK, nearArm: [[40, 25], [47, 29]] },
-  /** The palm driven down on whoever is below. */
+  /** The front arm driven down on whoever is below. */
   jumpHP: { ...JUMP_TUCK, nearArm: [[41, 28], [48, 34]] },
 };
 
 /** Poses for Lion Palm and Rising Heel. */
 export const MAHMOOD_SPECIAL_POSES: Readonly<Partial<Record<SpecialPoseName, HumanoidPose>>> = {
-  /** A long, low lunge behind an outstretched palm. */
+  /** A long, low lunge behind his outstretched front arm. */
   palmLunge: {
     head: [40, 15],
     shoulder: [37, 22],
@@ -86,17 +87,14 @@ export const MAHMOOD_SPECIAL_POSES: Readonly<Partial<Record<SpecialPoseName, Hum
     nearLeg: [[39, 51], [40, 62]],
     farLeg: [[30, 57], [21, 62]],
   },
-  /**
-   * Springing up with the kicking heel thrown out at head height in front of him, halfway
-   * between straight up and straight out, so it meets someone on the floor as well as in the air.
-   */
+  /** Flying flat and low, leaning back with the kicking heel driven straight out in front at hip height. */
   heelRise: {
-    head: [30, 16],
-    shoulder: [30, 24],
-    hip: [31, 39],
-    nearArm: [[26, 30], [22, 34]],
-    farArm: [[28, 31], [30, 33]],
-    nearLeg: [[40, 33], [51, 22]],
-    farLeg: [[29, 51], [27, 60]],
+    head: [26, 18],
+    shoulder: [28, 25],
+    hip: [32, 38],
+    nearArm: [[24, 31], [21, 36]],
+    farArm: [[30, 32], [33, 34]],
+    nearLeg: [[44, 37], [57, 36]],
+    farLeg: [[28, 50], [34, 57]],
   },
 };

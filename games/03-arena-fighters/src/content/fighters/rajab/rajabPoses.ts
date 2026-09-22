@@ -1,12 +1,12 @@
 import type { HumanoidPose } from '@shared/pixel-art/humanoidRig';
 
-import { BRAND_POSES } from '../brand/brandPoses';
+import { BRAND_POSES, REACHING_KICKS } from '../brand/brandPoses';
 import type { FighterPoses, SpecialPoseName } from '../poseNames';
 
 /*
  * Rajab's poses, in the same 64×64 frame as everyone's (feet on row 62, centre near x = 32).
  * He stands easy, hands low, as if he had all the time in the world. His strikes, jumps and
- * falls share Brand's body mechanics, so those come from Brand's set.
+ * falls share Brand's body mechanics, so those come from Brand's set, and he kicks with Brand's long reach.
  */
 
 /** Relaxed and upright, hands low. */
@@ -22,6 +22,7 @@ const STANCE: HumanoidPose = {
 
 export const RAJAB_POSES: FighterPoses = {
   ...BRAND_POSES,
+  ...REACHING_KICKS,
 
   idle1: STANCE,
   /** A little shrug, as if bored. */

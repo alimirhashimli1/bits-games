@@ -62,7 +62,8 @@ function advanceOne(projectile: ProjectileState, behaviour: ProjectileBehaviour)
 
 /**
  * Two projectiles from different players that touch cancel each other out. A projectile that
- * touches its target is blocked or lands like any other strike, and is used up either way.
+ * touches its target is blocked or lands like any other strike, and is used up either way. A crouching
+ * fighter ducks under any projectile flying level at chest height (`passesOver`).
  */
 export function resolveProjectiles(
   fighters: Pair,
@@ -82,9 +83,10 @@ export function resolveProjectiles(
     const target: PlayerIndex = projectile.owner === 0 ? 1 : 0;
     const box = projectileBox(projectile, fighters);
     if (isProjectileProof(struck[target])) return true;
+    const behaviour = behaviourOf(fighters[projectile.owner].character, projectile.special);
+    if (passesOver(behaviour, struck[target])) return true;
     if (!hurtboxes(struck[target]).some((hurtbox) => overlaps(box, hurtbox))) return true;
 
-    const behaviour = behaviourOf(fighters[projectile.owner].character, projectile.special);
     const size = projectile.burstSteps >= 0 && behaviour.burst ? behaviour.burst : behaviour;
     // A blast sits still, so which way it pushes comes from the side the one caught in it stands.
     const from: Facing = projectile.vx !== 0 ? (projectile.vx > 0 ? 1 : -1) : struck[target].x >= projectile.x ? 1 : -1;
@@ -94,6 +96,11 @@ export function resolveProjectiles(
     return false;
   });
   return { fighters: struck, projectiles: remaining, hitstop };
+}
+
+/** A projectile thrown flat sails over a crouching fighter; one that hits low, or is lobbed, still catches them. */
+function passesOver(behaviour: ProjectileBehaviour, target: FighterState): boolean {
+  return target.posture === 'crouching' && !behaviour.arc && behaviour.strike.guard !== 'low';
 }
 
 /** The projectile a fighter throws this step, if they are on their special's spawn step. */

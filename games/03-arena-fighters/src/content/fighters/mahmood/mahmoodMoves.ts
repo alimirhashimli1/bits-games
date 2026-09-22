@@ -2,7 +2,7 @@ import { STANDARD_MOVEMENT, type FighterMovement } from '../fighterMovement';
 import type { FighterMoves, Strike } from '../moves';
 
 /*
- * Mahmood's normals: every punch is thrown with his one hand, so they are a little lighter than
+ * Mahmood's normals: every punch is a jab of his handless front arm, so they are a little lighter than
  * Brand's, and his kicks are stronger and reach further to make up for it. Steps are fight
  * steps (60 per second), damage is out of 1000 health and push is a slide speed in sub-pixels
  * per step.

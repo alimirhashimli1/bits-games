@@ -114,6 +114,12 @@ export const INPUT_READING = {
    * the tap that starts a special, so → + punch while walking in is still an ordinary punch.
    */
   tapSteps: 20,
+  /**
+   * Steps allowed between one direction of a motion and the next, such as letting go of ↓ and
+   * pressing →: a twelfth of a second. Any longer and the ↓ was a crouch of its own, so the
+   * D and F that follow are → + P rather than ↓ → + P.
+   */
+  motionGapSteps: 5,
 } as const;
 
 /** Keys for testing the fight. Keyboard only, and only in development builds. */

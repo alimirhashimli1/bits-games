@@ -15,8 +15,8 @@ const LION_PALM: Strike = {
 
 const HEEL: Strike = {
   limb: 'nearFoot',
-  width: 16,
-  height: 22,
+  width: 20,
+  height: 14,
   damage: 105,
   chip: 18,
   hitstun: 20,
@@ -30,7 +30,7 @@ const HEEL: Strike = {
 export const MAHMOOD_SPECIALS: readonly SpecialMove[] = [
   {
     /**
-     * Lion Palm (→ + P): a long lunge behind his one palm, which stops on whatever it meets.
+     * Lion Palm (→ + P): a long lunge behind his outstretched front arm, which stops on whatever it meets.
      * The heavy punch lunges further.
      */
     name: 'lionPalm',
@@ -47,17 +47,17 @@ export const MAHMOOD_SPECIALS: readonly SpecialMove[] = [
   },
   {
     /**
-     * Rising Heel (↓ → + P): he springs up with his heel thrown straight up, which
-     * beats jump-ins. It cannot be hit as it starts (longer for the heavy version, which also
-     * rises higher), and it is wide open on the way down if it misses.
+     * Rising Heel (↓ → + P): he springs low and flat across the floor with his heel driven
+     * straight out in front. It cannot be hit as it starts (longer for the heavy version, which
+     * also flies further), and it is wide open on landing if it misses.
      */
     name: 'risingHeel',
     motion: 'downForward',
     behaviour: {
       kind: 'rising',
       launchStep: 4,
-      rise: { light: 1150, heavy: 1500 },
-      drift: { light: 128, heavy: 224 },
+      rise: { light: 320, heavy: 448 },
+      drift: { light: 640, heavy: 896 },
       invulnerableSteps: { light: 5, heavy: 9 },
     },
     move: {

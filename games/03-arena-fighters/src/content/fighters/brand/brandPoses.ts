@@ -241,6 +241,37 @@ export const BRAND_POSES: FighterPoses = {
   },
 };
 
+/**
+ * Kicks thrown with the leg nearly straight and the hips turned into them, reaching well past a
+ * jab, so they are worth throwing from outside punching range. Brand kicks this way, and so do
+ * Rajab and Mahmood; the others who share his body keep the shorter kicks above.
+ */
+export const REACHING_KICKS: Pick<FighterPoses, 'standLK' | 'standHK' | 'crouchLK' | 'crouchHK'> = {
+  /** Front snap kick at the stomach, the leg straight out. */
+  standLK: { ...KICK_LEAN, hip: [32, 36], nearLeg: [[45, 37], [58, 38]] },
+  standHK: {
+    head: [26, 13],
+    shoulder: [27, 21],
+    hip: [33, 37],
+    nearArm: [[31, 27], [34, 23]],
+    farArm: [[24, 28], [20, 31]],
+    nearLeg: [[46, 31], [59, 26]],
+    farLeg: [[30, 49], [29, 62]],
+  },
+  /** Poke at the shins, the leg stretched along the floor. */
+  crouchLK: { ...CROUCH, nearLeg: [[41, 57], [54, 62]] },
+  /** Low sweep, the hips pushed forward into it. */
+  crouchHK: {
+    head: [33, 35],
+    shoulder: [33, 41],
+    hip: [32, 51],
+    nearArm: [[37, 48], [38, 55]],
+    farArm: [[31, 48], [28, 55]],
+    nearLeg: [[45, 57], [59, 62]],
+    farLeg: [[33, 60], [24, 62]],
+  },
+};
+
 /** Poses for Ember Shot and Flare Rise. */
 export const BRAND_SPECIAL_POSES: Readonly<Partial<Record<SpecialPoseName, HumanoidPose>>> = {
   /** Both hands drawn back to the hip, gathering the fire. */
@@ -263,7 +294,7 @@ export const BRAND_SPECIAL_POSES: Readonly<Partial<Record<SpecialPoseName, Human
     nearLeg: [[38, 49], [42, 62]],
     farLeg: [[24, 49], [20, 62]],
   },
-  /** Sunk low with the fist cocked by the knee, a moment before the uppercut. */
+  /** Sunk low with the fist cocked by the knee, a moment before the leap. */
   flareCrouch: {
     head: [37, 31],
     shoulder: [34, 38],
@@ -273,17 +304,14 @@ export const BRAND_SPECIAL_POSES: Readonly<Partial<Record<SpecialPoseName, Human
     nearLeg: [[40, 51], [40, 62]],
     farLeg: [[31, 57], [22, 62]],
   },
-  /**
-   * Stretched out and rising, the fist driven up and out in front of him at forty-five degrees,
-   * so it catches someone standing in front as well as one coming down on him.
-   */
+  /** Leaping flat and low, the fist driven straight out in front at shoulder height, the back leg trailing. */
   flareRise: {
-    head: [33, 14],
-    shoulder: [32, 21],
-    hip: [30, 37],
-    nearArm: [[40, 14], [48, 6]],
-    farArm: [[27, 27], [25, 32]],
-    nearLeg: [[34, 48], [32, 58]],
-    farLeg: [[27, 46], [23, 55]],
+    head: [38, 15],
+    shoulder: [36, 22],
+    hip: [29, 36],
+    nearArm: [[46, 21], [57, 21]],
+    farArm: [[30, 28], [27, 32]],
+    nearLeg: [[39, 43], [37, 55]],
+    farLeg: [[22, 46], [12, 52]],
   },
 };

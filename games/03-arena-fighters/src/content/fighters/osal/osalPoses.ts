@@ -45,7 +45,8 @@ export const OSAL_POSES: FighterPoses = {
  */
 const RIFLE: PixelMap = [
   '........gg..............',
-  'nnnnnnngggggggggggggggg.',
+  'nnnnnngggggggggggggggg..',
+  'nnnnnnggggggggggggggggg.',
   '.nnnnn..ggg.............',
   '.........gg.............',
 ];
@@ -53,7 +54,8 @@ const RIFLE: PixelMap = [
 /** The same rifle the moment it goes off, with the muzzle flash on the end of the barrel. */
 const RIFLE_FIRING: PixelMap = [
   '........gg.............y....',
-  'nnnnnnnggggggggggggggggyYyy.',
+  'nnnnnngggggggggggggggggyYy..',
+  'nnnnnngggggggggggggggggYYYy.',
   '.nnnnn..ggg............yYy..',
   '.........gg.............y...',
 ];

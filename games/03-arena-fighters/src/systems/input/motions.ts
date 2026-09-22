@@ -60,31 +60,33 @@ export function completedMotions(history: readonly InputBits[], facing: Facing):
 }
 
 /**
- * The directions appear in order within the motion window, with anything in between, and the
- * last one is a fresh tap: it must have been pressed, not merely held, just before the button.
- * That is what keeps walking forward and pressing punch a normal attack, while D and then F
- * one after the other is a special. Being forgiving about what comes in between is what makes
- * motions come out on a keyboard, where a roll from ↓ to → passes through ↘ on its own.
+ * The directions appear in order within the motion window, each one following straight on from
+ * the one before (see `motionGapSteps`), and the last one is a fresh tap: it must have been
+ * pressed, not merely held, just before the button. That is what keeps walking forward and
+ * pressing punch a normal attack, and crouching and then D and F a → + P, while S, D and F rolled
+ * one into the next is ↓ → + P. A diagonal on the way, such as the ↘ a roll from ↓ to → passes
+ * through on a keyboard, counts towards the gap.
  */
 function hasSequence({ directions: wanted }: Motion, directions: readonly number[]): boolean {
-  const newest = directions.length - 1;
   const earliest = Math.max(0, directions.length - INPUT_READING.motionWindowSteps);
-  let index = newest;
+  let latest = directions.length - 1;
+  let limit = earliest;
   for (let step = wanted.length - 1; step >= 0; step -= 1) {
-    while (index >= earliest && directions[index] !== wanted[step]) index -= 1;
-    if (index < earliest) return false;
-    if (step === wanted.length - 1 && !freshlyTapped(directions, index, wanted[step] ?? NEUTRAL)) return false;
-    index -= 1;
+    const direction = wanted[step] ?? NEUTRAL;
+    let index = latest;
+    while (index >= limit && directions[index] !== direction) index -= 1;
+    if (index < limit) return false;
+    const start = runStart(directions, index);
+    if (step === wanted.length - 1 && directions.length - start > INPUT_READING.tapSteps) return false;
+    latest = start - 1;
+    limit = Math.max(earliest, latest - INPUT_READING.motionGapSteps);
   }
   return true;
 }
 
-/**
- * The run of `direction` ending at `index` began within the tap window, so the player pressed it
- * for this move rather than having held it all along.
- */
-function freshlyTapped(directions: readonly number[], index: number, direction: number): boolean {
+/** Where the run of the same direction that includes `index` began. */
+function runStart(directions: readonly number[], index: number): number {
   let start = index;
-  while (start > 0 && directions[start - 1] === direction) start -= 1;
-  return directions.length - start <= INPUT_READING.tapSteps;
+  while (start > 0 && directions[start - 1] === directions[index]) start -= 1;
+  return start;
 }

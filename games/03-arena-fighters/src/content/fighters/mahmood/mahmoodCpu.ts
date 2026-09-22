@@ -1,6 +1,6 @@
 import type { CpuStyle } from '../cpuStyle';
 
-/** Mahmood keeps to kicking range and lunges in with his palm. */
+/** Mahmood keeps to kicking range and lunges in behind his front arm. */
 export const MAHMOOD_CPU: CpuStyle = {
   preferredRange: 56,
   aggression: 0.62,
