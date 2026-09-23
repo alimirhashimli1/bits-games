@@ -181,48 +181,42 @@ function blastFrame(frame: number): PixelMap {
   return rows;
 }
 
+const WHEEL = { width: 11, height: 10, frames: 4, outer: 5.4, rim: 1.1, pockets: 8, pocketInner: 2.4, hub: 1.3, ballRing: 4, ball: 1.1 } as const;
+const WHEEL_CENTER_X = (WHEEL.width - 1) / 2;
+const WHEEL_CENTER_Y = (WHEEL.height - 1) / 2;
+/** The wheel is seen a little from above, so it is drawn wider than it is tall. */
+const WHEEL_SQUASH = WHEEL.width / WHEEL.height;
+const POCKET_ANGLE = (Math.PI * 2) / WHEEL.pockets;
+
 /**
- * Rajab's loaded dice, thrown low and skipping along the floor. Each frame shows another face,
- * so they tumble as they go.
+ * One frame of Rajab's roulette wheel, rolled low along the floor: a wooden rim around
+ * red and black pockets, a brass hub at the middle, and the ivory ball running round inside the
+ * rim. Turning the pockets two places over the frames, and carrying the ball the whole way round
+ * the other way, spins the wheel as it rolls; both end where they began, so the loop never jumps.
  */
-const DICE_FRAMES: readonly PixelMap[] = [
-  [
-    '.oooooooo.',
-    'owwwwwwwwo',
-    'owkkwwkkwo',
-    'owkkwwkkwo',
-    'owwwwwwwwo',
-    'owwwwwwwwo',
-    'owkkwwkkwo',
-    'owkkwwkkwo',
-    'owwwwwwwwo',
-    '.oooooooo.',
-  ],
-  [
-    '.oooooooo.',
-    'owwwwwwwwo',
-    'owwwwwwwwo',
-    'owwwwwwwwo',
-    'owwwkkwwwo',
-    'owwwkkwwwo',
-    'owwwwwwwwo',
-    'owwwwwwwwo',
-    'owwwwwwwwo',
-    '.oooooooo.',
-  ],
-  [
-    '.oooooooo.',
-    'owwwwwwwwo',
-    'owkkwwkkwo',
-    'owkkwwkkwo',
-    'owwwkkwwwo',
-    'owwwkkwwwo',
-    'owkkwwkkwo',
-    'owkkwwkkwo',
-    'owwwwwwwwo',
-    '.oooooooo.',
-  ],
-];
+function rouletteWheelFrame(frame: number): PixelMap {
+  const turn = (frame / WHEEL.frames) * POCKET_ANGLE * 2;
+  const around = -(frame / WHEEL.frames) * Math.PI * 2;
+  const ballX = WHEEL_CENTER_X + Math.cos(around) * WHEEL.ballRing;
+  const ballY = WHEEL_CENTER_Y + (Math.sin(around) * WHEEL.ballRing) / WHEEL_SQUASH;
+  const rows: string[] = [];
+  for (let y = 0; y < WHEEL.height; y++) {
+    let row = '';
+    for (let x = 0; x < WHEEL.width; x++) {
+      // Squashing the vertical distance makes every ring of the wheel an ellipse rather than a circle.
+      const fromMiddle = (y - WHEEL_CENTER_Y) * WHEEL_SQUASH;
+      const distance = Math.hypot(x - WHEEL_CENTER_X, fromMiddle);
+      const pocket = Math.floor(((Math.atan2(fromMiddle, x - WHEEL_CENTER_X) + turn + Math.PI * 4) % (Math.PI * 2)) / POCKET_ANGLE);
+      if (distance > WHEEL.outer) row += '.';
+      else if (Math.hypot(x - ballX, (y - ballY) * WHEEL_SQUASH) < WHEEL.ball) row += 'w';
+      else if (distance > WHEEL.outer - WHEEL.rim) row += 'o';
+      else if (distance > WHEEL.pocketInner) row += pocket % 2 === 0 ? 'r' : 'k';
+      else row += distance > WHEEL.hub ? 'N' : 'n';
+    }
+    rows.push(row);
+  }
+  return rows;
+}
 
 const STATIC_WAVE = { size: 16, frames: 3, core: 2.4, glow: 4.2, shell: 5.6, sparks: 5 } as const;
 const STATIC_CENTER = (STATIC_WAVE.size - 1) / 2;
@@ -433,8 +427,12 @@ export const PROJECTILE_SPRITES: readonly SpriteAssets[] = [
   ),
   // Rajab's Card Toss.
   projectileSprites('card', { o: '#1a1216', w: '#f4f0e6', r: '#d8342c', b: '#2a4c9e' }, CARD_FRAMES),
-  // Rajab's Loaded Dice.
-  projectileSprites('dice', { o: '#1a1216', w: '#f4f0e6', k: '#24202a' }, DICE_FRAMES),
+  // Rajab's Roulette Roll.
+  projectileSprites(
+    'rouletteWheel',
+    { o: '#8a5a2c', r: '#d43038', k: '#2a2632', w: '#fffaf0', n: '#f2cc70', N: '#a8801f' },
+    Array.from({ length: WHEEL.frames }, (_, frame) => rouletteWheelFrame(frame)),
+  ),
   // Azar's Syringe Dart.
   projectileSprites(
     'syringe',

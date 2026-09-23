@@ -1,6 +1,6 @@
 import type { CpuStyle } from '../cpuStyle';
 
-/** Rajab deals cards from a middle distance and rolls dice at the feet of anyone who stands still. */
+/** Rajab deals cards from a middle distance and rolls the wheel at the feet of anyone who stands still. */
 export const RAJAB_CPU: CpuStyle = {
   preferredRange: 64,
   aggression: 0.55,

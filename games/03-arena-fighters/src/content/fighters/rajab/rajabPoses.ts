@@ -39,7 +39,7 @@ export const RAJAB_POSES: FighterPoses = {
   win2: { ...STANCE, head: [38, 16], shoulder: [35, 23], nearArm: [[38, 30], [34, 32]], farArm: [[30, 30], [27, 34]] },
 };
 
-/** Poses for Card Toss and Loaded Dice. */
+/** Poses for Card Toss and Roulette Roll. */
 export const RAJAB_SPECIAL_POSES: Readonly<Partial<Record<SpecialPoseName, HumanoidPose>>> = {
   /** The throwing hand drawn back across his chest, cards held flat. */
   cardWindup: {
@@ -55,8 +55,8 @@ export const RAJAB_SPECIAL_POSES: Readonly<Partial<Record<SpecialPoseName, Human
     shoulder: [33, 19],
     nearArm: [[41, 19], [49, 20]],
   },
-  /** Down into a crouch with the dice drawn back behind his heel, like a bowler. */
-  diceWindup: {
+  /** Down into a crouch with the wheel drawn back behind his heel, like a bowler. */
+  wheelWindup: {
     head: [33, 14],
     shoulder: [31, 22],
     hip: [29, 38],
@@ -65,8 +65,8 @@ export const RAJAB_SPECIAL_POSES: Readonly<Partial<Record<SpecialPoseName, Human
     nearLeg: [[35, 50], [38, 62]],
     farLeg: [[25, 50], [22, 62]],
   },
-  /** The roll: a long step in and a sweep of the arm that sends them skipping along the floor. */
-  diceRoll: {
+  /** The roll: a long step in and a sweep of the arm that sends it spinning along the floor. */
+  wheelRoll: {
     head: [36, 16],
     shoulder: [33, 23],
     hip: [29, 38],

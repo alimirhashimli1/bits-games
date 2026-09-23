@@ -35,6 +35,15 @@ export function roomLink(code: string): string {
   return url.toString();
 }
 
+/**
+ * True when this page opens a room of its own rather than knocking at one. A page opened from
+ * a link joins; any other page hosts. The host names the match, so this is also what decides
+ * which side picks the arena.
+ */
+export function hostsRoom(): boolean {
+  return roomFromUrl() === undefined;
+}
+
 /** The room this page was opened for, if it was opened from a link and the code looks like one. */
 export function roomFromUrl(): string | undefined {
   const code = new URLSearchParams(window.location.search).get(ROOM_PARAM);

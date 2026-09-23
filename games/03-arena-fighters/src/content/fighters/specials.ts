@@ -17,7 +17,7 @@ export const SPECIAL_NAMES = [
   'lionPalm',
   'risingHeel',
   'cardToss',
-  'loadedDice',
+  'rouletteRoll',
   'syringeDart',
   'needleSting',
   'rifleShot',

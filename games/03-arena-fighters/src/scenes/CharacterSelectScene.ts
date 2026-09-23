@@ -6,13 +6,14 @@ import { ActionInput } from '@shared/phaser/actionInput';
 import { addCenteredPixelText, setCenteredPixelText } from '@shared/phaser/pixelText';
 import { fadeIn, fadeToScene } from '@shared/phaser/sceneTransitions';
 
-import { COLORS, SELECT_CONTROLS, type SelectAction } from '../config';
+import { COLORS, ONE_PLAYER_SELECT_CONTROLS, SELECT_CONTROLS, type SelectAction } from '../config';
 import { HOME_ARENAS } from '../content/arenas/arenaTypes';
 import { SELECT_MUSIC } from '../content/music';
 import { SOUNDS } from '../content/sounds';
 import { FIGHTERS, FIGHTER_IDS, isPlayableId, type FighterId, type PlayableId } from '../content/roster';
 import { arcadeMatch, createArcadeRun } from '../systems/arcade';
 import { choosesOpponent, DEFAULT_MATCH, hasCpuOpponent, isTwoPlayer, type MatchSetup, type PlayerIndex } from '../systems/matchSetup';
+import { hostsRoom } from '../systems/net/roomCode';
 import { drawSeed, randomFighter } from '../systems/randomPick';
 import { soloMatchFor } from '../systems/soloMatch';
 import type { StoryRequest } from './StoryScene';
@@ -71,10 +72,12 @@ export class CharacterSelectScene extends Phaser.Scene {
     this.cursor = { 0: indexOfFighter(setup.fighters[0]), 1: indexOfFighter(setup.fighters[1]) };
     this.locked = { 0: false, 1: false };
 
-    // In versus each player listens only to their own gamepad; with one player, any pad drives them.
-    const slot = (player: PlayerIndex): number | undefined => (isTwoPlayer(setup.mode) ? player : undefined);
+    // In versus each player listens only to their own gamepad and their own half of the keys;
+    // with one player, any pad drives them and the arrows move the cursor as well as WASD.
+    const twoPlayer = isTwoPlayer(setup.mode);
+    const slot = (player: PlayerIndex): number | undefined => (twoPlayer ? player : undefined);
     this.inputs = {
-      0: new ActionInput(this, SELECT_CONTROLS[0], slot(0)),
+      0: new ActionInput(this, twoPlayer ? SELECT_CONTROLS[0] : ONE_PLAYER_SELECT_CONTROLS, slot(0)),
       1: new ActionInput(this, SELECT_CONTROLS[1], slot(1)),
     };
 
@@ -195,9 +198,10 @@ export class CharacterSelectScene extends Phaser.Scene {
       fadeToScene(this, SCENES.story, request);
       return;
     }
-    // VS CPU has both fighters by now and draws only the ground they meet on.
+    // VS CPU has both fighters by now and goes on to choose the ground they meet on. The draw
+    // behind the match is still made, so the arena select opens on one rather than on nothing.
     if (choosesOpponent(this.setup.mode)) {
-      fadeToScene(this, SCENES.versus, soloMatchFor(this.setup, fighters[0], fighters[1], drawSeed()));
+      fadeToScene(this, SCENES.arenaSelect, soloMatchFor(this.setup, fighters[0], fighters[1], drawSeed()));
       return;
     }
     const setup: MatchSetup = { ...this.setup, fighters: [...fighters], arena: HOME_ARENAS[fighters[1]] };
@@ -206,9 +210,11 @@ export class CharacterSelectScene extends Phaser.Scene {
       fadeToScene(this, SCENES.arenaSelect, { ...setup, arenaPicker: FIRST_ARENA_PICKER });
       return;
     }
-    // Online goes to the lobby, which is where the other browser names the opponent and the arena.
+    // Online: the host picks the arena on the way to the lobby, since the host names the whole
+    // match and the two sides can then never disagree about where they are fighting. The guest
+    // goes straight to the lobby, and is told the arena with the opponent and the rules.
     if (setup.mode === 'online') {
-      fadeToScene(this, SCENES.online, setup);
+      fadeToScene(this, hostsRoom() ? SCENES.arenaSelect : SCENES.online, setup);
       return;
     }
     fadeToScene(this, SCENES.versus, setup);

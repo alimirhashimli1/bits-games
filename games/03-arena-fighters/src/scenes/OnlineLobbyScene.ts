@@ -37,7 +37,8 @@ const STAGE_TEXT: Readonly<Record<LobbyStage, string>> = {
  * rooms: a link, sent however the two of them already talk, is the whole of it.
  *
  * Which of the two this is was decided by the address bar before the fighter select: a page
- * opened from a link joins, and any other page hosts.
+ * opened from a link joins, and any other page hosts. The host arrives here having chosen the
+ * arena as well as its fighter, since the match it names includes the ground it is fought on.
  */
 export class OnlineLobbyScene extends Phaser.Scene {
   // Assigned in create(), which Phaser always runs before update().
@@ -87,7 +88,7 @@ export class OnlineLobbyScene extends Phaser.Scene {
     addCenteredPixelText(this, CODE_Y, code, { color: COLORS.title, scale: 3 });
     addCenteredPixelText(this, KEYS_Y, 'ENTER COPY LINK   ESC BACK', { color: COLORS.muted });
     setCenteredPixelText(this.hint, 'SEND THE LINK TO A FRIEND');
-    this.handshake = Handshake.host(code, fighter, this.setup.rules, this.handlers());
+    this.handshake = Handshake.host(code, fighter, { rules: this.setup.rules, arena: this.setup.arena }, this.handlers());
   }
 
   /** Joins the room the link named. */

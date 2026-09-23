@@ -5,7 +5,7 @@ import { ActionInput } from '@shared/phaser/actionInput';
 import { addCenteredPixelText, setCenteredPixelText } from '@shared/phaser/pixelText';
 import { fadeIn, fadeToScene } from '@shared/phaser/sceneTransitions';
 
-import { COLORS, FIGHT_CLOCK, FIGHT_DEV_CONTROLS, NET, PAUSE_CONTROL, PLAYER_CONTROLS, TIMINGS, type CpuLevel } from '../config';
+import { COLORS, FIGHT_CLOCK, NET, PAUSE_CONTROL, PLAYER_CONTROLS, TIMINGS, type CpuLevel } from '../config';
 import { builtArena } from '../content/arenas';
 import { builtFighter } from '../content/fighters/fighterData';
 import { ARENA_MUSIC } from '../content/music';
@@ -33,22 +33,16 @@ import { NetPlay } from '../systems/net/netPlay';
 import { closeSession, currentSession } from '../systems/net/netSession';
 import { NET_END_TEXT, type NetEndReason } from '../systems/net/peerLink';
 import { cameraLeft } from '../systems/sim/camera';
-import { checksum } from '../systems/sim/checksum';
 import { createFightState, type FightState, type Winner } from '../systems/sim/fightState';
 import { FixedStepClock } from '../systems/sim/fixedStepClock';
 import { stepFight, type StepInputs } from '../systems/sim/stepFight';
-import { BoxDebugView } from './hud/BoxDebugView';
 import { FightHud } from './hud/FightHud';
-import { InputDebugPanel } from './hud/InputDebugPanel';
 import type { PauseSceneData } from './PauseScene';
 import { devCpuLevel } from './devMatchSetup';
 import { SCENES } from './sceneKeys';
 
-const DEV_HINT_Y = 172;
 /** Where the fight says it is waiting for the other browser, or why it has stopped. */
 const NOTICE_Y = 60;
-const REPLAY_RESULT_Y = 44;
-const REPLAY_RESULT_MS = 2500;
 const PLAYERS: readonly PlayerIndex[] = [0, 1];
 
 /**
@@ -59,7 +53,6 @@ const PLAYERS: readonly PlayerIndex[] = [0, 1];
  */
 export class FightScene extends Phaser.Scene {
   // Assigned in create(), which Phaser always runs before update().
-  private devInput!: ActionInput<keyof typeof FIGHT_DEV_CONTROLS>;
   private pauseInput!: ActionInput<keyof typeof PAUSE_CONTROL>;
   private inputs!: InputSource;
   /** Set in an online match only: the same input source, asked about the state of the line. */
@@ -70,15 +63,9 @@ export class FightScene extends Phaser.Scene {
   private clock!: FixedStepClock;
   private setup!: MatchSetup;
   private state!: FightState;
-  /** Every step's inputs since the fight began, for the replay check. */
-  private recordedInputs: StepInputs[] = [];
-  private replayResult!: Phaser.GameObjects.BitmapText;
-  private inputPanel!: InputDebugPanel;
-  private boxView!: BoxDebugView;
   private hud!: FightHud;
   private sounds!: FightSounds;
   private notice!: Phaser.GameObjects.BitmapText;
-  private paused = false;
   private leaving = false;
 
   constructor() {
@@ -88,14 +75,11 @@ export class FightScene extends Phaser.Scene {
   create(setup: MatchSetup = DEFAULT_MATCH): void {
     fadeIn(this);
     this.setup = setup;
-    this.devInput = new ActionInput(this, FIGHT_DEV_CONTROLS);
     this.pauseInput = new ActionInput(this, PAUSE_CONTROL);
     this.net = undefined;
     this.inputs = this.createInputs(setup);
     this.clock = new FixedStepClock(FIGHT_CLOCK.stepsPerSecond, FIGHT_CLOCK.maxStepsPerFrame);
     this.state = createFightState(setup.fighters, setup.rules);
-    this.recordedInputs = [];
-    this.paused = false;
     this.leaving = false;
     // The fight makes no noise itself: this watches the states go by and plays what changed,
     // starting with the state it opens on, where the first round is called.
@@ -114,10 +98,7 @@ export class FightScene extends Phaser.Scene {
     ];
     this.projectileViews = new ProjectileViews(this);
     this.hud = new FightHud(this, setup.fighters);
-    this.inputPanel = new InputDebugPanel(this);
-    this.boxView = new BoxDebugView(this);
     this.notice = addCenteredPixelText(this, NOTICE_Y, '', { color: COLORS.title }).setScrollFactor(0).setVisible(false);
-    if (import.meta.env.DEV) this.addDevLabels();
 
     // The pause menu stops the music while it is open, so the arena starts its loop again here.
     this.events.on(Phaser.Scenes.Events.RESUME, this.resumeFight, this);
@@ -128,18 +109,15 @@ export class FightScene extends Phaser.Scene {
 
   override update(_time: number, deltaMs: number): void {
     this.inputs.readFrame();
-    this.devInput.update();
     this.pauseInput.update();
-    if (import.meta.env.DEV) this.handleDevKeys();
     if (this.canPause() && this.pauseInput.justPressed('pause')) {
       this.openPauseMenu();
       return;
     }
 
     const steps = this.clock.advance(deltaMs);
-    const stepsToRun = this.paused ? Number(import.meta.env.DEV && this.devInput.justPressed('stepOnce')) : steps;
     // A step whose online opponent has not answered yet is not run, and nor is anything after it.
-    for (let step = 0; step < stepsToRun; step += 1) {
+    for (let step = 0; step < steps; step += 1) {
       if (!this.runStep()) break;
     }
     this.net?.update(deltaMs);
@@ -147,8 +125,6 @@ export class FightScene extends Phaser.Scene {
     this.arena.update(this.state);
     for (const player of PLAYERS) this.views[player].draw(this.state.fighters[player], this.isCelebrating(player));
     this.projectileViews.draw(this.state);
-    this.inputPanel.draw(this.state);
-    this.boxView.draw(this.state);
     this.hud.draw(this.state);
     this.cameras.main.setScroll(cameraLeft(this.state), 0);
 
@@ -181,8 +157,6 @@ export class FightScene extends Phaser.Scene {
     const inputs: StepInputs | null = this.inputs.stepInputs(this.state);
     if (inputs === null) return false;
     this.state = stepFight(this.state, inputs);
-    this.recordedInputs.push(inputs);
-    this.inputPanel.observe(this.state);
     this.sounds.observe(this.state);
     this.net?.observe(this.state);
     return true;
@@ -272,33 +246,6 @@ export class FightScene extends Phaser.Scene {
     stopMusic();
     const result: MatchResult = { setup: this.setup, winner: winner === 'draw' ? null : winner };
     this.time.delayedCall(TIMINGS.matchOverMs, () => fadeToScene(this, SCENES.results, result));
-  }
-
-  private handleDevKeys(): void {
-    if (this.devInput.justPressed('pause')) this.paused = !this.paused;
-    if (this.devInput.justPressed('replayCheck')) this.runReplayCheck();
-    if (this.devInput.justPressed('inputDebug')) this.inputPanel.toggle();
-    if (this.devInput.justPressed('boxDebug')) this.boxView.toggle();
-  }
-
-  /**
-   * Replays every recorded input from the very first state and compares the result with the
-   * live fight. They must match exactly, or online play would drift apart.
-   */
-  private runReplayCheck(): void {
-    const replayed = this.recordedInputs.reduce(stepFight, createFightState(this.setup.fighters, this.setup.rules));
-    const matches = checksum(replayed) === checksum(this.state);
-    const verdict = matches ? 'REPLAY MATCHES' : 'REPLAY MISMATCH';
-    setCenteredPixelText(this.replayResult, `${verdict}: ${this.state.frame} STEPS`);
-    this.replayResult.setTint(matches ? COLORS.title : COLORS.player1).setVisible(true);
-    this.time.delayedCall(REPLAY_RESULT_MS, () => this.replayResult.setVisible(false));
-  }
-
-  /** In development builds: the dev keys along the bottom, and the replay check's verdict. */
-  private addDevLabels(): void {
-    const hint = addCenteredPixelText(this, DEV_HINT_Y, 'R REPLAY I INPUTS H BOXES P PAUSE O STEP', { color: COLORS.muted });
-    this.replayResult = addCenteredPixelText(this, REPLAY_RESULT_Y, '', { color: COLORS.title }).setVisible(false);
-    [hint, this.replayResult].forEach((label) => label.setScrollFactor(0));
   }
 }
 

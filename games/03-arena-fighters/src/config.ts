@@ -1,4 +1,4 @@
-import type { ActionBindings } from '@shared/phaser/actionInput';
+import type { ActionBinding, ActionBindings } from '@shared/phaser/actionInput';
 
 import type { InputName } from './systems/input/inputBits';
 
@@ -131,6 +131,29 @@ export const SELECT_CONTROLS = [
   selectControls(KEYBOARD_FIGHT_CONTROLS[1], false),
 ] as const;
 
+/**
+ * The controls for a screen only one person is choosing on: player 1's, with player 2's
+ * directions added to them. Someone alone at the keyboard reaches for the arrows as readily as
+ * for WASD, and with no second cursor on the screen there is nothing for the arrows to disturb.
+ * In versus the two sets stay apart, so one press never moves both players at once.
+ */
+export const ONE_PLAYER_SELECT_CONTROLS: ActionBindings<SelectAction> = bothWaysToMove(SELECT_CONTROLS[0], SELECT_CONTROLS[1]);
+
+function bothWaysToMove(first: ActionBindings<SelectAction>, second: ActionBindings<SelectAction>): ActionBindings<SelectAction> {
+  const direction = (action: 'up' | 'down' | 'left' | 'right'): ActionBinding => ({
+    ...first[action],
+    keys: [...(first[action].keys ?? []), ...(second[action].keys ?? [])],
+  });
+  return {
+    up: direction('up'),
+    down: direction('down'),
+    left: direction('left'),
+    right: direction('right'),
+    confirm: first.confirm,
+    back: first.back,
+  };
+}
+
 /** How forgiving the motion reader is, in fight steps (60 per second). */
 export const INPUT_READING = {
   /** Inputs remembered per player. Must cover the longest motion several times over. */
@@ -151,18 +174,6 @@ export const INPUT_READING = {
   motionGapSteps: 5,
 } as const;
 
-/** Keys for testing the fight. Keyboard only, and only in development builds. */
-export const FIGHT_DEV_CONTROLS = {
-  /** Replays every input since the fight began and checks it ends in exactly the live state. */
-  replayCheck: { keys: ['R'] },
-  /** Shows or hides each player's inputs and the motions read from them (hidden by default). */
-  inputDebug: { keys: ['I'] },
-  /** Shows or hides push boxes, hurtboxes, hitboxes and move phases (hidden by default). */
-  boxDebug: { keys: ['H'] },
-  /** Frame advance, as in a training mode: P freezes the fight, and O runs exactly one step. */
-  pause: { keys: ['P'] },
-  stepOnce: { keys: ['O'] },
-} as const satisfies ActionBindings<string>;
 
 /** The fight advances in fixed steps, whatever the refresh rate of the screen. */
 export const FIGHT_CLOCK = {

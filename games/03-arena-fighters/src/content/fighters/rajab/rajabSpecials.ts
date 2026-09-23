@@ -31,11 +31,11 @@ export const RAJAB_SPECIALS: readonly SpecialMove[] = [
   },
   {
     /**
-     * Loaded Dice (↓ → + P): he rolls a pair of weighted dice low along the floor, where they
-     * skip along at shin height. They must be blocked crouching, and they can be jumped clean
-     * over. The heavy punch rolls them faster.
+     * Roulette Roll (↓ → + P): he sends a little roulette wheel spinning low along the floor,
+     * the ball still rattling round it at shin height. It must be blocked crouching, and it can
+     * be jumped clean over. The heavy punch rolls it faster.
      */
-    name: 'loadedDice',
+    name: 'rouletteRoll',
     motion: 'downForward',
     behaviour: {
       kind: 'projectile',
@@ -46,12 +46,12 @@ export const RAJAB_SPECIALS: readonly SpecialMove[] = [
       width: 11,
       height: 10,
       strike: { damage: 50, chip: 10, hitstun: 17, blockstun: 14, push: 576, guard: 'low' },
-      sprite: 'dice',
+      sprite: 'rouletteWheel',
     },
     move: {
       segments: [
-        { pose: 'diceWindup', steps: 9 },
-        { pose: 'diceRoll', steps: 18 },
+        { pose: 'wheelWindup', steps: 9 },
+        { pose: 'wheelRoll', steps: 18 },
         { pose: 'idle2', steps: 5 },
       ],
     },

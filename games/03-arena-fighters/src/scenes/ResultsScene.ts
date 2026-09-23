@@ -204,9 +204,11 @@ export class ResultsScene extends Phaser.Scene {
   }
 
   /**
-   * Another VS CPU draw with the same fighter, level and rules. Player 1 is always one of the
-   * fifteen here, since only the fighter select can start a solo match; the check is what proves
-   * it to the type, and an impossible boss in the seat simply changes fighters instead.
+   * Another VS CPU draw with the same fighter, level and rules, on the arena this player chose:
+   * the draw is for an opponent, and moving the fight somewhere else was never asked for. Player
+   * 1 is always one of the fifteen here, since only the fighter select can start a solo match;
+   * the check is what proves it to the type, and an impossible boss in the seat simply changes
+   * fighters instead.
    */
   private drawAgain(setup: MatchSetup): void {
     const player = setup.fighters[0];
@@ -214,6 +216,6 @@ export class ResultsScene extends Phaser.Scene {
       fadeToScene(this, SCENES.characterSelect, setup);
       return;
     }
-    fadeToScene(this, SCENES.versus, soloMatchFor(setup, player, undefined, drawSeed()));
+    fadeToScene(this, SCENES.versus, { ...soloMatchFor(setup, player, undefined, drawSeed()), arena: setup.arena });
   }
 }

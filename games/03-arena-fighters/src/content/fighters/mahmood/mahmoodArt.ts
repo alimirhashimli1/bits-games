@@ -2,28 +2,32 @@ import { FIGHTER_FRAME, type FighterArt } from '../fighterArt';
 import { MAHMOOD_POSES, MAHMOOD_SPECIAL_POSES } from './mahmoodPoses';
 
 /**
- * Mahmood: short black hair and a trimmed beard, a blue track top with long sleeves, black
- * trousers and white trainers. He has one hand: his front arm, the one he leads with, is
- * shorter than the other and stops short of the wrist, with no hand on the end of it. Brand's build.
- * Symbols: o outline, h hair, s/S skin, k eye, c/C top, b waistband, p/P trousers, f/F
- * trainers. Upper-case symbols are the shaded far side.
+ * Mahmood: short black hair over a few days of stubble, and the hood of his blue track top worn
+ * down, bunched behind his head and neck. Black trousers and white trainers. He has one hand:
+ * his front arm, the one he leads with, is well short of the other and stops some way before the
+ * wrist, with no hand on the end of it. Brand's build.
+ * Symbols: o outline, h hair, j stubble, s/S skin, k eye, c/C top, b waistband, p/P trousers,
+ * f/F trainers. Upper-case symbols are the shaded far side, and the hood is drawn in that shade
+ * so it reads as its own piece of cloth against the top it hangs from.
  */
 export const MAHMOOD_ART: FighterArt = {
   body: {
     frameWidth: FIGHTER_FRAME.width,
     frameHeight: FIGHTER_FRAME.height,
     head: [
-      '...hhhh...',
-      '.hhhhhhhh.',
-      'hhhhhhhhhh',
-      'hhhhhsssss',
-      'hhhhssskss',
-      'hhhSssskss',
-      'hhSsssssss',
-      '.hSshhhhs.',
-      '..hhhhhhh.',
-      '...hhhhh..',
-      '....hhh...',
+      '............',
+      '....hhhh....',
+      '..hhhhhhhh..',
+      '.hhhhhhhhhh.',
+      '.hhhhhsssss.',
+      '.hhhhssskss.',
+      '.hhhSssskss.',
+      '.hhSsssssss.',
+      '...Ssssss...',
+      '...jssssss..',
+      '....jsssj...',
+      '.....jjj....',
+      '............',
     ],
     thickness: { torso: 10, upperArm: 5, forearm: 4, fist: 5, leg: 6 },
     symbols: {
@@ -37,8 +41,9 @@ export const MAHMOOD_ART: FighterArt = {
       foot: 'f',
       footShade: 'F',
     },
+    hood: { symbol: 'C', size: 5 },
     missingHand: 'near',
-    stumpShortenPx: 3,
+    stumpShortenPx: 5,
     outline: 'o',
   },
   poses: MAHMOOD_POSES,
@@ -46,6 +51,7 @@ export const MAHMOOD_ART: FighterArt = {
   palette: {
     o: '#14121c',
     h: '#1a1412',
+    j: '#7a5440',
     s: '#c8906a',
     S: '#8e5e40',
     k: '#1a1216',

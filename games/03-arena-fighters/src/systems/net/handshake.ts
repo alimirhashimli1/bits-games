@@ -1,5 +1,5 @@
 import { FIGHT_CLOCK, NET } from '../../config';
-import { HOME_ARENAS } from '../../content/arenas/arenaTypes';
+import type { ArenaId } from '../../content/arenas/arenaTypes';
 import type { PlayableId } from '../../content/roster';
 import type { MatchRules, MatchSetup } from '../matchSetup';
 import { NET_PROTOCOL, type NetMessage } from './netMessages';
@@ -16,8 +16,15 @@ export interface HandshakeHandlers {
   readonly onFailed: (reason: NetEndReason) => void;
 }
 
-/** Which side of the handshake this is. Only the host has rules, since only the host decides. */
-type Role = { readonly kind: 'host'; readonly rules: MatchRules } | { readonly kind: 'guest' };
+/**
+ * Which side of the handshake this is. Only the host carries a match to play, since only the
+ * host decides: the rules it is fought by, and the arena its player chose before the lobby.
+ */
+export interface HostedMatch {
+  readonly rules: MatchRules;
+  readonly arena: ArenaId;
+}
+type Role = ({ readonly kind: 'host' } & HostedMatch) | { readonly kind: 'guest' };
 
 /** The first fight of a session. A rematch is the next one, and so on. */
 const FIRST_MATCH = 0;
@@ -26,8 +33,8 @@ const STEP_MS = 1000 / FIGHT_CLOCK.stepsPerSecond;
 /**
  * Getting two browsers to the same match. The guest knocks and says which fighter it has
  * chosen; the host measures the round trip a few times, picks the input delay from it, and
- * names the match — both fighters, the arena and the rules. Only the host decides, so there is
- * nothing for the two to disagree about.
+ * names the match — both fighters, the arena its player picked, and the rules. Only the host
+ * decides, so there is nothing for the two to disagree about.
  *
  * The host is player 1 and the guest player 2, which is also which side of the screen each
  * fights on. Either way the player at the keyboard uses the player 1 controls, since there is
@@ -55,9 +62,9 @@ export class Handshake {
     this.handlers.onStage(host ? 'opening' : 'joining');
   }
 
-  /** Opens a room under `code` and waits for someone to arrive. */
-  static host(code: string, fighter: PlayableId, rules: MatchRules, handlers: HandshakeHandlers): Handshake {
-    return new Handshake({ kind: 'host', rules }, code, fighter, handlers);
+  /** Opens a room under `code` and waits for someone to arrive, with the match to play in hand. */
+  static host(code: string, fighter: PlayableId, match: HostedMatch, handlers: HandshakeHandlers): Handshake {
+    return new Handshake({ kind: 'host', ...match }, code, fighter, handlers);
   }
 
   /** Knocks at the room a link was sent for. */
@@ -134,8 +141,9 @@ export class Handshake {
     if (this.pings < NET.pings || !Number.isFinite(this.bestRoundTripMs)) return;
 
     const delay = delayFor(this.bestRoundTripMs);
-    // The visitor's home ground, as in every other match where nobody chooses the arena.
-    const arena = HOME_ARENAS[guest];
+    // The ground this side picked before opening the room. The guest is told it here and has
+    // no say in it, which is the whole reason the two browsers cannot disagree about a match.
+    const arena = role.arena;
     this.link.send({
       t: 'start',
       match: FIRST_MATCH,

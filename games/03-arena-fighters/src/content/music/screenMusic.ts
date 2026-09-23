@@ -3,9 +3,10 @@ import { line, type MusicTrack } from '@shared/audio/music';
 import { BASS, HARMONY, LEAD, LONG_DRONE, LOOP_STEPS, PULSE_BASS, SOFT_LEAD } from './voices';
 
 /**
- * The loops for the screens between fights. They are deliberately plainer than the arena loops:
- * these play while somebody is reading or choosing, and the tournament itself should still be
- * the loudest thing in the game.
+ * The loops for the screens between fights. Most of them are deliberately plainer than the arena
+ * loops: they play while somebody is reading, and the tournament itself should still be the
+ * loudest thing in the game. Choosing is the exception, since picking a fighter is part of the
+ * build-up rather than a wait, and its loop is written to sound like one.
  */
 
 /** The title: the tournament's own theme, in C minor, in no hurry at all. */
@@ -27,22 +28,39 @@ export const TITLE_MUSIC: MusicTrack = {
 };
 
 /**
- * Choosing: the mode, the fighter, the arena, and the online lobby. It has somewhere to be, so
- * that walking the grid feels like something before a fight rather than a pause in one.
+ * Choosing: the mode, the fighter, the arena, and the online lobby. A fanfare in D minor over a
+ * marching bass, a bar to each chord: the home chord, the one below it, the one below that, and
+ * then the dominant with the leading note in it, which will not sit still and drags the loop
+ * round to the start again. Slower than the tune it replaced, and pitched to sound like the
+ * tournament being announced rather than a menu waiting to be got through.
+ *
+ * The tune and the harmony under it both ring on past their step, the way a horn does, which
+ * is what keeps a fanfare from sounding like a list of notes.
  */
 export const SELECT_MUSIC: MusicTrack = {
-  stepMs: 125,
+  stepMs: 150,
   steps: LOOP_STEPS,
   notes: [
     ...line(
-      ['A4', 'C5', 'E5', 'A5', null, 'G5', 'E5', null, 'F5', null, 'E5', 'C5', 'D5', null, 'B4', null,
-        'C5', 'E5', 'G5', 'C6', null, 'B5', 'G5', null, 'A5', null, 'E5', null, 'A4', null, null, null],
-      LEAD,
+      ['D5', null, 'A5', null, 'D6', null, null, 'C6',
+        'A#5', null, null, 'A5', null, 'F5', null, null,
+        'C6', null, null, 'A5', null, 'C6', null, 'D6',
+        'A5', null, 'G5', null, 'F5', null, 'E5', null],
+      { ...LEAD, steps: 2 },
     ),
     ...line(
-      ['A1', 'A1', 'A2', 'A1', 'E2', null, 'A2', null, 'F1', 'F1', 'F2', 'F1', 'C2', null, 'F2', null,
-        'C2', 'C2', 'C3', 'C2', 'G2', null, 'C3', null, 'E2', 'E2', 'E3', 'E2', 'B2', null, 'G#2', null],
-      PULSE_BASS,
+      ['A4', null, null, null, 'F5', null, null, null,
+        'F4', null, null, null, 'D5', null, null, null,
+        'A4', null, null, null, 'F5', null, null, null,
+        'E4', null, null, null, 'C#5', null, null, null],
+      { ...HARMONY, steps: 4 },
+    ),
+    ...line(
+      ['D2', null, 'D2', null, 'A2', null, 'D2', null,
+        'A#1', null, 'A#1', null, 'F2', null, 'A#1', null,
+        'F1', null, 'F1', null, 'C2', null, 'F2', null,
+        'A1', null, 'A1', null, 'E2', null, 'A1', null],
+      BASS,
     ),
   ],
 };

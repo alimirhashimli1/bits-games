@@ -72,6 +72,15 @@ export interface HumanoidBody {
   readonly stumpShortenPx?: number;
   /** A symbol to outline the whole figure with, one pixel wide. No outline if left out. */
   readonly outline?: string;
+  /**
+   * Optional hood worn down: a bunch of cloth behind the shoulders, drawn behind the body so
+   * only the part of it that sits past the back shows.
+   */
+  readonly hood?: {
+    readonly symbol: string;
+    /** How far the bunched cloth reaches from the back of the neck, in pixels. */
+    readonly size: number;
+  };
   /** Optional cloak hanging from the shoulders, drawn behind the body. */
   readonly cape?: {
     readonly symbol: string;
@@ -98,6 +107,7 @@ export function drawHumanoid(pose: HumanoidPose, body: HumanoidBody): PixelMap {
   const { symbols, thickness } = body;
 
   if (body.cape) drawCape(grid, body.cape, pose, thickness.torso);
+  if (body.hood) drawHood(grid, body.hood, pose, thickness.torso);
   drawLeg(grid, body, pose.hip, pose.farLeg, 'far');
   drawArm(grid, body, pose.shoulder, pose.farArm, 'far');
 
@@ -177,6 +187,23 @@ function drawCape(
     const width = Math.max(1, Math.round(cape.spread * (0.45 + 0.55 * ((y - shoulderY) / fall))));
     // It hangs behind him: the near edge sits at his back and the cloth spreads away from there.
     grid.fillRect(centerX + halfTorso - width, y, width, 1, cape.symbol);
+  }
+}
+
+/**
+ * A hood worn down: a rounded bunch of cloth behind the neck, a little below the shoulders and
+ * set back from them. It is drawn before the body, so the torso and head cover its front and
+ * what shows is the lump of it past the fighter's back.
+ */
+function drawHood(grid: PixelGrid, hood: NonNullable<HumanoidBody['hood']>, pose: HumanoidPose, torsoThickness: number): void {
+  const [shoulderX, shoulderY] = pose.shoulder;
+  const centerX = shoulderX - Math.round(torsoThickness / 2);
+  const centerY = shoulderY + Math.round(hood.size / 3);
+  for (let y = centerY - hood.size; y <= centerY + hood.size; y++) {
+    for (let x = centerX - hood.size; x <= centerX + hood.size; x++) {
+      // Slightly taller than it is wide, the way cloth gathers when a hood is pushed back.
+      if (Math.hypot((x - centerX) * 1.1, (y - centerY) * 0.95) <= hood.size) grid.plot(x, y, hood.symbol);
+    }
   }
 }
 
