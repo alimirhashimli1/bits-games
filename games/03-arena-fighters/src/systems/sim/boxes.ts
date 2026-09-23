@@ -3,7 +3,7 @@ import type { Point } from '@shared/pixel-art/pixelGrid';
 
 import { FIGHTER_FRAME, poseFor, type FighterArt } from '../../content/fighters/fighterArt';
 import { fighterData } from '../../content/fighters/fighterData';
-import { segmentAt, type Limb } from '../../content/fighters/moves';
+import { segmentAt, type Limb, type Move } from '../../content/fighters/moves';
 import type { AnyPoseName } from '../../content/fighters/poseNames';
 import type { FighterId } from '../../content/roster';
 import { isInvulnerable, moveOf } from './attacks';
@@ -57,6 +57,20 @@ export function hitbox(fighter: FighterState): Box | null {
 export function limbPosition(fighter: FighterState, limb: Limb): { readonly x: number; readonly y: number } {
   const [x, y] = geometry(fighter.character, poseOf(fighter)).limbEnds[limb];
   return { x: fighter.x + fighter.facing * toSubpixels(x), y: fighter.y + toSubpixels(y) };
+}
+
+/**
+ * How far in front of their centre a move's strike reaches, in pixels: the furthest edge of any
+ * of its hitboxes. The CPU judges its own range with it, so it does not swing at thin air.
+ */
+export function strikeReachPx(character: FighterId, move: Move): number {
+  let reach = 0;
+  for (const segment of move.segments) {
+    if (!segment.strike) continue;
+    const [x] = geometry(character, segment.pose).limbEnds[segment.strike.limb];
+    reach = Math.max(reach, x + Math.floor(segment.strike.width / 2));
+  }
+  return reach;
 }
 
 export function overlaps(a: Box, b: Box): boolean {

@@ -15,10 +15,10 @@ export const RAJAB_SPECIALS: readonly SpecialMove[] = [
       spawnStep: 8,
       fromLimb: 'nearHand',
       forwardPx: 6,
-      speed: { light: 896, heavy: 1216 },
+      speed: { light: 768, heavy: 1024 },
       width: 12,
       height: 9,
-      strike: { damage: 60, chip: 11, hitstun: 15, blockstun: 13, push: 512, guard: 'mid' },
+      strike: { damage: 45, chip: 8, hitstun: 15, blockstun: 13, push: 512, guard: 'mid' },
       sprite: 'card',
     },
     move: {
@@ -45,7 +45,7 @@ export const RAJAB_SPECIALS: readonly SpecialMove[] = [
       speed: { light: 704, heavy: 960 },
       width: 11,
       height: 10,
-      strike: { damage: 70, chip: 12, hitstun: 17, blockstun: 14, push: 576, guard: 'low' },
+      strike: { damage: 50, chip: 10, hitstun: 17, blockstun: 14, push: 576, guard: 'low' },
       sprite: 'dice',
     },
     move: {

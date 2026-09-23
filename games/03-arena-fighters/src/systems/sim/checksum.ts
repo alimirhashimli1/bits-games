@@ -1,5 +1,5 @@
 import { ATTACK_NAMES, SPECIAL_NAMES } from '../../content/fighters/specials';
-import { FIGHTER_IDS } from '../../content/roster';
+import { ALL_FIGHTER_IDS } from '../../content/roster';
 import type {
   Contact,
   FighterState,
@@ -57,7 +57,7 @@ export function checksum(state: FightState): number {
 function fighterValues(fighter: FighterState): number[] {
   const { attack, status } = fighter;
   return [
-    FIGHTER_IDS.indexOf(fighter.character),
+    ALL_FIGHTER_IDS.indexOf(fighter.character),
     fighter.x,
     fighter.y,
     fighter.vx,

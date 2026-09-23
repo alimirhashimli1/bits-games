@@ -5,8 +5,12 @@ import type {
   AttackName,
   CommandThrowBehaviour,
   DashBehaviour,
+  DiveBehaviour,
+  RisingBehaviour,
+  SpecialBehaviour,
   SpecialMove,
   SpecialName,
+  WallLeapBehaviour,
 } from '../../content/fighters/specials';
 import type { FighterId } from '../../content/roster';
 import { INPUT, isHeld, type Button, type InputBits } from '../input/inputBits';
@@ -134,10 +138,11 @@ function cancel(fighter: FighterState, controls: AttackInput): FighterState | nu
 }
 
 /**
- * Steps a move on, ending it when it is over. A rising special leaves the ground on its launch
- * step, and holds its last airborne pose until it lands; its last segment is the recovery on
- * landing (see `landedAttack`). A counter that caught nothing ends where its answer would
- * begin, and a heal wins back health on its heal step.
+ * Steps a move on, ending it when it is over. A rising special, a dive or a wall leap leaves the
+ * ground on its launch step, and holds its last airborne pose until it lands; its last segment is
+ * the recovery on landing (see `landedAttack`). A dive turns downwards on its dive step, and a
+ * wall leap holds the step before its spring until it reaches the edge. A counter that caught
+ * nothing ends where its answer would begin, and a heal wins back health on its heal step.
  */
 function continueAttack(fighter: FighterState): FighterState {
   const move = moveOf(fighter);
@@ -145,19 +150,28 @@ function continueAttack(fighter: FighterState): FighterState {
   const step = fighter.attack.step + 1;
   const behaviour = specialOf(fighter)?.behaviour;
 
-  if (behaviour?.kind === 'rising') {
+  if (behaviour && isAerial(behaviour)) {
     const strength = fighter.attack.heavy ? 'heavy' : 'light';
+    const airborne = fighter.posture === 'airborne';
     if (step === behaviour.launchStep) {
+      // A wall leap sets off backwards, away from the opponent; the others forwards.
+      const forward = behaviour.kind === 'wallLeap' ? -behaviour.back[strength] : behaviour.drift[strength];
       return {
         ...fighter,
         posture: 'airborne',
         vy: behaviour.rise[strength],
-        vx: behaviour.drift[strength] * fighter.facing,
+        vx: forward * fighter.facing,
         airAttackUsed: true,
         attack: { ...fighter.attack, step },
       };
     }
-    if (fighter.posture === 'airborne' && step >= landingStart(move)) return fighter;
+    if (behaviour.kind === 'dive' && airborne && step === behaviour.diveStep) {
+      const vx = behaviour.diveForward[strength] * fighter.facing;
+      return { ...fighter, vx, vy: -behaviour.diveDown[strength], attack: { ...fighter.attack, step } };
+    }
+    // A wall leap waits in the air for the edge behind it (see wallLeaps.ts), which springs it on.
+    if (behaviour.kind === 'wallLeap' && airborne && step === behaviour.springStep) return fighter;
+    if (airborne && step >= landingStart(move)) return fighter;
   }
   // A counter that caught nothing ends before its answer.
   if (behaviour?.kind === 'counter' && fighter.attack.contact === 'none' && step >= behaviour.answerStep) return { ...fighter, attack: null };
@@ -178,20 +192,34 @@ export function isCatching(fighter: FighterState): boolean {
 }
 
 /**
- * What landing does to the move under way: a jumping normal ends, and a rising special goes into
- * its recovery on landing.
+ * What landing does to the move under way: a jumping normal ends, and a rising special, a dive
+ * or a wall leap goes into its recovery on landing.
  */
 export function landedAttack(fighter: FighterState): AttackState | null {
   const move = moveOf(fighter);
-  if (!move || !fighter.attack || specialOf(fighter)?.behaviour.kind !== 'rising') return null;
+  const behaviour = specialOf(fighter)?.behaviour;
+  if (!move || !fighter.attack || !behaviour || !isAerial(behaviour)) return null;
   return { ...fighter.attack, step: landingStart(move) };
 }
 
-/** A rising special cannot be hit during its first steps. */
+/** Specials that leave the ground and play out in the air until they land. */
+function isAerial(behaviour: SpecialBehaviour): behaviour is RisingBehaviour | DiveBehaviour | WallLeapBehaviour {
+  return behaviour.kind === 'rising' || behaviour.kind === 'dive' || behaviour.kind === 'wallLeap';
+}
+
+/** A rising special cannot be hit during its first steps, and neither can a vanished teleport. */
 export function isInvulnerable(fighter: FighterState): boolean {
+  if (isVanished(fighter)) return true;
   const behaviour = specialOf(fighter)?.behaviour;
   if (behaviour?.kind !== 'rising' || !fighter.attack) return false;
   return fighter.attack.step < behaviour.invulnerableSteps[fighter.attack.heavy ? 'heavy' : 'light'];
+}
+
+/** Gone, between a teleport's vanishing and appearing steps: nothing to hit, and nothing to draw. */
+export function isVanished(fighter: FighterState): boolean {
+  const behaviour = specialOf(fighter)?.behaviour;
+  if (behaviour?.kind !== 'teleport' || !fighter.attack) return false;
+  return fighter.attack.step >= behaviour.vanishStep && fighter.attack.step < behaviour.appearStep;
 }
 
 /**

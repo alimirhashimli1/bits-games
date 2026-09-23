@@ -42,7 +42,7 @@ export const GAME_CATALOG: readonly GameEntry[] = [
     description:
       'Pick one of ten fighters and battle the CPU, a friend on the same keyboard, or anyone online by sending them a link.',
     labelColor: '#9b5de5',
-    status: 'in-development',
+    status: 'playable',
   },
   {
     id: '04-turbo-road',

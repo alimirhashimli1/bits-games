@@ -224,6 +224,131 @@ const DICE_FRAMES: readonly PixelMap[] = [
   ],
 ];
 
+const STATIC_WAVE = { size: 16, frames: 3, core: 2.4, glow: 4.2, shell: 5.6, sparks: 5 } as const;
+const STATIC_CENTER = (STATIC_WAVE.size - 1) / 2;
+
+/**
+ * One frame of Nova's Static Wave: a white-hot core in a blue ball of charge, with sparks that
+ * crackle out from its edge. The sparks jump to new angles every frame, so the ball fizzes.
+ */
+function staticWaveFrame(frame: number): PixelMap {
+  const sparkAngles = Array.from({ length: STATIC_WAVE.sparks }, (_, spark) => ((spark * 2 + frame * 3) % 10) * (Math.PI / 5));
+  const rows: string[] = [];
+  for (let y = 0; y < STATIC_WAVE.size; y++) {
+    let row = '';
+    for (let x = 0; x < STATIC_WAVE.size; x++) {
+      const dx = x - STATIC_CENTER;
+      const dy = y - STATIC_CENTER;
+      const distance = Math.hypot(dx, dy);
+      const angle = Math.atan2(dy, dx) + Math.PI;
+      const onSpark = sparkAngles.some((spark) => Math.abs(Math.atan2(Math.sin(angle - spark), Math.cos(angle - spark))) < 0.2);
+      if (distance < STATIC_WAVE.core) row += 'w';
+      else if (distance < STATIC_WAVE.glow) row += 'c';
+      else if (distance < STATIC_WAVE.shell) row += (x + y + frame) % 4 === 0 ? 'c' : 'b';
+      else if (onSpark && distance < STATIC_CENTER + 0.5) row += 'w';
+      else row += '.';
+    }
+    rows.push(row);
+  }
+  return rows;
+}
+
+const RAIL_SHOT = { width: 16, height: 14, frames: 3, radius: 7.2, bite: 6.4, biteOffset: 4.5 } as const;
+const RAIL_CENTER_X = 8;
+const RAIL_CENTER_Y = (RAIL_SHOT.height - 1) / 2;
+
+/**
+ * One frame of Rook's Rail Shot, flying right: a crescent of compressed air, its bulge leading,
+ * made of a disc with a smaller disc bitten out of its back. A bright edge runs along the front
+ * and faint streaks trail behind the horns, shifting every frame.
+ */
+function railShotFrame(frame: number): PixelMap {
+  const rows: string[] = [];
+  for (let y = 0; y < RAIL_SHOT.height; y++) {
+    let row = '';
+    for (let x = 0; x < RAIL_SHOT.width; x++) {
+      const outer = Math.hypot(x - RAIL_CENTER_X, (y - RAIL_CENTER_Y) * 1.1);
+      const inner = Math.hypot(x - (RAIL_CENTER_X - RAIL_SHOT.biteOffset), (y - RAIL_CENTER_Y) * 1.1);
+      if (outer < RAIL_SHOT.radius && inner > RAIL_SHOT.bite) row += outer > RAIL_SHOT.radius - 1.6 ? 'w' : 'c';
+      else if (outer < RAIL_SHOT.radius && x < RAIL_CENTER_X - 2 && (x + y + frame) % 3 === 0) row += 'b';
+      else row += '.';
+    }
+    rows.push(row);
+  }
+  return rows;
+}
+
+const SHADE_ORB = { size: 14, frames: 3, core: 3.4, shell: 6.2 } as const;
+const ORB_CENTER = (SHADE_ORB.size - 1) / 2;
+
+/**
+ * One frame of Sable's Shade Orb: a hole of darkness with a pale rim, and a few wisps torn off
+ * its edge that drift round it from frame to frame.
+ */
+function shadeOrbFrame(frame: number): PixelMap {
+  const rows: string[] = [];
+  for (let y = 0; y < SHADE_ORB.size; y++) {
+    let row = '';
+    for (let x = 0; x < SHADE_ORB.size; x++) {
+      const distance = Math.hypot(x - ORB_CENTER, y - ORB_CENTER);
+      const wisp = (x * 5 + y * 3 + frame * 4) % 7 === 0;
+      if (distance < SHADE_ORB.core) row += 'k';
+      else if (distance < SHADE_ORB.shell - 1.4) row += wisp ? 'v' : 'd';
+      else if (distance < SHADE_ORB.shell) row += 'v';
+      else if (distance < SHADE_ORB.shell + 1.2 && wisp) row += 'V';
+      else row += '.';
+    }
+    rows.push(row);
+  }
+  return rows;
+}
+
+const CROWN = { width: 18, height: 14, radius: 7.4, rimY: 6, rimRy: 2.8, band: 4, point: 3, points: 5, frames: 4 } as const;
+const CROWN_CENTER_X = (CROWN.width - 1) / 2;
+/** How narrow the crown gets as it turns edge-on, so it never disappears entirely. */
+const CROWN_EDGE = 0.22;
+
+/**
+ * One frame of Magnus Vane's Iron Verdict: the Iron Crown itself, thrown spinning. It is drawn
+ * as a band seen a little from above — an ellipse for the rim with the band hanging below it and
+ * the crown's points standing up around it. Turning it through half a revolution over the frames
+ * narrows the ellipse and carries the points round with it, so the crown spins as it flies.
+ */
+function ironVerdictFrame(frame: number): PixelMap {
+  const turn = (frame / CROWN.frames) * Math.PI;
+  const radiusX = Math.max(CROWN.radius * CROWN_EDGE, CROWN.radius * Math.abs(Math.cos(turn)));
+  const grid = Array.from({ length: CROWN.height }, () => Array.from({ length: CROWN.width }, () => '.'));
+  const plot = (x: number, y: number, symbol: string): void => {
+    const row = grid[Math.round(y)];
+    if (row && x >= 0 && x < CROWN.width) row[Math.round(x)] = symbol;
+  };
+
+  for (let x = 0; x < CROWN.width; x++) {
+    const across = (x - CROWN_CENTER_X) / radiusX;
+    if (Math.abs(across) > 1) continue;
+    const half = CROWN.rimRy * Math.sqrt(1 - across * across);
+    const back = CROWN.rimY - half;
+    const front = CROWN.rimY + half;
+    // The opening inside the rim, then the rim itself, then the band hanging from its front arc.
+    for (let y = Math.ceil(back); y <= front; y++) plot(x, y, 'k');
+    plot(x, back, 'N');
+    plot(x, front, 'n');
+    for (let y = front; y <= front + CROWN.band; y++) plot(x, y, y >= front + CROWN.band ? 'N' : 'n');
+    // A highlight running down the band where the gold catches the light.
+    if (Math.abs(across) < 0.35) plot(x, front + 1, 'w');
+  }
+
+  // The points, carried round the rim as it turns: each stands up from wherever its own arc is.
+  for (let point = 0; point < CROWN.points; point++) {
+    const around = (point / CROWN.points) * Math.PI * 2 + turn * 2;
+    const x = CROWN_CENTER_X + Math.cos(around) * radiusX;
+    const base = CROWN.rimY + Math.sin(around) * CROWN.rimRy;
+    for (let step = 1; step <= CROWN.point; step++) plot(x, base - step, step === CROWN.point ? 'w' : 'n');
+  }
+
+  return grid.map((row) => row.join(''));
+}
+
 /** What a projectile's sprite is showing: the thing in flight, or the blast it left behind. */
 export type ProjectilePhase = 'flight' | 'blast';
 
@@ -275,6 +400,30 @@ export const PROJECTILE_SPRITES: readonly SpriteAssets[] = [
     'emberShot',
     { w: '#fff3b0', y: '#ffb03a', r: '#e4572e', o: '#8e1f22' },
     Array.from({ length: FLICKER_FRAMES }, (_, frame) => fireballFrame(frame)),
+  ),
+  // Nova's Static Wave.
+  projectileSprites(
+    'staticWave',
+    { w: '#f4fbff', c: '#8ad8ff', b: '#2a7ad8' },
+    Array.from({ length: STATIC_WAVE.frames }, (_, frame) => staticWaveFrame(frame)),
+  ),
+  // Rook's Rail Shot.
+  projectileSprites(
+    'railShot',
+    { w: '#ffffff', c: '#a8e0f0', b: '#5a90b0' },
+    Array.from({ length: RAIL_SHOT.frames }, (_, frame) => railShotFrame(frame)),
+  ),
+  // Sable's Shade Orb.
+  projectileSprites(
+    'shadeOrb',
+    { k: '#0a0812', d: '#241e38', v: '#6a5a9a', V: '#3a3158' },
+    Array.from({ length: SHADE_ORB.frames }, (_, frame) => shadeOrbFrame(frame)),
+  ),
+  // Magnus Vane's Iron Verdict.
+  projectileSprites(
+    'ironVerdict',
+    { w: '#fff4c0', n: '#f0cc60', N: '#a07c28', k: '#3a2c12' },
+    Array.from({ length: CROWN.frames }, (_, frame) => ironVerdictFrame(frame)),
   ),
   // Kanan's Quake Stomp.
   projectileSprites(

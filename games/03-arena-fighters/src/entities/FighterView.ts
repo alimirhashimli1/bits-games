@@ -3,6 +3,7 @@ import type * as Phaser from 'phaser';
 import { STAGE } from '../config';
 import type { AnyPoseName } from '../content/fighters/poseNames';
 import { fighterAnimationKey, type FighterAnimationName } from '../content/sprites/fighterSprites';
+import { isVanished } from '../systems/sim/attacks';
 import { toPixels, type FighterState } from '../systems/sim/fightState';
 import { poseOf } from '../systems/sim/pose';
 
@@ -27,6 +28,8 @@ export class FighterView {
   draw(fighter: FighterState, celebrating: boolean): void {
     this.sprite.setPosition(toPixels(fighter.x), STAGE.floorY + 1 - toPixels(fighter.y));
     this.sprite.setFlipX(fighter.facing === -1);
+    // Nothing is drawn of a fighter part-way through a teleport.
+    this.sprite.setVisible(!isVanished(fighter));
     const standingStill = fighter.status.kind === 'free' && !fighter.attack && fighter.posture !== 'airborne';
     this.show(celebrating && standingStill ? { animation: 'win' } : displayFor(fighter));
   }

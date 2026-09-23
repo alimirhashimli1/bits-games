@@ -41,6 +41,7 @@ export const HOME_ARENAS: Readonly<Record<FighterId, ArenaId>> = {
   rajab: 'casino',
   azar: 'clinic',
   osal: 'fieldCamp',
+  vane: 'towerRoof',
 };
 
 /**

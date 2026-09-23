@@ -8,7 +8,9 @@ import { advanceProjectiles, hasProjectile, resolveProjectiles } from './project
 import { resolveBodies } from './pushboxes';
 import { advanceRound } from './rounds';
 import { advanceStatus } from './status';
+import { resolveTeleports } from './teleports';
 import { resolveCommandThrows, resolveThrows } from './throws';
+import { resolveWallLeaps } from './wallLeaps';
 
 /** Both players' input for one step: player 1 first. */
 export type StepInputs = readonly [InputBits, InputBits];
@@ -21,8 +23,9 @@ const NO_INPUTS: StepInputs = [0, 0];
  * whole numbers throughout, so the same inputs always give the same fight on any machine.
  *
  * In order: statuses count down, throws start or progress, attacks start or progress, fighters
- * move, bodies are pushed apart, command throws catch, projectiles fly and new ones are thrown,
- * blows and then projectiles land, and fighters on the ground turn to face each other.
+ * move, bodies are pushed apart, command throws catch, wall leaps spring off the edge, teleports
+ * come back on the far side, projectiles fly and new ones are thrown, blows and then projectiles
+ * land, and fighters on the ground turn to face each other.
  *
  * During hitstop nothing moves, but inputs are still recorded, so a motion can be entered in the
  * freeze, and buttons pressed in it are kept aside and count as fresh presses when it ends.
@@ -64,7 +67,7 @@ function stepFighters(state: FightState, inputs: StepInputs): FightState {
     }),
   ] as const;
   const moved = [moveFighter(attacking[0], inputs[0]), moveFighter(attacking[1], inputs[1])] as const;
-  const bodies = resolveCommandThrows(resolveBodies(moved, state.fighters));
+  const bodies = resolveTeleports(resolveWallLeaps(resolveCommandThrows(resolveBodies(moved, state.fighters))));
   const flying = advanceProjectiles(bodies, state.projectiles);
   const blows = resolveHits(bodies, inputs);
   const shots = resolveProjectiles(blows.fighters, flying, inputs);

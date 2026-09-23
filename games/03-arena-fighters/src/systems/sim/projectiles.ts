@@ -120,7 +120,7 @@ function spawned(fighter: FighterState, owner: PlayerIndex): ProjectileState[] {
       x: hand.x + fighter.facing * toSubpixels(behaviour.forwardPx),
       y: hand.y + toSubpixels(behaviour.upPx ?? 0),
       vx: behaviour.speed[strength] * fighter.facing,
-      vy: behaviour.arc ? behaviour.arc[strength] : 0,
+      vy: behaviour.arc?.[strength] ?? behaviour.climb?.[strength] ?? 0,
       burstSteps: -1,
     },
   ];

@@ -1,13 +1,15 @@
-import { COMBAT, CPU_LEVELS, CPU_RANGES, SUBPIXELS_PER_PIXEL, type CpuLevel, type CpuLevelSettings } from '../../config';
+import { BODY, COMBAT, CPU_LEVELS, CPU_RANGES, STAGE, SUBPIXELS_PER_PIXEL, type CpuLevel, type CpuLevelSettings } from '../../config';
 import type { CpuStyle } from '../../content/fighters/cpuStyle';
 import { fighterData } from '../../content/fighters/fighterData';
-import type { Guard } from '../../content/fighters/moves';
+import type { Guard, Move } from '../../content/fighters/moves';
 import type { SpecialMove } from '../../content/fighters/specials';
 import type { Controller } from '../input/controller';
 import { INPUT, type InputBits } from '../input/inputBits';
 import { MOTION_FACING } from '../input/motions';
+import type { FighterId } from '../../content/roster';
 import type { PlayerIndex } from '../matchSetup';
 import { moveOf, specialOf } from '../sim/attacks';
+import { strikeReachPx } from '../sim/boxes';
 import type { AttackState, FighterState, FightState, ProjectileState } from '../sim/fightState';
 import { back, forward, motionInputs, wait } from './inputPlans';
 import { Random } from './random';
@@ -32,6 +34,18 @@ const COUNTER_CHANCE = 0.5;
 /** A fighter who can heal does so from a distance once below this share of their health, this often. */
 const HEAL_BELOW = 0.6;
 const HEAL_CHANCE = 0.5;
+/** How often, against a crouching opponent in reach, a fighter with an overhead special goes for it (times aggression). */
+const OVERHEAD_CHANCE = 0.45;
+/** How often a fighter with a dive uses it when the opponent is in its reach (times aggression). */
+const DIVE_CHANCE = 0.12;
+/** How often a cornered fighter with a wall leap uses it to get out, when the opponent is close. */
+const WALL_LEAP_CHANCE = 0.5;
+/** A poke is worth throwing when the opponent's centre is within its reach plus this much of their body. */
+const POKE_MARGIN = 8;
+/** How often a fighter with a teleport steps through an opponent who is in reach of them. */
+const TELEPORT_CHANCE = 0.12;
+/** Steps from starting a teleport to swinging at the back they have just been given. */
+const TELEPORT_FOLLOW_STEPS = 26;
 
 /**
  * The CPU: a controller that plays one fighter by producing inputs, exactly as a player would.
@@ -133,7 +147,7 @@ export class CpuPlayer implements Controller {
     const attack = them.attack;
     const last = this.seenAttack;
     const newAttack = attack !== null && (last === null || last.move !== attack.move || attack.step < last.step);
-    if (newAttack && gap <= CPU_RANGES.threat && this.random.chance(this.level.block)) this.meetAttack(me, them);
+    if (newAttack && gap <= CPU_RANGES.threat && this.random.chance(this.level.block)) this.meetAttack(me, them, gap);
     this.seenAttack = attack;
 
     const incoming = seen.projectiles.find(
@@ -152,11 +166,12 @@ export class CpuPlayer implements Controller {
   }
 
   /**
-   * An attack it means to deal with: catch it with a counter, if the fighter has one and
-   * it chooses to, otherwise block.
+   * An attack it means to deal with: catch it with a counter, if the fighter has one, the attack
+   * is close enough to reach them and it chooses to, otherwise block.
    */
-  private meetAttack(me: FighterState, them: FighterState): void {
-    const counter = this.pickSpecial(me, 'counter');
+  private meetAttack(me: FighterState, them: FighterState, gap: number): void {
+    // A counter only catches what reaches it, so it waits for an attack thrown from close by.
+    const counter = gap <= CPU_RANGES.counter ? this.pickSpecial(me, 'counter') : undefined;
     const inputs = counter ? this.specialInputs(counter, true) : null;
     if (inputs && me.status.kind === 'free' && !me.attack && this.random.chance(COUNTER_CHANCE)) {
       this.queue = inputs;
@@ -223,12 +238,27 @@ export class CpuPlayer implements Controller {
     const style = fighterData(me.character).cpu;
     const gap = distance(me, them);
     const aggression = Math.min(1, style.aggression * this.level.aggression);
+    const overhead = this.pickOverhead(me);
+    const dive = this.pickSpecial(me, 'dive');
+    const wallLeap = this.pickSpecial(me, 'wallLeap');
+    const teleport = this.pickSpecial(me, 'teleport');
     this.holding = 0;
 
     if (this.random.chance(this.level.mistake)) {
       this.rash(me);
     } else if (them.status.kind === 'knockdown') {
       this.holding = gap > style.preferredRange ? forward(me.facing) : 0;
+    } else if (overhead && them.posture === 'crouching' && gap <= CPU_RANGES.overhead && this.random.chance(OVERHEAD_CHANCE * aggression)) {
+      // A crouching guard stops lows and mids, so an overhead is the way through it.
+      this.queue = this.specialInputs(overhead, gap > CPU_RANGES.close);
+    } else if (wallLeap && wallBehind(me) <= CPU_RANGES.cornered && gap <= CPU_RANGES.threat && this.random.chance(WALL_LEAP_CHANCE)) {
+      // Backed into a corner: leap out over the top and come back off the wall.
+      this.queue = this.specialInputs(wallLeap, false);
+    } else if (teleport && gap <= CPU_RANGES.threat && this.random.chance(TELEPORT_CHANCE * aggression)) {
+      // Gone from in front of them and back behind them, and then a swing at their back.
+      this.queue = [...this.specialInputs(teleport, gap > CPU_RANGES.close), ...wait(TELEPORT_FOLLOW_STEPS), DOWN | HK];
+    } else if (dive && gap >= CPU_RANGES.dive.nearest && gap <= CPU_RANGES.dive.furthest && this.random.chance(DIVE_CHANCE * aggression)) {
+      this.queue = this.specialInputs(dive, gap > CPU_RANGES.dive.heavyBeyond);
     } else if (gap > style.preferredRange + 16) {
       this.fromAfar(state, me, gap, style);
     } else if (gap <= CPU_RANGES.close) {
@@ -239,8 +269,14 @@ export class CpuPlayer implements Controller {
       const dashInputs = dashAttack ? this.specialInputs(dashAttack, this.random.chance(0.5)) : null;
       if (dashInputs && this.random.chance(DASH_ATTACK_CHANCE)) {
         this.queue = dashInputs;
-      } else {
+      } else if (gap <= pokeReach(me) + POKE_MARGIN) {
         this.queue = this.random.chance(0.5) ? [HK] : [DOWN | HK];
+      } else {
+        // Its own heavies fall short from here: throw something if it can, and otherwise close in.
+        const projectile = this.pickSpecial(me, 'projectile');
+        const thrown = projectile && !state.projectiles.some((shot) => shot.owner === this.me) && this.random.chance(style.projectileLove);
+        if (projectile && thrown) this.queue = this.specialInputs(projectile, this.random.chance(0.5));
+        else this.holding = forward(me.facing);
       }
     } else {
       this.holding = this.random.chance(0.5) ? forward(me.facing) : back(me.facing);
@@ -298,10 +334,17 @@ export class CpuPlayer implements Controller {
     return fighterData(me.character).specials.find((special) => special.behaviour.kind === kind);
   }
 
+  /** A special that must be blocked standing, which beats a crouching guard. */
+  private pickOverhead(me: FighterState): SpecialMove | undefined {
+    return fighterData(me.character).specials.find(({ move }) => isOverhead(move));
+  }
+
   /** A dash special with the wanted traits: one that strikes (or not), or one that projectiles pass through. */
   private pickDash(me: FighterState, wanted: { readonly strikes?: boolean; readonly projectileProof?: boolean }): SpecialMove | undefined {
     return fighterData(me.character).specials.find(({ behaviour, move }) => {
       if (behaviour.kind !== 'dash') return false;
+      // An overhead is kept for a crouching opponent (see `think`), not thrown out as a poke.
+      if (isOverhead(move)) return false;
       const strikes = move.segments.some((segment) => segment.strike);
       if (wanted.strikes !== undefined && strikes !== wanted.strikes) return false;
       return wanted.projectileProof === undefined || (behaviour.projectileProof === true) === wanted.projectileProof;
@@ -319,8 +362,30 @@ export class CpuPlayer implements Controller {
   }
 }
 
+/** How far a fighter's heavy pokes reach, in pixels from their centre. Worked out once per fighter. */
+const pokeReaches = new Map<FighterId, number>();
+
+function pokeReach(me: FighterState): number {
+  const known = pokeReaches.get(me.character);
+  if (known !== undefined) return known;
+  const { moves } = fighterData(me.character);
+  const reach = Math.max(strikeReachPx(me.character, moves.standHK), strikeReachPx(me.character, moves.crouchHK));
+  pokeReaches.set(me.character, reach);
+  return reach;
+}
+
+/** Pixels between a fighter and the arena wall behind them. */
+function wallBehind(fighter: FighterState): number {
+  const x = fighter.x / SUBPIXELS_PER_PIXEL;
+  return fighter.facing === 1 ? x - BODY.halfWidth : STAGE.width - BODY.halfWidth - x;
+}
+
 function distance(a: FighterState, b: FighterState): number {
   return Math.abs(a.x - b.x) / SUBPIXELS_PER_PIXEL;
+}
+
+function isOverhead(move: Move): boolean {
+  return move.segments.some((segment) => segment.strike?.guard === 'overhead');
 }
 
 /** How the opponent's current move must be blocked, as far as the CPU can tell: by its first strike. */

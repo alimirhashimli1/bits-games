@@ -5,8 +5,8 @@ const STING: Strike = {
   limb: 'nearHand',
   width: 12,
   height: 8,
-  damage: 95,
-  chip: 15,
+  damage: 75,
+  chip: 14,
   hitstun: 20,
   blockstun: 14,
   push: 640,
@@ -27,7 +27,7 @@ export const AZAR_SPECIALS: readonly SpecialMove[] = [
       speed: { light: 896, heavy: 1216 },
       width: 14,
       height: 5,
-      strike: { damage: 85, chip: 15, hitstun: 17, blockstun: 14, push: 576, guard: 'mid' },
+      strike: { damage: 65, chip: 12, hitstun: 17, blockstun: 14, push: 576, guard: 'mid' },
       sprite: 'syringe',
     },
     move: {
@@ -45,10 +45,10 @@ export const AZAR_SPECIALS: readonly SpecialMove[] = [
      */
     name: 'needleSting',
     motion: 'downForward',
-    behaviour: { kind: 'dash', startStep: 4, endStep: 12, speed: { light: 832, heavy: 1088 }, stopsOnContact: true },
+    behaviour: { kind: 'dash', startStep: 6, endStep: 14, speed: { light: 832, heavy: 1088 }, stopsOnContact: true },
     move: {
       segments: [
-        { pose: 'dartWindup', steps: 4 },
+        { pose: 'dartWindup', steps: 6 },
         { pose: 'stingLunge', steps: 8, strike: STING },
         { pose: 'stingLunge', steps: 5 },
         { pose: 'idle2', steps: 14 },

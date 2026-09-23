@@ -1,12 +1,15 @@
 import { fileURLToPath } from 'node:url';
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 
 import { contentSecurityPolicy } from './tooling/csp.ts';
 import { findHtmlPages } from './tooling/pages.ts';
 
 const rootDir = fileURLToPath(new URL('.', import.meta.url));
 
-export default defineConfig({
+/** The only game with online play: the one page whose CSP may reach a signalling server. */
+const ONLINE_PAGE = '03-arena-fighters';
+
+export default defineConfig(({ mode }) => ({
   // Relative asset paths, so the build works from any folder (e.g. GitHub Pages).
   base: './',
   resolve: {
@@ -14,7 +17,9 @@ export default defineConfig({
       '@shared': fileURLToPath(new URL('./shared', import.meta.url)),
     },
   },
-  plugins: [contentSecurityPolicy()],
+  plugins: [
+    contentSecurityPolicy({ onlinePage: ONLINE_PAGE, peerHost: loadEnv(mode, rootDir, 'VITE_').VITE_PEER_HOST }),
+  ],
   build: {
     target: 'es2022',
     // Phaser alone is ~1.4 MB (~360 kB gzipped). That is expected for a game engine.
@@ -29,4 +34,4 @@ export default defineConfig({
       },
     },
   },
-});
+}));

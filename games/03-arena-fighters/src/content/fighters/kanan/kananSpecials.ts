@@ -5,8 +5,8 @@ const SHOULDER: Strike = {
   limb: 'head',
   width: 16,
   height: 18,
-  damage: 120,
-  chip: 18,
+  damage: 95,
+  chip: 14,
   hitstun: 22,
   blockstun: 16,
   push: 832,
@@ -33,7 +33,7 @@ export const KANAN_SPECIALS: readonly SpecialMove[] = [
       speed: { light: 512, heavy: 768 },
       width: 20,
       height: 10,
-      strike: { damage: 90, chip: 15, hitstun: 18, blockstun: 16, push: 640, guard: 'low' },
+      strike: { damage: 80, chip: 13, hitstun: 18, blockstun: 16, push: 640, guard: 'low' },
       sprite: 'shockwave',
     },
     move: {
@@ -63,7 +63,7 @@ export const KANAN_SPECIALS: readonly SpecialMove[] = [
       segments: [
         { pose: 'rushWindup', steps: 7 },
         { pose: 'rushCharge', steps: 18, strike: SHOULDER },
-        { pose: 'rushWindup', steps: 22 },
+        { pose: 'rushWindup', steps: 26 },
       ],
     },
   },

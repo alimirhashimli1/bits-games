@@ -18,13 +18,13 @@ export const OSAL_SPECIALS: readonly SpecialMove[] = [
       speed: { light: 1024, heavy: 1344 },
       width: 14,
       height: 6,
-      strike: { damage: 65, chip: 12, hitstun: 16, blockstun: 13, push: 512, guard: 'mid' },
+      strike: { damage: 75, chip: 14, hitstun: 17, blockstun: 14, push: 512, guard: 'mid' },
       sprite: 'tracer',
     },
     move: {
       segments: [
         { pose: 'rifleAim', steps: 9 },
-        { pose: 'rifleFire', steps: 16 },
+        { pose: 'rifleFire', steps: 13 },
         { pose: 'idle2', steps: 6 },
       ],
     },

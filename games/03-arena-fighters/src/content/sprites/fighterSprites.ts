@@ -33,6 +33,14 @@ export function fighterAnimationKey(sheetKey: string, name: FighterAnimationName
   return `${sheetKey}-${name}`;
 }
 
+/**
+ * Which of a fighter's two sheets to draw them from. Every fighter has a second one in alternate
+ * colours (`altPalette`), which player 2 wears when both players have picked the same fighter.
+ */
+export function fighterSheetKey(id: string, alternate: boolean): string {
+  return alternate ? `${id}-alt` : id;
+}
+
 /** Draws every pose of one fighter, special-move poses included, into a sprite sheet and builds their animations. */
 export function createFighterSprites(sheetKey: string, art: FighterArt): SpriteAssets {
   const poses = [...POSE_NAMES.map((name) => [name, art.poses[name]] as const), ...Object.entries(art.specialPoses)];

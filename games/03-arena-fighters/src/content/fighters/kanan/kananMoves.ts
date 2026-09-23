@@ -13,7 +13,7 @@ const HEAVY = { hitstun: 19, blockstun: 15, push: 832 } as const;
 const JAB: Strike = { ...LIGHT, limb: 'nearHand', width: 10, height: 9, damage: 35, guard: 'mid' };
 const SMASH: Strike = { ...HEAVY, limb: 'farHand', width: 14, height: 12, damage: 115, guard: 'mid' };
 const SNAP_KICK: Strike = { ...LIGHT, limb: 'nearFoot', width: 12, height: 9, damage: 45, guard: 'mid' };
-const ROUNDHOUSE: Strike = { ...HEAVY, limb: 'nearFoot', width: 14, height: 12, damage: 120, hitstun: 21, push: 896, guard: 'mid' };
+const ROUNDHOUSE: Strike = { ...HEAVY, limb: 'nearFoot', width: 14, height: 12, damage: 110, hitstun: 21, push: 896, guard: 'mid' };
 
 /** Heavy on his feet, though not as slow as Grom, with a lower jump than most. */
 export const KANAN_MOVEMENT: FighterMovement = {

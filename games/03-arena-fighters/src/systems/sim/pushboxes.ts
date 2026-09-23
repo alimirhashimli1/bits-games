@@ -67,8 +67,18 @@ export function atWall(fighter: FighterState, side: 1 | -1): boolean {
   return side === 1 ? fighter.x >= RIGHT_WALL : fighter.x <= LEFT_WALL;
 }
 
+/** True when the fighters are as far apart as one screen allows, so neither can back off further. */
+export function atMaxSeparation(a: FighterState, b: FighterState): boolean {
+  return Math.abs(a.x - b.x) >= MAX_SEPARATION;
+}
+
+/** The nearest place to `x` a fighter's centre can stand, in sub-pixels: the arena walls hold them in. */
+export function insideWalls(x: number): number {
+  return Math.min(RIGHT_WALL, Math.max(LEFT_WALL, x));
+}
+
 function keepInsideWalls(fighter: FighterState): FighterState {
-  const x = Math.min(RIGHT_WALL, Math.max(LEFT_WALL, fighter.x));
+  const x = insideWalls(fighter.x);
   return x === fighter.x ? fighter : { ...fighter, x };
 }
 

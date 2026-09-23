@@ -1,11 +1,15 @@
 import * as Phaser from 'phaser';
 
+import { playSound } from '@shared/audio/audioEngine';
+import { playMusic } from '@shared/audio/music';
 import { addCenteredPixelText } from '@shared/phaser/pixelText';
 import { fadeIn, fadeToScene } from '@shared/phaser/sceneTransitions';
 
 import { COLORS, TIMINGS } from '../config';
 import { builtArena } from '../content/arenas';
+import { VERSUS_MUSIC } from '../content/music';
 import { fighterName } from '../content/roster';
+import { SOUNDS } from '../content/sounds';
 import { DEFAULT_MATCH, type MatchSetup } from '../systems/matchSetup';
 import { SCENES } from './sceneKeys';
 import { ScreenInput } from './screenInput';
@@ -29,6 +33,8 @@ export class VersusScene extends Phaser.Scene {
     fadeIn(this);
     this.screenInput = new ScreenInput(this);
     this.setup = setup;
+    playMusic(VERSUS_MUSIC);
+    playSound(SOUNDS.versusClash);
 
     const [player1, player2] = setup.fighters;
     addCenteredPixelText(this, PLAYER1_Y, fighterName(player1), { color: COLORS.player1, scale: 2 });

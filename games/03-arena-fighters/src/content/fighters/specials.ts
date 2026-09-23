@@ -22,6 +22,22 @@ export const SPECIAL_NAMES = [
   'needleSting',
   'rifleShot',
   'grenadeToss',
+  'staticWave',
+  'thunderHeel',
+  'talonDive',
+  'wallLeap',
+  'spiritPalm',
+  'craneStance',
+  'railShot',
+  'hookFlip',
+  'rushJab',
+  'dashUpper',
+  'starClutch',
+  'cometPress',
+  'shadeOrb',
+  'veilStep',
+  'ironVerdict',
+  'crownBreaker',
 ] as const;
 
 export type SpecialName = (typeof SPECIAL_NAMES)[number];
@@ -56,6 +72,11 @@ export interface ProjectileBehaviour {
   /** Its sprite sheet (see src/content/sprites/projectiles.ts). */
   readonly sprite: string;
   /**
+   * Thrown upwards as well as forwards, in sub-pixels per step, and it keeps climbing: a shot
+   * angled to catch someone in the air. Left out, it flies level.
+   */
+  readonly climb?: ByStrength;
+  /**
    * Lobbed rather than thrown flat: it leaves the hand rising this fast, in sub-pixels per step,
    * and falls under the fight's gravity, so it only carries so far. Left out, it flies level.
    */
@@ -84,6 +105,56 @@ export interface RisingBehaviour {
   readonly drift: ByStrength;
   /** Steps from the start of the move during which the fighter has no hurtboxes. */
   readonly invulnerableSteps: ByStrength;
+}
+
+/**
+ * A leap that turns into a steep dive kick. The fighter leaves the ground on `launchStep` like a
+ * jump, and on `diveStep` is driven down and forward, striking all the way down. The move holds
+ * its airborne pose until they land, and its last segment is the recovery on landing.
+ */
+export interface DiveBehaviour {
+  readonly kind: 'dive';
+  /** The step of the move on which the fighter leaves the ground. */
+  readonly launchStep: number;
+  /** Upward and forward speed on launch, in sub-pixels per step. */
+  readonly rise: ByStrength;
+  readonly drift: ByStrength;
+  /** The step on which the dive begins, and its forward and downward speed from then on. */
+  readonly diveStep: number;
+  readonly diveForward: ByStrength;
+  readonly diveDown: ByStrength;
+}
+
+/**
+ * A leap backwards to the edge behind the fighter (the arena wall, or as far from the opponent as
+ * one screen allows), and a spring off it back the other way. The fighter leaves the ground on
+ * `launchStep`, travelling back; the move holds the step before `springStep` until they reach
+ * the edge, then jumps to `springStep` as they spring off. Landing, short of the edge or after
+ * the spring, ends the move in its recovery, its last segment.
+ */
+export interface WallLeapBehaviour {
+  readonly kind: 'wallLeap';
+  readonly launchStep: number;
+  /** Upward and backward speed on launch, in sub-pixels per step. */
+  readonly rise: ByStrength;
+  readonly back: ByStrength;
+  readonly springStep: number;
+  /** Forward and upward speed off the edge. */
+  readonly springForward: ByStrength;
+  readonly springUp: ByStrength;
+}
+
+/**
+ * Vanishes and comes back on the other side of the opponent. The fighter goes on `vanishStep`
+ * and reappears on `appearStep`, `behindPx` past the opponent's centre and turned to face them.
+ * In between they have no hurtboxes and nothing is drawn of them. The arena walls still hold
+ * them in, so against the wall they come back as far over as there is room for.
+ */
+export interface TeleportBehaviour {
+  readonly kind: 'teleport';
+  readonly vanishStep: number;
+  readonly appearStep: number;
+  readonly behindPx: ByStrength;
 }
 
 /**
@@ -157,9 +228,12 @@ export interface HealBehaviour {
 export type SpecialBehaviour =
   | ProjectileBehaviour
   | RisingBehaviour
+  | DiveBehaviour
+  | WallLeapBehaviour
   | DashBehaviour
   | CommandThrowBehaviour
   | CounterBehaviour
+  | TeleportBehaviour
   | HealBehaviour;
 
 /**
