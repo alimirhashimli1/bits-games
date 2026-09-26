@@ -58,7 +58,8 @@ export function audioContext(): AudioContext {
   return context;
 }
 
-function output(): GainNode {
+/** The master volume node every sound plays through, so mute silences it too. */
+export function audioOutput(): GainNode {
   audioContext();
   if (!master) throw new Error('The audio engine has no output node.');
   return master;
@@ -121,7 +122,7 @@ export function scheduleTone(spec: ToneSpec, startTime: number): void {
   gain.gain.linearRampToValueAtTime(spec.volume ?? DEFAULT_VOLUME, startTime + attack);
   gain.gain.linearRampToValueAtTime(0, startTime + duration);
 
-  oscillator.connect(gain).connect(output());
+  oscillator.connect(gain).connect(audioOutput());
   oscillator.start(startTime);
   oscillator.stop(startTime + duration + TAIL_SECONDS);
 }
@@ -142,7 +143,7 @@ export function scheduleNoise(spec: NoiseSpec, startTime: number): void {
   gain.gain.setValueAtTime(spec.volume ?? DEFAULT_VOLUME, startTime);
   gain.gain.linearRampToValueAtTime(0, startTime + duration);
 
-  source.connect(filter).connect(gain).connect(output());
+  source.connect(filter).connect(gain).connect(audioOutput());
   source.start(startTime);
   source.stop(startTime + duration + TAIL_SECONDS);
 }

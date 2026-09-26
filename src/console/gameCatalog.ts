@@ -50,7 +50,7 @@ export const GAME_CATALOG: readonly GameEntry[] = [
     genre: 'Road Racer',
     description: 'Race down winding highways against rival drivers and reach every checkpoint before time runs out.',
     labelColor: '#f4a100',
-    status: 'coming-soon',
+    status: 'playable',
   },
   {
     id: '05-crystal-dungeon',

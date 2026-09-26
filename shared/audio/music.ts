@@ -1,4 +1,4 @@
-import { audioContext, scheduleTone, type Wave } from './audioEngine';
+import { audioContext, scheduleNoise, scheduleTone, type Wave } from './audioEngine';
 import { note } from './notes';
 
 export interface MusicNote {
@@ -11,11 +11,21 @@ export interface MusicNote {
   readonly volume: number;
 }
 
+/** A drum hit: a burst of filtered noise, low for a kick, high for a hi-hat. */
+export interface MusicHit {
+  readonly step: number;
+  readonly durationMs: number;
+  readonly volume: number;
+  readonly cutoffHz: number;
+}
+
 export interface MusicTrack {
   readonly stepMs: number;
   /** Length of the loop in steps. */
   readonly steps: number;
   readonly notes: readonly MusicNote[];
+  /** Drums, if the track has any. */
+  readonly hits?: readonly MusicHit[];
 }
 
 /** How far ahead notes are handed to the audio clock. */
@@ -34,6 +44,39 @@ export function line(
   { wave, volume, steps = 1 }: { wave: Wave; volume: number; steps?: number },
 ): MusicNote[] {
   return names.flatMap((name, step) => (name ? [{ step, freq: note(name), steps, wave, volume }] : []));
+}
+
+/**
+ * Writes a line of music as text, one token per step: a note name such as `E5` or `F#3`
+ * starts a note, `-` holds the note before it for another step, and `.` rests.
+ * `'E5 - - G5 . C6 - -'` is E held for three steps, G for one, a rest, then C held for three.
+ */
+export function phrase(text: string, { wave, volume }: { wave: Wave; volume: number }): MusicNote[] {
+  const notes: MusicNote[] = [];
+  let held: { step: number; name: string; steps: number } | null = null;
+  const finish = (): void => {
+    if (held) notes.push({ step: held.step, freq: note(held.name), steps: held.steps, wave, volume });
+    held = null;
+  };
+  text
+    .split(/\s+/)
+    .filter((token) => token !== '')
+    .forEach((token, step) => {
+      if (token === '-') {
+        if (!held) throw new Error(`A "-" at step ${step} has no note to hold.`);
+        held.steps++;
+        return;
+      }
+      finish();
+      if (token !== '.') held = { step, name: token, steps: 1 };
+    });
+  finish();
+  return notes;
+}
+
+/** A drum pattern as text, one character per step: `x` hits, anything else rests. Spaces are ignored. */
+export function beat(pattern: string, sound: Omit<MusicHit, 'step'>): MusicHit[] {
+  return [...pattern.replace(/\s+/g, '')].flatMap((mark, step) => (mark === 'x' ? [{ ...sound, step }] : []));
 }
 
 /**
@@ -88,6 +131,10 @@ class MusicPlayer {
           },
           this.nextStepTime,
         );
+      }
+      for (const hit of track.hits ?? []) {
+        if (hit.step !== stepInLoop) continue;
+        scheduleNoise({ durationMs: hit.durationMs, volume: hit.volume, cutoffHz: hit.cutoffHz }, this.nextStepTime);
       }
       this.nextStepTime += stepSeconds;
       this.step++;
