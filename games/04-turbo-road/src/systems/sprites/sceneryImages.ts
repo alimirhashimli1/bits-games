@@ -1,5 +1,7 @@
+import { mirrorPixelMap } from '@shared/pixel-art/pixelGrid';
+
 import { SCENERY_SPRITES, type SceneryKind } from '../../content/sprites/scenery';
-import { mirrorPixelMap, renderPixelSprite } from './pixelSprites';
+import { renderPixelSprite } from './pixelSprites';
 
 export type SceneryImages = Readonly<Record<SceneryKind, HTMLCanvasElement>>;
 

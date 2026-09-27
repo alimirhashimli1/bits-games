@@ -36,8 +36,3 @@ export function padPixelMap(map: PixelMap, columns: number): PixelMap {
   const padding = TRANSPARENT_PIXEL.repeat(columns);
   return map.map((row) => padding + row + padding);
 }
-
-/** Flips a pixel map left to right. */
-export function mirrorPixelMap(map: PixelMap): PixelMap {
-  return map.map((row) => [...row].reverse().join(''));
-}

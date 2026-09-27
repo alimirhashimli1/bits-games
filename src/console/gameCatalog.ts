@@ -58,7 +58,7 @@ export const GAME_CATALOG: readonly GameEntry[] = [
     genre: 'Adventure',
     description: 'Explore a top-down world, find keys and treasure, clear dungeon rooms and defeat the crystal guardian.',
     labelColor: '#2ec4b6',
-    status: 'coming-soon',
+    status: 'in-development',
   },
 ];
 

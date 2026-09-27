@@ -31,10 +31,33 @@ export class PixelGrid {
     this.fillRect(centerX - offset, centerY - offset, size, size, symbol);
   }
 
-  /** Draws a straight line (Bresenham's algorithm) with a square brush. */
+  /** Fills every pixel whose middle lies within `radius` of `center`. The centre may sit between pixels. */
+  fillCircle([centerX, centerY]: Point, radius: number, symbol: string): void {
+    for (let y = Math.floor(centerY - radius); y <= Math.ceil(centerY + radius); y++) {
+      for (let x = Math.floor(centerX - radius); x <= Math.ceil(centerX + radius); x++) {
+        if (Math.hypot(x - centerX, y - centerY) <= radius) this.plot(x, y, symbol);
+      }
+    }
+  }
+
+  /** Fills every pixel whose middle lies inside the ellipse with these radii round `center`. */
+  fillEllipse([centerX, centerY]: Point, radiusX: number, radiusY: number, symbol: string): void {
+    for (let y = Math.floor(centerY - radiusY); y <= Math.ceil(centerY + radiusY); y++) {
+      for (let x = Math.floor(centerX - radiusX); x <= Math.ceil(centerX + radiusX); x++) {
+        if (((x - centerX) / radiusX) ** 2 + ((y - centerY) / radiusY) ** 2 <= 1) this.plot(x, y, symbol);
+      }
+    }
+  }
+
+  /**
+   * Draws a straight line (Bresenham's algorithm) with a square brush. Both ends are rounded to
+   * whole pixels first: the steps are whole pixels, so a fractional end would never be reached.
+   */
   line(from: Point, to: Point, thickness: number, symbol: string): void {
-    let [x, y] = from;
-    const [endX, endY] = to;
+    let x = Math.round(from[0]);
+    let y = Math.round(from[1]);
+    const endX = Math.round(to[0]);
+    const endY = Math.round(to[1]);
     const distanceX = Math.abs(endX - x);
     const distanceY = -Math.abs(endY - y);
     const stepX = x < endX ? 1 : -1;
@@ -93,4 +116,9 @@ export function rotateCounterClockwise(map: PixelMap): PixelMap {
   return Array.from({ length: width }, (_, newRow) =>
     map.map((row) => row[width - 1 - newRow] ?? TRANSPARENT_PIXEL).join(''),
   );
+}
+
+/** Flips a pixel map left to right. */
+export function mirrorPixelMap(map: PixelMap): PixelMap {
+  return map.map((row) => [...row].reverse().join(''));
 }

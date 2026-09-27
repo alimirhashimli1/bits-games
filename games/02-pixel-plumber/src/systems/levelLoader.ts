@@ -1,4 +1,6 @@
-import * as Phaser from 'phaser';
+import type * as Phaser from 'phaser';
+
+import { createTileLayer } from '@shared/phaser/tileLayer';
 
 import { LEVEL } from '../config';
 import {
@@ -126,15 +128,13 @@ export function loadLevel(scene: Phaser.Scene, map: LevelMap, theme: WorldTheme)
   const baronHall = findBaronHall(parsed);
   if (baronHall && levelEnds.length > 0) throw new Error("Level map has both a pole and the Baron's lever to finish on.");
 
-  const tilemap = scene.make.tilemap({ data, tileWidth: LEVEL.tileSize, tileHeight: LEVEL.tileSize });
   // Every world's sheet holds the same frames in the same order, so only the texture changes.
-  const tileset = tilemap.addTilesetImage(theme.tilesKey, theme.tilesKey, LEVEL.tileSize, LEVEL.tileSize, 0, 0);
-  if (!tileset) throw new Error(`Could not create the "${theme.tilesKey}" tileset.`);
-
-  const layer = tilemap.createLayer(0, tileset, 0, 0);
-  // Only a GPU layer is created when asked for, but the return type allows either.
-  if (!(layer instanceof Phaser.Tilemaps.TilemapLayer)) throw new Error('Could not create the level layer.');
-  layer.setCollision(SOLID_TILE_INDICES);
+  const { tilemap, layer } = createTileLayer(scene, {
+    data,
+    textureKey: theme.tilesKey,
+    tileSize: LEVEL.tileSize,
+    solidIndices: SOLID_TILE_INDICES,
+  });
 
   return {
     theme,
